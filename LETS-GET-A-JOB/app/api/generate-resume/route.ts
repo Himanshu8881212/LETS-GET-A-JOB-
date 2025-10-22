@@ -24,6 +24,121 @@ function escapeLatex(text: string | any): string {
     .replace(/\^/g, '\\textasciicircum{}')
 }
 
+// Generate dynamic main.tex that only includes sections with actual data
+function generateMainTex(data: any): string {
+  const {
+    personalInfo,
+    summary,
+    skillCategories = [],
+    experiences = [],
+    projects = [],
+    education = [],
+    certifications = [],
+    languages = [],
+    awards = [],
+    publications = [],
+    extracurricular = [],
+    volunteer = [],
+    hobbies = [],
+    sectionOrder = []
+  } = data
+
+  // Determine which sections have actual data
+  const hasName = personalInfo?.firstName || personalInfo?.lastName
+  const hasSummary = summary && summary.trim().length > 0
+  const hasSkills = skillCategories.length > 0 && skillCategories.some((cat: any) => cat.name || cat.skills)
+  const hasExperiences = experiences.length > 0 && experiences.some((exp: any) => exp.title || exp.company)
+  const hasProjects = projects.length > 0 && projects.some((proj: any) => proj.title || proj.description)
+  const hasEducation = education.length > 0 && education.some((edu: any) => edu.degree || edu.university)
+  const hasCertifications = certifications.length > 0 && certifications.some((cert: any) => cert)
+  const hasLanguages = languages.length > 0 && languages.some((lang: any) => lang)
+  const hasAwards = awards.length > 0 && awards.some((award: any) => award)
+  const hasPublications = publications.length > 0 && publications.some((pub: any) => pub)
+  const hasExtracurricular = extracurricular.length > 0 && extracurricular.some((ext: any) => ext)
+  const hasVolunteer = volunteer.length > 0 && volunteer.some((vol: any) => vol)
+  const hasHobbies = hobbies.length > 0 && hobbies.some((hobby: any) => hobby)
+
+  // Check section order for enabled sections
+  const enabledSections = new Set(
+    sectionOrder.filter((s: any) => s.enabled).map((s: any) => s.id)
+  )
+  const isSectionEnabled = (sectionId: string) => {
+    return enabledSections.size === 0 || enabledSections.has(sectionId)
+  }
+
+  let mainTex = `\\documentclass[10pt,a4paper]{article}
+
+% Include common files
+\\input{../common/preamble.tex}
+\\input{../common/layout.tex}
+\\input{../common/macros.tex}
+
+% Include resume data
+\\input{../RESUME_DATA.tex}
+
+\\begin{document}
+
+`
+
+  // Only include header if there's a name
+  if (hasName) {
+    mainTex += `% Include header\n\\input{sections/header.tex}\n\n`
+  }
+
+  // Only include sections that have data AND are enabled
+  if (hasSummary && isSectionEnabled('summary')) {
+    mainTex += `\\input{sections/summary.tex}\n`
+  }
+
+  if (hasSkills && isSectionEnabled('skills')) {
+    mainTex += `\\input{sections/skills.tex}\n`
+  }
+
+  if (hasExperiences && isSectionEnabled('experience')) {
+    mainTex += `\\input{sections/experience.tex}\n`
+  }
+
+  if (hasProjects && isSectionEnabled('projects')) {
+    mainTex += `\\input{sections/projects.tex}\n`
+  }
+
+  if (hasEducation && isSectionEnabled('education')) {
+    mainTex += `\\input{sections/education.tex}\n`
+  }
+
+  if (hasCertifications && isSectionEnabled('certifications')) {
+    mainTex += `\\input{sections/certifications.tex}\n`
+  }
+
+  if (hasLanguages && isSectionEnabled('languages')) {
+    mainTex += `\\input{sections/languages.tex}\n`
+  }
+
+  if (hasAwards && isSectionEnabled('awards')) {
+    mainTex += `\\input{sections/awards.tex}\n`
+  }
+
+  if (hasPublications && isSectionEnabled('publications')) {
+    mainTex += `\\input{sections/publications.tex}\n`
+  }
+
+  if (hasExtracurricular && isSectionEnabled('extracurricular')) {
+    mainTex += `\\input{sections/extracurricular.tex}\n`
+  }
+
+  if (hasVolunteer && isSectionEnabled('volunteer')) {
+    mainTex += `\\input{sections/volunteer.tex}\n`
+  }
+
+  if (hasHobbies && isSectionEnabled('hobbies')) {
+    mainTex += `\\input{sections/hobbies.tex}\n`
+  }
+
+  mainTex += `\n\\end{document}\n`
+
+  return mainTex
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
@@ -31,10 +146,16 @@ export async function POST(request: NextRequest) {
     // Generate RESUME_DATA.tex content
     const resumeData = generateResumeDataTex(data)
 
-    // Write to file in current directory (LETS-GET-A-JOB)
+    // Generate dynamic main.tex that only includes sections with data
+    const mainTex = generateMainTex(data)
+
+    // Write to files in current directory (LETS-GET-A-JOB)
     const rootDir = process.cwd()
     const dataFilePath = path.join(rootDir, 'RESUME_DATA.tex')
+    const mainFilePath = path.join(rootDir, 'resume', 'main.tex')
+
     await fs.writeFile(dataFilePath, resumeData)
+    await fs.writeFile(mainFilePath, mainTex)
 
     // Compile PDF using make
     await execAsync('make resume', { cwd: rootDir })
