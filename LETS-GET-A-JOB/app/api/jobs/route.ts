@@ -1,172 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { getUserSession } from '@/lib/db/session'
+import { jobApplicationSchema } from '@/lib/validation/schemas'
+import {
+  createJobApplication,
+  getAllJobApplications,
+  getJobApplicationsByStatus,
+  getJobStatistics
+} from '@/lib/services/job-service'
+import { ZodError } from 'zod'
 
-// GET all job applications
-export async function GET() {
+/**
+ * GET /api/jobs - Get all job applications or filter by status
+ */
+export async function GET(request: NextRequest) {
   try {
-    const jobs = db.prepare(`
-      SELECT * FROM job_applications 
-      ORDER BY application_date DESC
-    `).all()
+    const userId = await getUserSession()
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const stats = searchParams.get('stats')
 
-    // Get status history for each job
-    const jobsWithHistory = jobs.map((job: any) => {
-      const history = db.prepare(`
-        SELECT * FROM status_history 
-        WHERE job_id = ? 
-        ORDER BY timestamp ASC
-      `).all(job.id)
+    if (stats === 'true') {
+      const statistics = getJobStatistics(userId)
+      return NextResponse.json(statistics)
+    }
 
-      return {
-        ...job,
-        applicationDate: new Date(job.application_date),
-        createdAt: new Date(job.created_at),
-        updatedAt: new Date(job.updated_at),
-        statusHistory: history.map((h: any) => ({
-          from: h.from_status,
-          to: h.to_status,
-          timestamp: new Date(h.timestamp),
-          notes: h.notes
-        }))
-      }
-    })
+    const jobs = status
+      ? getJobApplicationsByStatus(userId, status)
+      : getAllJobApplications(userId)
 
-    return NextResponse.json(jobsWithHistory)
+    return NextResponse.json(jobs)
   } catch (error) {
     console.error('Error fetching jobs:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch jobs' },
+      { error: 'Failed to fetch job applications' },
       { status: 500 }
     )
   }
 }
 
-// POST create new job application
+/**
+ * POST /api/jobs - Create a new job application
+ */
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json()
-    const {
-      id,
-      company,
-      position,
-      status,
-      applicationDate,
-      salary,
-      location,
-      notes,
-      resumeVersion
-    } = data
+    const userId = await getUserSession()
+    const body = await request.json()
 
-    // Insert job
-    db.prepare(`
-      INSERT INTO job_applications (
-        id, company, position, status, application_date,
-        salary, location, notes, resume_version
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      company,
-      position,
-      status,
-      new Date(applicationDate).toISOString(),
-      salary || null,
-      location || null,
-      notes || null,
-      resumeVersion || null
-    )
+    // Validate input
+    const validatedData = jobApplicationSchema.parse(body)
 
-    // Add initial status history
-    db.prepare(`
-      INSERT INTO status_history (job_id, from_status, to_status, timestamp)
-      VALUES (?, ?, ?, ?)
-    `).run(id, 'new', status, new Date(applicationDate).toISOString())
+    // Create job application
+    const job = await createJobApplication(userId, validatedData)
 
-    return NextResponse.json({ success: true, id })
+    return NextResponse.json(job, { status: 201 })
   } catch (error) {
-    console.error('Error creating job:', error)
-    return NextResponse.json(
-      { error: 'Failed to create job' },
-      { status: 500 }
-    )
-  }
-}
-
-// PUT update job application
-export async function PUT(request: NextRequest) {
-  try {
-    const data = await request.json()
-    const {
-      id,
-      company,
-      position,
-      status,
-      applicationDate,
-      salary,
-      location,
-      notes,
-      resumeVersion,
-      oldStatus
-    } = data
-
-    // Update job
-    db.prepare(`
-      UPDATE job_applications 
-      SET company = ?, position = ?, status = ?, application_date = ?,
-          salary = ?, location = ?, notes = ?, resume_version = ?,
-          updated_at = datetime('now')
-      WHERE id = ?
-    `).run(
-      company,
-      position,
-      status,
-      new Date(applicationDate).toISOString(),
-      salary || null,
-      location || null,
-      notes || null,
-      resumeVersion || null,
-      id
-    )
-
-    // Add status history if status changed
-    if (oldStatus && oldStatus !== status) {
-      db.prepare(`
-        INSERT INTO status_history (job_id, from_status, to_status)
-        VALUES (?, ?, ?)
-      `).run(id, oldStatus, status)
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error updating job:', error)
-    return NextResponse.json(
-      { error: 'Failed to update job' },
-      { status: 500 }
-    )
-  }
-}
-
-// DELETE job application
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
-
-    if (!id) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Job ID is required' },
+        { error: 'Validation failed', details: error.errors },
         { status: 400 }
       )
     }
 
-    db.prepare('DELETE FROM job_applications WHERE id = ?').run(id)
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting job:', error)
+    console.error('Error creating job:', error)
     return NextResponse.json(
-      { error: 'Failed to delete job' },
+      { error: 'Failed to create job application' },
       { status: 500 }
     )
   }
 }
-

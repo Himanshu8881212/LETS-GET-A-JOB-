@@ -106,7 +106,40 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
     setBodyParagraphs(newParagraphs)
   }
 
+  // Validation: Check if required fields are filled
+  const hasRequiredFields = () => {
+    // Check personal info required fields
+    const hasPersonalInfo = !!(
+      personalInfo.firstName?.trim() &&
+      personalInfo.lastName?.trim() &&
+      personalInfo.email?.trim() &&
+      personalInfo.phone?.trim()
+    )
+
+    // Check recipient info required fields
+    const hasRecipientInfo = !!(
+      recipientInfo.company?.trim() &&
+      recipientInfo.role?.trim()
+    )
+
+    // Check if at least opening paragraph has content
+    const hasContent = !!(
+      openingParagraph?.trim() ||
+      bodyParagraphs.some(p => p?.trim()) ||
+      closingParagraph?.trim()
+    )
+
+    return hasPersonalInfo && hasRecipientInfo && hasContent
+  }
+
+  const canGeneratePDF = hasRequiredFields()
+
   const handlePreview = async () => {
+    if (!canGeneratePDF) {
+      showToast('error', 'Please fill in required personal information, recipient details, and at least one paragraph')
+      return
+    }
+
     setIsGenerating(true)
     try {
       // Transform data to match API expectations
@@ -144,6 +177,11 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
   }
 
   const handleDownload = async () => {
+    if (!canGeneratePDF) {
+      showToast('error', 'Please fill in required personal information, recipient details, and at least one paragraph')
+      return
+    }
+
     if (previewUrl) {
       // Download from existing preview
       const a = document.createElement('a')
@@ -250,6 +288,7 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
                 variant="secondary"
                 size="md"
                 loading={isGenerating}
+                disabled={!canGeneratePDF}
                 icon={<Eye className="w-5 h-5" />}
                 onClick={handlePreview}
               >
@@ -259,6 +298,7 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
                 variant="primary"
                 size="md"
                 loading={isGenerating}
+                disabled={!canGeneratePDF}
                 icon={<Download className="w-5 h-5" />}
                 onClick={handleDownload}
               >
