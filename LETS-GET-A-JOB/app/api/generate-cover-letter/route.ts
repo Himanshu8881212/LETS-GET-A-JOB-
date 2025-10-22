@@ -22,6 +22,51 @@ function escapeLatex(text: string): string {
     .replace(/\^/g, '\\textasciicircum{}')
 }
 
+// Generate dynamic main.tex for cover letter
+function generateCoverLetterMainTex(data: any): string {
+  const { personalInfo, recipient, content } = data
+
+  const hasName = personalInfo?.firstName || personalInfo?.lastName
+  const hasRecipient = recipient?.name || recipient?.company || recipient?.address
+  const hasContent = content?.opening || content?.closing ||
+    content?.bodyParagraphs?.some((p: string) => p && p.trim().length > 0)
+
+  let mainTex = `\\documentclass[10pt,a4paper]{article}
+
+% Include common files
+\\input{../common/preamble.tex}
+\\input{../common/layout.tex}
+\\input{../common/macros.tex}
+
+% Include cover letter data
+\\input{../COVER_LETTER_DATA.tex}
+
+\\begin{document}
+
+`
+
+  // Only include sections if they have data
+  if (hasName) {
+    mainTex += `\\input{sections/header.tex}\n\n`
+  }
+
+  if (hasRecipient) {
+    mainTex += `\\input{sections/recipient.tex}\n\n`
+  }
+
+  if (hasContent) {
+    mainTex += `\\input{sections/body.tex}\n\n`
+  }
+
+  if (hasName) {
+    mainTex += `\\input{sections/signature.tex}\n`
+  }
+
+  mainTex += `\n\\end{document}\n`
+
+  return mainTex
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
@@ -29,10 +74,16 @@ export async function POST(request: NextRequest) {
     // Generate COVER_LETTER_DATA.tex content
     const coverLetterData = generateCoverLetterDataTex(data)
 
-    // Write to file in current directory (LETS-GET-A-JOB)
+    // Generate dynamic main.tex
+    const mainTex = generateCoverLetterMainTex(data)
+
+    // Write to files in current directory (LETS-GET-A-JOB)
     const rootDir = process.cwd()
     const dataFilePath = path.join(rootDir, 'COVER_LETTER_DATA.tex')
+    const mainFilePath = path.join(rootDir, 'cover_letter', 'main.tex')
+
     await fs.writeFile(dataFilePath, coverLetterData)
+    await fs.writeFile(mainFilePath, mainTex)
 
     // Compile PDF
     await execAsync('make cover_letter', { cwd: rootDir })

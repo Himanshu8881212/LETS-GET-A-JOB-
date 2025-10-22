@@ -1,9 +1,28 @@
-% Header with contact information
+% Header with contact information - only show if name exists
+\ifx\CLFirstName\empty\else
 \begin{center}
   {\fontsize{14}{16}\selectfont\bfseries \CLFirstName{} \CLLastName{}}
   \\[2pt]
-  \CLPhone{} | \CLEmail{}
-  \\[1pt]
-  \CLLinkedIn{} | \CLAddress{}
+  % Contact line - only show if at least one exists
+  \ifx\CLPhone\empty
+    \ifx\CLEmail\empty\else
+      \CLEmail{}
+    \fi
+  \else
+    \CLPhone{}
+    \ifx\CLEmail\empty\else{} | \CLEmail{}\fi
+  \fi
+  % Links line - only show if at least one exists
+  \ifx\CLLinkedIn\empty
+    \ifx\CLAddress\empty\else
+      \\[1pt]
+      \CLAddress{}
+    \fi
+  \else
+    \\[1pt]
+    \CLLinkedIn{}
+    \ifx\CLAddress\empty\else{} | \CLAddress{}\fi
+  \fi
 \end{center}
 \vspace{10pt}
+\fi

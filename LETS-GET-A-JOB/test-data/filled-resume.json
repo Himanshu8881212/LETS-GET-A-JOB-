@@ -1,0 +1,123 @@
+{
+  "personalInfo": {
+    "firstName": "Sarah",
+    "lastName": "Johnson",
+    "email": "sarah.johnson@email.com",
+    "phone": "+1 (555) 123-4567",
+    "linkedin": "linkedin.com/in/sarahjohnson",
+    "github": "github.com/sarahjohnson",
+    "website": "",
+    "city": "San Francisco, CA"
+  },
+  "summary": "Results-driven Full Stack Software Engineer with 5+ years of experience building scalable web applications. Expertise in React, Node.js, and cloud infrastructure. Proven track record of leading cross-functional teams and delivering high-impact features that improve user engagement by 40%.",
+  "skillCategories": [
+    {
+      "name": "Programming Languages",
+      "skills": "JavaScript, TypeScript, Python, Java, Go"
+    },
+    {
+      "name": "Frontend",
+      "skills": "React, Next.js, Vue.js, Tailwind CSS, Redux"
+    },
+    {
+      "name": "Backend",
+      "skills": "Node.js, Express, Django, FastAPI, GraphQL"
+    },
+    {
+      "name": "Databases",
+      "skills": "PostgreSQL, MongoDB, Redis, DynamoDB"
+    },
+    {
+      "name": "Cloud & DevOps",
+      "skills": "AWS, Docker, Kubernetes, CI/CD, Terraform"
+    }
+  ],
+  "experiences": [
+    {
+      "title": "Senior Software Engineer",
+      "company": "TechCorp Inc",
+      "location": "San Francisco, CA",
+      "dates": "Jan 2022 - Present",
+      "bullets": [
+        "Led development of microservices architecture serving 2M+ daily active users, reducing API response time by 60%",
+        "Architected and implemented real-time collaboration features using WebSockets, increasing user engagement by 45%",
+        "Mentored team of 5 junior engineers, establishing code review practices that reduced production bugs by 35%",
+        "Optimized database queries and implemented caching strategies, cutting infrastructure costs by $50K annually"
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "StartupXYZ",
+      "location": "Remote",
+      "dates": "Mar 2020 - Dec 2021",
+      "bullets": [
+        "Built and deployed 15+ RESTful APIs using Node.js and Express, handling 100K+ requests per day",
+        "Developed responsive React applications with 98% test coverage, reducing post-release defects by 40%",
+        "Implemented CI/CD pipelines using GitHub Actions, reducing deployment time from 2 hours to 15 minutes",
+        "Collaborated with product and design teams to deliver features that increased conversion rate by 25%"
+      ]
+    },
+    {
+      "title": "Junior Software Developer",
+      "company": "Digital Solutions Ltd",
+      "location": "New York, NY",
+      "dates": "Jun 2019 - Feb 2020",
+      "bullets": [
+        "Developed and maintained e-commerce platform features using React and Django",
+        "Wrote comprehensive unit and integration tests achieving 95% code coverage",
+        "Participated in agile ceremonies and contributed to sprint planning and retrospectives"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Open Source Contribution - React Performance Library",
+      "description": "Contributed performance optimization hooks used by 10K+ developers monthly. Reduced bundle size by 30%."
+    },
+    {
+      "title": "Personal Finance Tracker",
+      "description": "Built full-stack app with Next.js and PostgreSQL. Implemented OAuth, data visualization, and automated email reports."
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Science in Computer Science",
+      "university": "University of California, Berkeley",
+      "gpa": "GPA: 3.8/4.0",
+      "dates": "2015 - 2019"
+    }
+  ],
+  "certifications": [
+    "AWS Certified Solutions Architect - Associate",
+    "Google Cloud Professional Cloud Architect",
+    "MongoDB Certified Developer"
+  ],
+  "languages": [
+    "English (Native)",
+    "Spanish (Professional Working Proficiency)"
+  ],
+  "awards": [
+    "TechCorp Innovation Award 2023 - Best Technical Implementation",
+    "Hackathon Winner - SF Tech Week 2022",
+    "Dean's List - UC Berkeley (2017-2019)"
+  ],
+  "publications": [],
+  "extracurricular": [],
+  "volunteer": [],
+  "hobbies": [],
+  "sectionOrder": [
+    { "id": "summary", "name": "Professional Summary", "enabled": true },
+    { "id": "skills", "name": "Technical Skills", "enabled": true },
+    { "id": "experience", "name": "Professional Experience", "enabled": true },
+    { "id": "projects", "name": "Projects", "enabled": true },
+    { "id": "education", "name": "Education", "enabled": true },
+    { "id": "certifications", "name": "Certifications", "enabled": true },
+    { "id": "languages", "name": "Languages", "enabled": true },
+    { "id": "awards", "name": "Awards & Honors", "enabled": true },
+    { "id": "publications", "name": "Publications", "enabled": false },
+    { "id": "extracurricular", "name": "Extracurricular Activities", "enabled": false },
+    { "id": "volunteer", "name": "Volunteer Experience", "enabled": false },
+    { "id": "hobbies", "name": "Interests & Hobbies", "enabled": false }
+  ]
+}
+

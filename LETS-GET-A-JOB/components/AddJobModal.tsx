@@ -17,10 +17,6 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
     applicationDate: new Date().toISOString().split('T')[0],
     salary: '',
     location: '',
-    jobUrl: '',
-    jobDescription: '',
-    contactPerson: '',
-    contactEmail: '',
     notes: '',
     resumeVersion: '',
   })
@@ -36,10 +32,6 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
       applicationDate: new Date(formData.applicationDate),
       salary: formData.salary || undefined,
       location: formData.location || undefined,
-      jobUrl: formData.jobUrl || undefined,
-      jobDescription: formData.jobDescription || undefined,
-      contactPerson: formData.contactPerson || undefined,
-      contactEmail: formData.contactEmail || undefined,
       notes: formData.notes,
       resumeVersion: formData.resumeVersion || undefined,
       statusHistory: [
@@ -163,45 +155,6 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contact Person
-              </label>
-              <input
-                type="text"
-                value={formData.contactPerson}
-                onChange={e => setFormData({ ...formData, contactPerson: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="John Doe"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contact Email
-              </label>
-              <input
-                type="email"
-                value={formData.contactEmail}
-                onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="recruiter@company.com"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Job URL
-              </label>
-              <input
-                type="url"
-                value={formData.jobUrl}
-                onChange={e => setFormData({ ...formData, jobUrl: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="https://company.com/careers/job-id"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Resume Version
               </label>
               <input
@@ -209,20 +162,20 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 value={formData.resumeVersion}
                 onChange={e => setFormData({ ...formData, resumeVersion: e.target.value })}
                 className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="v1.0 - Software Engineer Focus"
+                placeholder="v1.0 - Software Engineer"
               />
             </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notes
+                Notes (Optional)
               </label>
               <textarea
                 value={formData.notes}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                rows={4}
+                rows={3}
                 className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="Add any notes about this application..."
+                placeholder="Quick notes about this application..."
               />
             </div>
           </div>
