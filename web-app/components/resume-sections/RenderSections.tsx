@@ -413,6 +413,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -456,6 +457,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -499,6 +501,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -542,6 +545,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -598,6 +602,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -654,6 +659,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -710,6 +716,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
@@ -753,6 +760,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                 </div>
               ))}
             </div>
+          </div>
         </section>
       )
 
