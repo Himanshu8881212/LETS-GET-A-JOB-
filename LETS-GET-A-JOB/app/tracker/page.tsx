@@ -9,44 +9,86 @@ import { JobApplication } from '@/types/job-tracker'
 export default function JobTrackerPage() {
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')
   const [jobs, setJobs] = useState<JobApplication[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Load jobs from localStorage on mount
+  // Load jobs from database on mount
   useEffect(() => {
-    const savedJobs = localStorage.getItem('job-applications')
-    if (savedJobs) {
-      const parsed = JSON.parse(savedJobs)
-      // Convert date strings back to Date objects
-      const jobsWithDates = parsed.map((job: any) => ({
-        ...job,
-        applicationDate: new Date(job.applicationDate),
-        createdAt: new Date(job.createdAt),
-        updatedAt: new Date(job.updatedAt),
-        statusHistory: job.statusHistory.map((sh: any) => ({
-          ...sh,
-          timestamp: new Date(sh.timestamp)
-        }))
-      }))
-      setJobs(jobsWithDates)
-    }
+    fetchJobs()
   }, [])
 
-  // Save jobs to localStorage whenever they change
-  useEffect(() => {
-    if (jobs.length > 0) {
-      localStorage.setItem('job-applications', JSON.stringify(jobs))
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch('/api/jobs')
+      if (response.ok) {
+        const data = await response.json()
+        setJobs(data)
+      }
+    } catch (error) {
+      console.error('Error fetching jobs:', error)
+    } finally {
+      setLoading(false)
     }
-  }, [jobs])
-
-  const handleAddJob = (newJob: JobApplication) => {
-    setJobs([...jobs, newJob])
   }
 
-  const handleUpdateJob = (updatedJob: JobApplication) => {
-    setJobs(jobs.map(job => job.id === updatedJob.id ? updatedJob : job))
+  const handleAddJob = async (newJob: JobApplication) => {
+    try {
+      const response = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newJob)
+      })
+
+      if (response.ok) {
+        setJobs([...jobs, newJob])
+      }
+    } catch (error) {
+      console.error('Error adding job:', error)
+    }
   }
 
-  const handleDeleteJob = (jobId: string) => {
-    setJobs(jobs.filter(job => job.id !== jobId))
+  const handleUpdateJob = async (updatedJob: JobApplication) => {
+    try {
+      const oldJob = jobs.find(j => j.id === updatedJob.id)
+      const response = await fetch('/api/jobs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...updatedJob,
+          oldStatus: oldJob?.status
+        })
+      })
+
+      if (response.ok) {
+        setJobs(jobs.map(job => job.id === updatedJob.id ? updatedJob : job))
+      }
+    } catch (error) {
+      console.error('Error updating job:', error)
+    }
+  }
+
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      const response = await fetch(`/api/jobs?id=${jobId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        setJobs(jobs.filter(job => job.id !== jobId))
+      }
+    } catch (error) {
+      console.error('Error deleting job:', error)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job applications...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -73,21 +115,19 @@ export default function JobTrackerPage() {
               <div className="flex bg-gray-800 rounded-lg p-1">
                 <button
                   onClick={() => setActiveView('board')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeView === 'board'
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'board'
                       ? 'bg-white text-black'
                       : 'text-gray-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Board
                 </button>
                 <button
                   onClick={() => setActiveView('analytics')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeView === 'analytics'
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'analytics'
                       ? 'bg-white text-black'
                       : 'text-gray-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Analytics
                 </button>
