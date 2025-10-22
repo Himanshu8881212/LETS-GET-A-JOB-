@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Mail, BarChart3, ChevronRight } from 'lucide-react'
+import { FileText, Mail, BarChart3, ChevronRight, Eye, Download, Sparkles } from 'lucide-react'
 import EnhancedResumeBuilder from '@/components/EnhancedResumeBuilder'
 import ImprovedCoverLetterBuilder from '@/components/ImprovedCoverLetterBuilder'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -177,6 +177,146 @@ export default function Home() {
                 <span>Analytics dashboard</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Demo Section */}
+        <div className="mt-20 pt-16 border-t-2 border-gray-200">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full mb-4">
+              <Sparkles className="w-5 h-5 text-orange-600" />
+              <span className="text-sm font-semibold text-orange-900">Professional Examples</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              See What Great Looks Like
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              View professionally crafted resume and cover letter examples. Use these as inspiration for your own documents.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Demo Resume */}
+            <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-900 shadow-lg p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Demo Resume</h3>
+                  <p className="text-sm text-gray-600">Full Stack Engineer</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6 text-sm text-gray-700">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>5+ years experience</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>6 skill categories</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>3 work experiences</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>2 featured projects</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>Certifications & awards</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => window.open('/api/demo/resume', '_blank')}
+                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-900 text-black px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  <Eye className="w-4 h-4" />
+                  Preview
+                </button>
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = '/api/demo/resume'
+                    link.download = 'demo-resume-sarah-chen.pdf'
+                    link.click()
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </button>
+              </div>
+            </div>
+
+            {/* Demo Cover Letter */}
+            <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-900 shadow-lg p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                  <Mail className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Demo Cover Letter</h3>
+                  <p className="text-sm text-gray-600">Senior Engineer Role</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6 text-sm text-gray-700">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>Compelling opening</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>3 strong body paragraphs</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>Quantified achievements</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>Company-specific details</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-black rounded-full"></div>
+                  <span>Professional closing</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => window.open('/api/demo/cover-letter', '_blank')}
+                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-900 text-black px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  <Eye className="w-4 h-4" />
+                  Preview
+                </button>
+                <button
+                  onClick={() => {
+                    const link = document.createElement('a')
+                    link.href = '/api/demo/cover-letter'
+                    link.download = 'demo-cover-letter-sarah-chen.pdf'
+                    link.click()
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-500 italic">
+              💡 Tip: Use these examples as templates for your own documents
+            </p>
           </div>
         </div>
 
