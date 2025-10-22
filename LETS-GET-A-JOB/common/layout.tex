@@ -3,18 +3,20 @@
 \setlength{\parindent}{0pt}
 
 % Balanced spacing for readability while maintaining 1-page constraint
-\setlist[itemize]{leftmargin=0.15in, topsep=2pt, itemsep=2pt, parsep=0pt}
+\setlist[itemize]{leftmargin=0.15in, topsep=1pt, itemsep=1.5pt, parsep=0pt}
 
 \renewcommand{\familydefault}{\sfdefault}
 
-% Section formatting - clean and professional with subtle divider
-% Increased spacing between sections for better visual separation
+% Section formatting - with separator and proper line breaks
 \newcommand{\SectionHeading}[1]{%
-  \vspace{8pt}
-  {\fontsize{12}{14}\selectfont\bfseries\MakeUppercase{#1}}
-  \vspace{3pt}
-  \hrule height 0.6pt
-  \vspace{4pt}
+  \vspace{10pt}
+  \noindent
+  {\fontsize{11}{13}\selectfont\bfseries\MakeUppercase{#1}}
+  \par
+  \vspace{-2pt}
+  \noindent
+  \rule{\textwidth}{0.4pt}
+  \par
 }
 
 % Better spacing for readability

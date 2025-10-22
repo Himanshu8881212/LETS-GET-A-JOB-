@@ -1,15 +1,17 @@
-# Resume & Cover Letter Generator - Web App
+# Resume & Cover Letter Generator
 
-Modern React web interface for creating professional resumes and cover letters.
+Professional resume and cover letter generator with ATS-friendly LaTeX templates.
 
 ## Features
 
-- 🎨 **Beautiful UI** - Clean, modern interface built with Next.js and Tailwind CSS
-- 📝 **Step-by-Step Builder** - Guided process for creating resumes
-- 🔄 **Real-time Preview** - See changes as you type
-- 📥 **PDF Generation** - Automatic LaTeX compilation to PDF
-- 💾 **Auto-save** - Never lose your work
-- 🎯 **Smart Forms** - Dynamic fields that adapt to your needs
+- 🎨 **Modern UI** - Clean interface built with Next.js and Tailwind CSS
+- 📝 **Resume Builder** - Comprehensive form with drag-and-drop section ordering
+- 📄 **Cover Letter Generator** - Professional cover letter creation
+- 📊 **Job Tracker** - Track applications with analytics dashboard
+- 📥 **PDF Generation** - High-quality LaTeX compilation to PDF
+- ✅ **ATS-Friendly** - Optimized for Applicant Tracking Systems
+- 🎯 **Dynamic Sections** - Enable/disable sections as needed
+- 🔄 **Section Reordering** - Drag and drop to customize section order
 
 ## Tech Stack
 
@@ -22,10 +24,15 @@ Modern React web interface for creating professional resumes and cover letters.
 
 ## Quick Start
 
+### Prerequisites
+
+- Node.js 18+
+- LaTeX distribution (TeX Live, MacTeX, or MiKTeX)
+- Make
+
 ### 1. Install Dependencies
 
 ```bash
-cd web-app
 npm install
 ```
 
@@ -37,7 +44,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 3. Build for Production
+### 3. Test Resume Generation
+
+```bash
+node scripts/generate-full-resume.js
+```
+
+### 4. Test Cover Letter Generation
+
+```bash
+node scripts/generate-full-cover-letter.js
+```
+
+### 5. Build for Production
 
 ```bash
 npm run build
