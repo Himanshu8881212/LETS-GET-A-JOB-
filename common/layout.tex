@@ -1,0 +1,22 @@
+% ---------- ATS-Friendly Layout ----------
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+
+% Balanced spacing for readability while maintaining 1-page constraint
+\setlist[itemize]{leftmargin=0.15in, topsep=1.8pt, itemsep=1.5pt, parsep=0pt}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% Section formatting - clean and professional with subtle divider
+% Increased spacing between sections for better visual separation
+\newcommand{\SectionHeading}[1]{%
+  \vspace{6pt}
+  {\fontsize{12}{14}\selectfont\bfseries\MakeUppercase{#1}}
+  \vspace{2pt}
+  \hrule height 0.4pt
+  \vspace{3.5pt}
+}
+
+% Better spacing for readability
+\raggedbottom
+\setlength{\parskip}{0pt}

@@ -1,0 +1,118 @@
+% ---------- ATS-Friendly Resume Macros ----------
+\newcommand{\tightitem}{%
+  \setlength{\itemsep}{1.2pt}%
+  \setlength{\parskip}{0pt}%
+  \setlength{\parsep}{0pt}%
+  \setlength{\topsep}{1.5pt}%
+}
+
+\newcommand{\SetupResumeHeader}[7]{%
+  \noindent
+  {\fontsize{14}{16}\selectfont\bfseries #1 #2}
+  \vspace{2.5pt}
+
+  \noindent
+  {\fontsize{10}{12}\selectfont #3 | #4 | \href{mailto:#5}{#5}}
+
+  \noindent
+  {\fontsize{10}{12}\selectfont \href{https://#6}{#6} | \href{https://#7}{#7}}
+  \vspace{5pt}
+}
+
+\newcommand{\PrintResumeHeader}{}
+
+\newcommand{\ResumeSection}[1]{\SectionHeading{#1}}
+
+% Helper macro to conditionally add bullet points (only if not empty)
+\makeatletter
+\newcommand{\bulletif}[1]{%
+  \def\temp{#1}%
+  \ifx\temp\empty
+    % Empty, do nothing
+  \else
+    \item #1%
+  \fi
+}
+\makeatother
+
+% Experience entry: Company, Title, Location, Dates, Bullets
+% Format: Title | Company, Location (all on one line)
+\newcommand{\ExperienceEntry}[5]{%
+  \noindent
+  \textbf{#2} | #1, \textit{#3} \hfill #4
+  \vspace{0.8pt}
+  \begin{itemize}[leftmargin=0.15in]\tightitem
+    #5
+  \end{itemize}
+  \vspace{2pt}
+}
+
+\newcommand{\Item}[2]{#1 -- #2}
+
+% ---------- Cover Letter Macros ----------
+\newcommand{\SetupCoverLetterHeader}[7]{%
+  \noindent
+  {\fontsize{14}{16}\selectfont\bfseries #1 #2}
+  \vspace{3pt}
+
+  \noindent
+  {\fontsize{10}{12}\selectfont #3 | #4 | \href{mailto:#5}{#5}}
+
+  \noindent
+  {\fontsize{10}{12}\selectfont \href{https://#6}{#6} | \href{https://#7}{#7}}
+  \vspace{10pt}
+}
+
+\newcommand{\CoverLetterDate}[1]{%
+  \noindent
+  #1
+  \vspace{8pt}
+}
+
+\newcommand{\RecipientAddress}[3]{%
+  \noindent
+  #1 \\
+  #2 \\
+  #3
+  \vspace{8pt}
+}
+
+\newcommand{\CoverLetterSubject}[1]{%
+  \noindent
+  \textbf{Re: #1}
+  \vspace{10pt}
+}
+
+\newcommand{\CoverLetterOpening}[1]{%
+  \noindent
+  Dear #1,
+  \vspace{8pt}
+}
+
+\newcommand{\CoverLetterParagraph}{%
+  \vspace{8pt}
+  \noindent
+}
+
+% Cover letter closing with optional digital signature
+% Usage: \CoverLetterClosing{Sincerely}{Name}{signature.png} or \CoverLetterClosing{Sincerely}{Name}{}
+\newcommand{\CoverLetterClosing}[3]{%
+  \vspace{10pt}
+  \noindent
+  #1,
+  \vspace{4pt}
+
+  % Digital signature if provided
+  \ifx&#3&%
+    % No signature image
+    \vspace{16pt}
+  \else
+    % Include signature image
+    \noindent
+    \includegraphics[height=0.6in]{#3}
+    \vspace{2pt}
+  \fi
+
+  \noindent
+  #2
+}
