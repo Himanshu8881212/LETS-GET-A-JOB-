@@ -16,12 +16,32 @@ export default function JobTrackerPage() {
     fetchJobs()
   }, [])
 
+  // Transform database format to frontend format
+  const transformJob = (dbJob: any): JobApplication => ({
+    id: dbJob.id.toString(),
+    company: dbJob.company,
+    position: dbJob.position,
+    status: dbJob.status as JobStatus,
+    applicationDate: new Date(dbJob.application_date),
+    resumeVersion: dbJob.resume_version,
+    salary: dbJob.salary_range,
+    location: dbJob.location,
+    jobUrl: dbJob.job_url,
+    contactPerson: dbJob.contact_name,
+    contactEmail: dbJob.contact_email,
+    notes: dbJob.notes || '',
+    statusHistory: [],
+    createdAt: new Date(dbJob.created_at),
+    updatedAt: new Date(dbJob.updated_at),
+  })
+
   const fetchJobs = async () => {
     try {
       const response = await fetch('/api/jobs')
       if (response.ok) {
         const data = await response.json()
-        setJobs(data)
+        const transformedJobs = data.map(transformJob)
+        setJobs(transformedJobs)
       }
     } catch (error) {
       console.error('Error fetching jobs:', error)
@@ -30,7 +50,7 @@ export default function JobTrackerPage() {
     }
   }
 
-  const handleAddJob = async (newJob: JobApplication) => {
+  const handleAddJob = async (newJob: any) => {
     try {
       const response = await fetch('/api/jobs', {
         method: 'POST',
@@ -39,44 +59,69 @@ export default function JobTrackerPage() {
       })
 
       if (response.ok) {
-        setJobs([...jobs, newJob])
+        const createdJob = await response.json()
+        const transformedJob = transformJob(createdJob)
+        setJobs([...jobs, transformedJob])
+      } else {
+        const error = await response.json()
+        console.error('Error adding job:', error)
+        alert('Failed to add job application: ' + (error.error || 'Unknown error'))
       }
     } catch (error) {
       console.error('Error adding job:', error)
+      alert('Failed to add job application')
     }
   }
 
   const handleUpdateJob = async (updatedJob: JobApplication) => {
     try {
-      const oldJob = jobs.find(j => j.id === updatedJob.id)
-      const response = await fetch('/api/jobs', {
-        method: 'PUT',
+      const response = await fetch(`/api/jobs/${updatedJob.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...updatedJob,
-          oldStatus: oldJob?.status
+          company: updatedJob.company,
+          position: updatedJob.position,
+          status: updatedJob.status,
+          salary: updatedJob.salary,
+          location: updatedJob.location,
+          notes: updatedJob.notes,
+          resume_version: updatedJob.resumeVersion,
+          job_url: updatedJob.jobUrl,
+          contact_name: updatedJob.contactPerson,
+          contact_email: updatedJob.contactEmail,
         })
       })
 
       if (response.ok) {
+        const updated = await response.json()
         setJobs(jobs.map(job => job.id === updatedJob.id ? updatedJob : job))
+      } else {
+        const error = await response.json()
+        console.error('Error updating job:', error)
+        alert('Failed to update job application')
       }
     } catch (error) {
       console.error('Error updating job:', error)
+      alert('Failed to update job application')
     }
   }
 
   const handleDeleteJob = async (jobId: string) => {
     try {
-      const response = await fetch(`/api/jobs?id=${jobId}`, {
+      const response = await fetch(`/api/jobs/${jobId}`, {
         method: 'DELETE'
       })
 
       if (response.ok) {
         setJobs(jobs.filter(job => job.id !== jobId))
+      } else {
+        const error = await response.json()
+        console.error('Error deleting job:', error)
+        alert('Failed to delete job application')
       }
     } catch (error) {
       console.error('Error deleting job:', error)
+      alert('Failed to delete job application')
     }
   }
 
@@ -116,8 +161,8 @@ export default function JobTrackerPage() {
                 <button
                   onClick={() => setActiveView('board')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'board'
-                      ? 'bg-white text-black'
-                      : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-black'
+                    : 'text-gray-400 hover:text-white'
                     }`}
                 >
                   Board
@@ -125,8 +170,8 @@ export default function JobTrackerPage() {
                 <button
                   onClick={() => setActiveView('analytics')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'analytics'
-                      ? 'bg-white text-black'
-                      : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-black'
+                    : 'text-gray-400 hover:text-white'
                     }`}
                 >
                   Analytics

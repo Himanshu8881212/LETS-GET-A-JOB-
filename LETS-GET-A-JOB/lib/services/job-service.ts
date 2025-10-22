@@ -1,4 +1,4 @@
-import getDatabase from '../db'
+import { getDatabase } from '../db/index'
 import { JobApplication, UpdateJobApplication } from '../validation/schemas'
 import { logActivity } from './activity-logger'
 
@@ -14,7 +14,7 @@ export interface JobApplicationRecord extends JobApplication {
  */
 export async function createJobApplication(userId: number, data: JobApplication): Promise<JobApplicationRecord> {
   const db = getDatabase()
-  
+
   const result = db.prepare(`
     INSERT INTO job_applications (
       user_id, company, position, location, job_url, status, salary_range,
@@ -42,9 +42,9 @@ export async function createJobApplication(userId: number, data: JobApplication)
     data.contact_email || null,
     data.contact_phone || null
   )
-  
+
   const jobId = result.lastInsertRowid as number
-  
+
   // Log activity
   await logActivity({
     userId,
@@ -53,7 +53,7 @@ export async function createJobApplication(userId: number, data: JobApplication)
     entityId: jobId,
     details: { company: data.company, position: data.position }
   })
-  
+
   return getJobApplication(userId, jobId)!
 }
 
@@ -62,7 +62,7 @@ export async function createJobApplication(userId: number, data: JobApplication)
  */
 export function getAllJobApplications(userId: number): JobApplicationRecord[] {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM job_applications
     WHERE user_id = ?
@@ -75,7 +75,7 @@ export function getAllJobApplications(userId: number): JobApplicationRecord[] {
  */
 export function getJobApplicationsByStatus(userId: number, status: string): JobApplicationRecord[] {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM job_applications
     WHERE user_id = ? AND status = ?
@@ -88,7 +88,7 @@ export function getJobApplicationsByStatus(userId: number, status: string): JobA
  */
 export function getJobApplication(userId: number, jobId: number): JobApplicationRecord | undefined {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM job_applications
     WHERE id = ? AND user_id = ?
@@ -104,34 +104,34 @@ export async function updateJobApplication(
   data: UpdateJobApplication
 ): Promise<JobApplicationRecord | null> {
   const db = getDatabase()
-  
+
   // Build dynamic UPDATE query
   const fields: string[] = []
   const values: any[] = []
-  
+
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined) {
       fields.push(`${key} = ?`)
       values.push(value === '' ? null : value)
     }
   })
-  
+
   if (fields.length === 0) {
     return getJobApplication(userId, jobId) || null
   }
-  
+
   values.push(jobId, userId)
-  
+
   const result = db.prepare(`
     UPDATE job_applications
     SET ${fields.join(', ')}
     WHERE id = ? AND user_id = ?
   `).run(...values)
-  
+
   if (result.changes === 0) {
     return null
   }
-  
+
   // Log activity
   await logActivity({
     userId,
@@ -140,7 +140,7 @@ export async function updateJobApplication(
     entityId: jobId,
     details: data
   })
-  
+
   return getJobApplication(userId, jobId) || null
 }
 
@@ -149,15 +149,15 @@ export async function updateJobApplication(
  */
 export async function deleteJobApplication(userId: number, jobId: number): Promise<boolean> {
   const db = getDatabase()
-  
+
   const job = getJobApplication(userId, jobId)
   if (!job) return false
-  
+
   const result = db.prepare(`
     DELETE FROM job_applications
     WHERE id = ? AND user_id = ?
   `).run(jobId, userId)
-  
+
   if (result.changes > 0) {
     // Log activity
     await logActivity({
@@ -167,10 +167,10 @@ export async function deleteJobApplication(userId: number, jobId: number): Promi
       entityId: jobId,
       details: { company: job.company, position: job.position }
     })
-    
+
     return true
   }
-  
+
   return false
 }
 
@@ -183,25 +183,25 @@ export function getJobStatistics(userId: number): {
   byPriority: Record<string, number>
 } {
   const db = getDatabase()
-  
+
   const total = db.prepare(`
     SELECT COUNT(*) as count FROM job_applications WHERE user_id = ?
   `).get(userId) as { count: number }
-  
+
   const byStatus = db.prepare(`
     SELECT status, COUNT(*) as count
     FROM job_applications
     WHERE user_id = ?
     GROUP BY status
   `).all(userId) as { status: string; count: number }[]
-  
+
   const byPriority = db.prepare(`
     SELECT priority, COUNT(*) as count
     FROM job_applications
     WHERE user_id = ?
     GROUP BY priority
   `).all(userId) as { priority: string; count: number }[]
-  
+
   return {
     total: total.count,
     byStatus: Object.fromEntries(byStatus.map(s => [s.status, s.count])),
@@ -214,11 +214,11 @@ export function getJobStatistics(userId: number): {
  */
 export function getJobStatusHistory(userId: number, jobId: number): any[] {
   const db = getDatabase()
-  
+
   // Verify ownership
   const job = getJobApplication(userId, jobId)
   if (!job) return []
-  
+
   return db.prepare(`
     SELECT * FROM job_status_history
     WHERE job_application_id = ?

@@ -1,4 +1,4 @@
-import getDatabase from '../db'
+import { getDatabase } from '../db/index'
 import { ResumeData, CoverLetterData } from '../validation/schemas'
 import { logActivity } from './activity-logger'
 import fs from 'fs'
@@ -54,7 +54,7 @@ export async function saveResumeVersion(
   }
 ): Promise<ResumeVersion> {
   const db = getDatabase()
-  
+
   const result = db.prepare(`
     INSERT INTO resume_versions (user_id, version_name, description, data_json, tags, is_favorite)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -66,9 +66,9 @@ export async function saveResumeVersion(
     options?.tags || null,
     options?.isFavorite ? 1 : 0
   )
-  
+
   const versionId = result.lastInsertRowid as number
-  
+
   // Log activity
   await logActivity({
     userId,
@@ -77,7 +77,7 @@ export async function saveResumeVersion(
     entityId: versionId,
     details: { version_name: versionName }
   })
-  
+
   return getResumeVersion(userId, versionId)!
 }
 
@@ -86,7 +86,7 @@ export async function saveResumeVersion(
  */
 export function getAllResumeVersions(userId: number): ResumeVersion[] {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM resume_versions
     WHERE user_id = ?
@@ -99,7 +99,7 @@ export function getAllResumeVersions(userId: number): ResumeVersion[] {
  */
 export function getResumeVersion(userId: number, versionId: number): ResumeVersion | undefined {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM resume_versions
     WHERE id = ? AND user_id = ?
@@ -120,10 +120,10 @@ export async function updateResumeVersion(
   }
 ): Promise<ResumeVersion | null> {
   const db = getDatabase()
-  
+
   const fields: string[] = []
   const values: any[] = []
-  
+
   if (updates.version_name !== undefined) {
     fields.push('version_name = ?')
     values.push(updates.version_name)
@@ -140,23 +140,23 @@ export async function updateResumeVersion(
     fields.push('is_favorite = ?')
     values.push(updates.is_favorite ? 1 : 0)
   }
-  
+
   if (fields.length === 0) {
     return getResumeVersion(userId, versionId) || null
   }
-  
+
   values.push(versionId, userId)
-  
+
   const result = db.prepare(`
     UPDATE resume_versions
     SET ${fields.join(', ')}
     WHERE id = ? AND user_id = ?
   `).run(...values)
-  
+
   if (result.changes === 0) {
     return null
   }
-  
+
   // Log activity
   await logActivity({
     userId,
@@ -165,7 +165,7 @@ export async function updateResumeVersion(
     entityId: versionId,
     details: updates
   })
-  
+
   return getResumeVersion(userId, versionId) || null
 }
 
@@ -174,20 +174,20 @@ export async function updateResumeVersion(
  */
 export async function deleteResumeVersion(userId: number, versionId: number): Promise<boolean> {
   const db = getDatabase()
-  
+
   const version = getResumeVersion(userId, versionId)
   if (!version) return false
-  
+
   // Delete PDF file if exists
   if (version.pdf_path && fs.existsSync(version.pdf_path)) {
     fs.unlinkSync(version.pdf_path)
   }
-  
+
   const result = db.prepare(`
     DELETE FROM resume_versions
     WHERE id = ? AND user_id = ?
   `).run(versionId, userId)
-  
+
   if (result.changes > 0) {
     // Log activity
     await logActivity({
@@ -197,10 +197,10 @@ export async function deleteResumeVersion(userId: number, versionId: number): Pr
       entityId: versionId,
       details: { version_name: version.version_name }
     })
-    
+
     return true
   }
-  
+
   return false
 }
 
@@ -213,27 +213,27 @@ export async function saveResumePDF(
   pdfBuffer: Buffer
 ): Promise<string> {
   const db = getDatabase()
-  
+
   const version = getResumeVersion(userId, versionId)
   if (!version) {
     throw new Error('Resume version not found')
   }
-  
+
   // Generate filename
   const filename = `resume_${versionId}_${Date.now()}.pdf`
   const filepath = path.join(STORAGE_DIR, filename)
-  
+
   // Save file
   fs.writeFileSync(filepath, pdfBuffer)
   const fileSize = fs.statSync(filepath).size
-  
+
   // Update database
   db.prepare(`
     UPDATE resume_versions
     SET pdf_path = ?, file_size = ?
     WHERE id = ? AND user_id = ?
   `).run(filepath, fileSize, versionId, userId)
-  
+
   // Log activity
   await logActivity({
     userId,
@@ -242,7 +242,7 @@ export async function saveResumePDF(
     entityId: versionId,
     details: { file_size: fileSize }
   })
-  
+
   return filepath
 }
 
@@ -259,7 +259,7 @@ export async function saveCoverLetterVersion(
   }
 ): Promise<CoverLetterVersion> {
   const db = getDatabase()
-  
+
   const result = db.prepare(`
     INSERT INTO cover_letter_versions (user_id, version_name, description, data_json, tags, is_favorite, job_application_id)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -272,9 +272,9 @@ export async function saveCoverLetterVersion(
     options?.isFavorite ? 1 : 0,
     options?.jobApplicationId || null
   )
-  
+
   const versionId = result.lastInsertRowid as number
-  
+
   await logActivity({
     userId,
     action: 'create',
@@ -282,13 +282,13 @@ export async function saveCoverLetterVersion(
     entityId: versionId,
     details: { version_name: versionName }
   })
-  
+
   return getCoverLetterVersion(userId, versionId)!
 }
 
 export function getAllCoverLetterVersions(userId: number): CoverLetterVersion[] {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM cover_letter_versions
     WHERE user_id = ?
@@ -298,7 +298,7 @@ export function getAllCoverLetterVersions(userId: number): CoverLetterVersion[] 
 
 export function getCoverLetterVersion(userId: number, versionId: number): CoverLetterVersion | undefined {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM cover_letter_versions
     WHERE id = ? AND user_id = ?
@@ -307,19 +307,19 @@ export function getCoverLetterVersion(userId: number, versionId: number): CoverL
 
 export async function deleteCoverLetterVersion(userId: number, versionId: number): Promise<boolean> {
   const db = getDatabase()
-  
+
   const version = getCoverLetterVersion(userId, versionId)
   if (!version) return false
-  
+
   if (version.pdf_path && fs.existsSync(version.pdf_path)) {
     fs.unlinkSync(version.pdf_path)
   }
-  
+
   const result = db.prepare(`
     DELETE FROM cover_letter_versions
     WHERE id = ? AND user_id = ?
   `).run(versionId, userId)
-  
+
   if (result.changes > 0) {
     await logActivity({
       userId,
@@ -328,10 +328,10 @@ export async function deleteCoverLetterVersion(userId: number, versionId: number
       entityId: versionId,
       details: { version_name: version.version_name }
     })
-    
+
     return true
   }
-  
+
   return false
 }
 

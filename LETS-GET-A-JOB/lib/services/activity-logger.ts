@@ -1,4 +1,4 @@
-import getDatabase from '../db'
+import { getDatabase } from '../db/index'
 import { headers } from 'next/headers'
 
 export interface LogActivityParams {
@@ -14,17 +14,17 @@ export interface LogActivityParams {
  */
 export async function logActivity(params: LogActivityParams): Promise<void> {
   const { userId, action, entityType, entityId, details } = params
-  
+
   const db = getDatabase()
-  
+
   // Get request metadata
   const headersList = await headers()
   const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
   const userAgent = headersList.get('user-agent') || 'unknown'
-  
+
   // Convert details to JSON string if it's an object
   const detailsStr = typeof details === 'object' ? JSON.stringify(details) : details
-  
+
   db.prepare(`
     INSERT INTO activity_logs (user_id, action, entity_type, entity_id, details, ip_address, user_agent)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -36,7 +36,7 @@ export async function logActivity(params: LogActivityParams): Promise<void> {
  */
 export function getActivityLogs(userId: number, limit: number = 100): any[] {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM activity_logs
     WHERE user_id = ?
@@ -55,7 +55,7 @@ export function getEntityActivityLogs(
   limit: number = 50
 ): any[] {
   const db = getDatabase()
-  
+
   return db.prepare(`
     SELECT * FROM activity_logs
     WHERE user_id = ? AND entity_type = ? AND entity_id = ?
@@ -69,12 +69,12 @@ export function getEntityActivityLogs(
  */
 export function cleanupOldLogs(daysToKeep: number = 90): number {
   const db = getDatabase()
-  
+
   const result = db.prepare(`
     DELETE FROM activity_logs
     WHERE created_at < datetime('now', '-' || ? || ' days')
   `).run(daysToKeep)
-  
+
   return result.changes
 }
 

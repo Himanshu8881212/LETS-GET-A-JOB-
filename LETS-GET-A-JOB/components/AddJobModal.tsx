@@ -21,31 +21,21 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
     resumeVersion: '',
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const newJob: JobApplication = {
-      id: `job-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    const jobData = {
       company: formData.company,
       position: formData.position,
       status: formData.status,
-      applicationDate: new Date(formData.applicationDate),
+      application_date: formData.applicationDate,
       salary: formData.salary || undefined,
       location: formData.location || undefined,
       notes: formData.notes,
-      resumeVersion: formData.resumeVersion || undefined,
-      statusHistory: [
-        {
-          from: 'new',
-          to: formData.status,
-          timestamp: new Date(),
-        },
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      resume_version: formData.resumeVersion || undefined,
     }
 
-    onAdd(newJob)
+    onAdd(jobData as any)
     onClose()
   }
 
@@ -188,7 +178,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+              className="px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm"
             >
               Cancel
             </button>

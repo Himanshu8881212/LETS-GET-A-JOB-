@@ -421,61 +421,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     setters[type](newList)
   }
 
-  // Validation: Check if required fields are filled
-  const hasRequiredFields = () => {
-    // Check personal info required fields
-    const hasPersonalInfo = !!(
-      personalInfo.firstName?.trim() &&
-      personalInfo.lastName?.trim() &&
-      personalInfo.email?.trim() &&
-      personalInfo.phone?.trim()
-    )
-
-    // Check if at least one enabled section has content
-    const hasContent = sectionOrder.some(section => {
-      if (!section.enabled) return false
-
-      switch (section.id) {
-        case 'summary':
-          return summary?.trim().length > 0
-        case 'skills':
-          return skillCategories.some(cat => cat.name?.trim() && cat.skills?.trim())
-        case 'experience':
-          return experiences.some(exp => exp.title?.trim() || exp.company?.trim())
-        case 'projects':
-          return projects.some(proj => proj.title?.trim() || proj.description?.trim())
-        case 'education':
-          return education.some(edu => edu.degree?.trim() || edu.institution?.trim())
-        case 'certifications':
-          return certifications.some(cert => cert?.trim())
-        case 'languages':
-          return languages.some(lang => lang?.trim())
-        case 'awards':
-          return awards.some(award => award?.trim())
-        case 'publications':
-          return publications.some(pub => pub.title?.trim() || pub.details?.trim())
-        case 'extracurricular':
-          return extracurricular.some(act => act.title?.trim() || act.details?.trim())
-        case 'volunteer':
-          return volunteer.some(vol => vol.title?.trim() || vol.details?.trim())
-        case 'hobbies':
-          return hobbies.some(hobby => hobby?.trim())
-        default:
-          return false
-      }
-    })
-
-    return hasPersonalInfo && hasContent
-  }
-
-  const canGeneratePDF = hasRequiredFields()
-
   const handlePreview = async () => {
-    if (!canGeneratePDF) {
-      showToast('error', 'Please fill in required personal information and at least one section with content')
-      return
-    }
-
     setIsGenerating(true)
     try {
       const response = await fetch('/api/generate-resume', {
@@ -502,11 +448,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   }
 
   const handleDownload = async () => {
-    if (!canGeneratePDF) {
-      showToast('error', 'Please fill in required personal information and at least one section with content')
-      return
-    }
-
     if (previewUrl) {
       // Download from existing preview
       const a = document.createElement('a')
@@ -649,7 +590,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
                 variant="secondary"
                 size="md"
                 loading={isGenerating}
-                disabled={!canGeneratePDF}
                 icon={<Eye className="w-5 h-5" />}
                 onClick={handlePreview}
               >
@@ -659,7 +599,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
                 variant="primary"
                 size="md"
                 loading={isGenerating}
-                disabled={!canGeneratePDF}
                 icon={<Download className="w-5 h-5" />}
                 onClick={handleDownload}
               >

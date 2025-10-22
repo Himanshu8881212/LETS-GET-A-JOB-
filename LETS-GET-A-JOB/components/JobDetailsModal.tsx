@@ -43,13 +43,13 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
       statusHistory:
         formData.status !== job.status
           ? [
-              ...job.statusHistory,
-              {
-                from: job.status,
-                to: formData.status,
-                timestamp: new Date(),
-              },
-            ]
+            ...job.statusHistory,
+            {
+              from: job.status,
+              to: formData.status,
+              timestamp: new Date(),
+            },
+          ]
           : job.statusHistory,
     }
 
@@ -339,7 +339,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               <>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="px-6 py-2 border-2 border-gray-900 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+                  className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
                 >
                   Cancel
                 </button>
