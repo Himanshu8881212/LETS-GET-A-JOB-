@@ -111,7 +111,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.company}
                     onChange={e => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -121,7 +121,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.position}
                     onChange={e => setFormData({ ...formData, position: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -130,7 +130,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                   <select
                     value={formData.status}
                     onChange={e => setFormData({ ...formData, status: e.target.value as JobStatus })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   >
                     <option value="applied">Applied</option>
                     <option value="interview">Interview</option>
@@ -145,7 +145,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.salary}
                     onChange={e => setFormData({ ...formData, salary: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -155,7 +155,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.location}
                     onChange={e => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -165,7 +165,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.resumeVersion}
                     onChange={e => setFormData({ ...formData, resumeVersion: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -175,7 +175,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.contactPerson}
                     onChange={e => setFormData({ ...formData, contactPerson: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -185,7 +185,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="email"
                     value={formData.contactEmail}
                     onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -195,7 +195,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="url"
                     value={formData.jobUrl}
                     onChange={e => setFormData({ ...formData, jobUrl: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
@@ -205,7 +205,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     value={formData.notes}
                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
               </div>
