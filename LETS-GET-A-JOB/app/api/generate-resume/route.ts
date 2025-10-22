@@ -252,17 +252,18 @@ function generateResumeDataTex(data: any): string {
     ? skillCategories.filter((cat: any) => cat.name || cat.skills)
     : []
 
-  if (actualSkillCategories.length > 0) {
-    for (let i = 0; i < actualSkillCategories.length; i++) {
-      const catName = categoryNames[i]
+  // Always define ALL 10 categories to avoid undefined LaTeX commands
+  for (let i = 0; i < categoryNames.length; i++) {
+    const catName = categoryNames[i]
+    if (i < actualSkillCategories.length) {
       const category = actualSkillCategories[i]
       tex += `\\newcommand{\\SkillCategory${catName}Name}{${escapeLatex(category.name || '')}}\n`
       tex += `\\newcommand{\\SkillCategory${catName}Skills}{${escapeLatex(category.skills || '')}}\n`
+    } else {
+      // Define empty categories for unused slots
+      tex += `\\newcommand{\\SkillCategory${catName}Name}{}\n`
+      tex += `\\newcommand{\\SkillCategory${catName}Skills}{}\n`
     }
-  } else {
-    // Define at least one empty category to avoid LaTeX errors
-    tex += `\\newcommand{\\SkillCategoryOneName}{}\n`
-    tex += `\\newcommand{\\SkillCategoryOneSkills}{}\n`
   }
 
   tex += `\n`
