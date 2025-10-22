@@ -10,11 +10,33 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
 } from '@dnd-kit/core'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
 import JobCard from './JobCard'
 import AddJobModal from './AddJobModal'
 import JobDetailsModal from './JobDetailsModal'
+
+// Droppable Column Component
+function DroppableColumn({
+  id,
+  children,
+  className,
+  style
+}: {
+  id: string
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}) {
+  const { setNodeRef } = useDroppable({ id })
+
+  return (
+    <div ref={setNodeRef} className={className} style={style}>
+      {children}
+    </div>
+  )
+}
 
 interface JobTrackerBoardProps {
   jobs: JobApplication[]
@@ -133,25 +155,28 @@ export default function JobTrackerBoard({
                   </div>
                 </div>
 
-                {/* Column Content */}
-                <div
+                {/* Column Content - Droppable with max 5 items visible, then scroll */}
+                <DroppableColumn
                   id={column.id}
-                  className={`flex-1 min-h-[500px] p-3 space-y-2 ${column.color}`}
+                  className={`flex-1 p-3 ${column.color} overflow-y-auto`}
+                  style={{ maxHeight: 'calc(5 * 180px + 24px)' }}
                 >
-                  {columnJobs.map(job => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onClick={() => setSelectedJob(job)}
-                    />
-                  ))}
-                  {columnJobs.length === 0 && (
-                    <div className="text-center text-gray-400 py-16">
-                      <p className="text-sm font-medium">No applications</p>
-                      <p className="text-xs mt-1">Drag cards here</p>
-                    </div>
-                  )}
-                </div>
+                  <div className="space-y-2 min-h-[200px]">
+                    {columnJobs.map(job => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onClick={() => setSelectedJob(job)}
+                      />
+                    ))}
+                    {columnJobs.length === 0 && (
+                      <div className="text-center text-gray-400 py-16">
+                        <p className="text-sm font-medium">No applications</p>
+                        <p className="text-xs mt-1">Drag cards here</p>
+                      </div>
+                    )}
+                  </div>
+                </DroppableColumn>
               </div>
             )
           })}

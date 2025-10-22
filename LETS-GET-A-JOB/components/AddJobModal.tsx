@@ -79,7 +79,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 required
                 value={formData.company}
                 onChange={e => setFormData({ ...formData, company: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
                 placeholder="Google, Microsoft, etc."
               />
             </div>
@@ -93,7 +93,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 required
                 value={formData.position}
                 onChange={e => setFormData({ ...formData, position: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
                 placeholder="Software Engineer, Product Manager..."
               />
             </div>
@@ -105,7 +105,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
               <select
                 value={formData.status}
                 onChange={e => setFormData({ ...formData, status: e.target.value as JobStatus })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
               >
                 <option value="applied">Applied</option>
                 <option value="interview">Interview</option>
@@ -123,7 +123,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 required
                 value={formData.applicationDate}
                 onChange={e => setFormData({ ...formData, applicationDate: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 type="text"
                 value={formData.salary}
                 onChange={e => setFormData({ ...formData, salary: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
                 placeholder="$100k - $150k"
               />
             </div>
@@ -151,7 +151,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 type="text"
                 value={formData.location}
                 onChange={e => setFormData({ ...formData, location: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
                 placeholder="San Francisco, CA / Remote"
               />
             </div>
@@ -164,7 +164,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 type="text"
                 value={formData.resumeVersion}
                 onChange={e => setFormData({ ...formData, resumeVersion: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
                 placeholder="v1.0 - Software Engineer"
               />
             </div>
@@ -177,7 +177,7 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
                 value={formData.notes}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm resize-none"
+                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black resize-none"
                 placeholder="Quick notes about this application..."
               />
             </div>

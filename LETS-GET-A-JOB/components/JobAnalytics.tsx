@@ -204,10 +204,10 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                     <td className="px-6 py-4 text-center">
                       <span
                         className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${resume.offerRate >= 10
-                            ? 'bg-green-100 text-green-800'
-                            : resume.offerRate >= 5
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
+                          ? 'bg-green-100 text-green-800'
+                          : resume.offerRate >= 5
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                           }`}
                       >
                         {resume.offerRate >= 10 ? (
@@ -226,11 +226,11 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
         </div>
       )}
 
-      {/* Recent Activity */}
+      {/* Recent Activity - Max 5 items visible, then scroll */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
-        <div className="bg-white border-2 border-gray-900 rounded-xl divide-y-2 divide-gray-900">
-          {recentActivity.map(job => (
+        <div className="bg-white border-2 border-gray-900 rounded-xl divide-y-2 divide-gray-900 overflow-y-auto" style={{ maxHeight: 'calc(5 * 140px)' }}>
+          {recentActivity.slice(0, 10).map(job => (
             <div key={job.id} className="p-6 hover:bg-gray-50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -250,7 +250,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                   </div>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
+                  className={`px-3 py-1 rounded-full text-sm font-medium capitalize border ${getStatusColor(
                     job.status
                   )}`}
                 >
