@@ -287,15 +287,15 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
               <h3 className="text-lg font-bold text-gray-900 mb-2">Quick Tips for a Great Cover Letter</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
                   <span><strong>Opening:</strong> State the position and express enthusiasm</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
                   <span><strong>Body:</strong> Highlight relevant skills and achievements</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
                   <span><strong>Closing:</strong> Thank them and request an interview</span>
                 </div>
               </div>
@@ -458,11 +458,11 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
             </div>
             <div className="p-8 space-y-5">
               {bodyParagraphs.map((paragraph, index) => (
-                <div key={index} className="p-5 bg-gray-50 border-2 border-gray-900 rounded-lg hover:border-blue-300 transition-colors">
+                <div key={index} className="p-5 bg-gray-50 border-2 border-gray-900 rounded-lg hover:border-black transition-colors">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <span className="text-blue-600 font-bold text-sm">{index + 1}</span>
+                      <div className="w-8 h-8 bg-white border-2 border-black rounded-lg flex items-center justify-center">
+                        <span className="text-black font-bold text-sm">{index + 1}</span>
                       </div>
                       <label className="text-sm font-semibold text-gray-700">
                         Paragraph {index + 1}
