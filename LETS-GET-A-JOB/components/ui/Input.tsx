@@ -34,7 +34,7 @@ export function Input({
         maxLength={maxLength}
         className={`
           w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent
-          transition-all duration-200
+          transition-all duration-200 text-black
           ${error ? 'border-red-500 bg-red-50' : 'border-gray-300'}
           ${className}
         `}
