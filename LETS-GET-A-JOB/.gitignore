@@ -49,6 +49,8 @@ next-env.d.ts
 !cover_letter/sections/*.tex
 !resume/main.tex
 !cover_letter/main.tex
+!RESUME_DATA.tex
+!COVER_LETTER_DATA.tex
 
 # Test and demo files
 /test-data
