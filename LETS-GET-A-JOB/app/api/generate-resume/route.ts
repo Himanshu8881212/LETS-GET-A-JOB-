@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
     // Generate RESUME_DATA.tex content
     const resumeData = generateResumeDataTex(data)
 
-    // Write to file in root directory
-    const rootDir = path.join(process.cwd(), '..')
+    // Write to file in current directory (LETS-GET-A-JOB)
+    const rootDir = process.cwd()
     const dataFilePath = path.join(rootDir, 'RESUME_DATA.tex')
     await fs.writeFile(dataFilePath, resumeData)
 

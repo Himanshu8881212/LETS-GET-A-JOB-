@@ -1,7 +1,7 @@
 {
-  "name": "resume-generator-app",
+  "name": "lets-get-a-job",
   "version": "1.0.0",
-  "description": "React GUI for Resume and Cover Letter Generator",
+  "description": "LETS GET A JOB - Professional Resume and Cover Letter Generator",
   "private": true,
   "scripts": {
     "dev": "next dev",

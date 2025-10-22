@@ -1,4 +1,4 @@
-# 🎯 Professional Resume & Cover Letter Generator
+# 🎯 LETS GET A JOB
 
 A modern, production-ready web application for creating ATS-compatible resumes and cover letters with beautiful UI and LaTeX-powered PDF generation.
 
@@ -33,7 +33,7 @@ All LaTeX processing happens on the backend - frontend only handles UI and data 
 ```bash
 git clone https://github.com/Himanshu8881212/LETS-GET-A-JOB-.git
 cd LETS-GET-A-JOB-
-cd web-app
+cd LETS-GET-A-JOB
 npm install
 npm run dev
 ```
@@ -43,7 +43,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Production Build
 
 ```bash
-cd web-app
+cd LETS-GET-A-JOB
 npm run build
 npm start
 ```
@@ -88,7 +88,7 @@ Generates cover letter PDF.
 ### Vercel
 ```bash
 npm i -g vercel
-cd web-app
+cd LETS-GET-A-JOB
 vercel
 ```
 
@@ -96,8 +96,8 @@ Ensure LaTeX is installed on deployment server.
 
 ## 🔍 Troubleshooting
 
-**PDF Generation Fails**: Check `pdflatex --version`  
-**Port in Use**: `PORT=3001 npm run dev`  
+**PDF Generation Fails**: Check `pdflatex --version`
+**Port in Use**: `PORT=3001 npm run dev`
 **Build Errors**: `rm -rf .next node_modules && npm install`
 
 ## 📄 License
