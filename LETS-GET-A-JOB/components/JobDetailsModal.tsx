@@ -13,10 +13,19 @@ interface JobDetailsModalProps {
 
 export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: JobDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false)
+
+  // Format date for input field (YYYY-MM-DD)
+  const formatDateForInput = (date: Date) => {
+    const d = new Date(date)
+    if (isNaN(d.getTime())) return new Date().toISOString().split('T')[0]
+    return d.toISOString().split('T')[0]
+  }
+
   const [formData, setFormData] = useState({
     company: job.company,
     position: job.position,
     status: job.status,
+    applicationDate: formatDateForInput(job.applicationDate),
     salary: job.salary || '',
     location: job.location || '',
     jobUrl: job.jobUrl || '',
@@ -32,6 +41,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
       company: formData.company,
       position: formData.position,
       status: formData.status,
+      applicationDate: new Date(formData.applicationDate),
       salary: formData.salary || undefined,
       location: formData.location || undefined,
       jobUrl: formData.jobUrl || undefined,
@@ -80,6 +90,16 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
       hour: 'numeric',
       minute: '2-digit',
     })
+  }
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      'applied': 'Applied',
+      'interview': 'Interview',
+      'offer': 'Offer',
+      'rejected': 'Rejected'
+    }
+    return labels[status] || status
   }
 
   return (
@@ -140,12 +160,23 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Application Date</label>
+                  <input
+                    type="date"
+                    value={formData.applicationDate}
+                    onChange={e => setFormData({ ...formData, applicationDate: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range (Optional)</label>
                   <input
                     type="text"
                     value={formData.salary}
                     onChange={e => setFormData({ ...formData, salary: e.target.value })}
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
+                    placeholder="e.g., $100k - $150k"
                   />
                 </div>
 
@@ -313,7 +344,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                         <div className="w-2 h-2 bg-black rounded-full"></div>
                         <span className="text-gray-600">{formatDateTime(change.timestamp)}</span>
                         <span className="font-medium">
-                          {change.from === 'new' ? 'Created' : change.from} → {change.to}
+                          {getStatusLabel(change.from)} → {getStatusLabel(change.to)}
                         </span>
                       </div>
                     ))}

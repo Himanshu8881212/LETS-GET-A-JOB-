@@ -93,6 +93,13 @@ export default function JobTrackerPage() {
         'rejected': 'rejected'
       }
 
+      // Format date for backend (YYYY-MM-DD)
+      const formatDateForBackend = (date: Date) => {
+        const d = new Date(date)
+        if (isNaN(d.getTime())) return undefined
+        return d.toISOString().split('T')[0]
+      }
+
       const response = await fetch(`/api/jobs/${updatedJob.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -100,6 +107,7 @@ export default function JobTrackerPage() {
           company: updatedJob.company,
           position: updatedJob.position,
           status: statusMap[updatedJob.status] || updatedJob.status,
+          applied_date: formatDateForBackend(updatedJob.applicationDate),
           salary_range: updatedJob.salary,
           location: updatedJob.location,
           notes: updatedJob.notes,
