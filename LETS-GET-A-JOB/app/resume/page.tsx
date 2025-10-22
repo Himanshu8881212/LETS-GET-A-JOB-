@@ -6,7 +6,7 @@ import Link from 'next/link'
 export default function ResumeBuilder() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  
+
   const [formData, setFormData] = useState({
     // Personal Info
     firstName: 'John',
@@ -15,10 +15,10 @@ export default function ResumeBuilder() {
     email: 'john.doe@email.com',
     linkedin: 'linkedin.com/in/johndoe',
     github: 'github.com/johndoe',
-    
+
     // Summary
     summary: 'Results-driven software engineer with 5+ years of experience building scalable web applications. Expertise in full-stack development, cloud architecture, and agile methodologies. Proven track record of delivering high-quality solutions that drive business growth.',
-    
+
     // Skills
     skills: [
       { category: 'Languages', items: 'Python, JavaScript, TypeScript, Java, SQL, HTML/CSS' },
@@ -32,7 +32,7 @@ export default function ResumeBuilder() {
       { category: '', items: '' },
       { category: '', items: '' },
     ],
-    
+
     // Experience
     experience: [
       {
@@ -64,7 +64,7 @@ export default function ResumeBuilder() {
       { company: '', title: '', location: '', dates: '', bullets: ['', '', '', '', ''] },
       { company: '', title: '', location: '', dates: '', bullets: ['', '', '', '', ''] },
     ],
-    
+
     // Projects
     projects: [
       {
@@ -81,7 +81,7 @@ export default function ResumeBuilder() {
       { title: '', tech: '', dates: '', bullets: ['', '', '', ''] },
       { title: '', tech: '', dates: '', bullets: ['', '', '', ''] },
     ],
-    
+
     // Education
     education: [
       {
@@ -94,7 +94,7 @@ export default function ResumeBuilder() {
       { degree: '', university: '', location: '', dates: '', gpa: '' },
       { degree: '', university: '', location: '', dates: '', gpa: '' },
     ],
-    
+
     // Certifications
     certifications: [
       { title: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services', date: '2022' },
@@ -102,7 +102,7 @@ export default function ResumeBuilder() {
       { title: '', issuer: '', date: '' },
       { title: '', issuer: '', date: '' },
     ],
-    
+
     // Languages
     languages: [
       { name: 'English', proficiency: 'Native' },
@@ -110,23 +110,23 @@ export default function ResumeBuilder() {
       { name: '', proficiency: '' },
       { name: '', proficiency: '' },
     ],
-    
+
     // Awards
     awards: [
       { title: 'Employee of the Year', issuer: 'Tech Company Inc.', date: '2022', description: 'Recognized for outstanding contributions to product development' },
       { title: '', issuer: '', date: '', description: '' },
       { title: '', issuer: '', date: '', description: '' },
     ],
-    
+
     // Publications
     publications: ['', '', ''],
-    
+
     // Extracurricular
     extracurricular: ['', '', ''],
-    
+
     // Volunteer
     volunteer: ['', '', ''],
-    
+
     // Hobbies
     hobbies: ['', '', '', '', ''],
   })
@@ -135,7 +135,7 @@ export default function ResumeBuilder() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    
+
     try {
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
@@ -144,12 +144,12 @@ export default function ResumeBuilder() {
         },
         body: JSON.stringify(formData),
       })
-      
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || 'Failed to generate resume')
       }
-      
+
       // Download PDF
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -173,12 +173,18 @@ export default function ResumeBuilder() {
   }
 
   const updateArrayField = (field: string, index: number, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field as keyof typeof prev].map((item: any, i: number) => 
-        i === index ? value : item
-      )
-    }))
+    setFormData(prev => {
+      const fieldValue = prev[field as keyof typeof prev]
+      if (Array.isArray(fieldValue)) {
+        return {
+          ...prev,
+          [field]: fieldValue.map((item: any, i: number) =>
+            i === index ? value : item
+          )
+        }
+      }
+      return prev
+    })
   }
 
   return (
@@ -187,16 +193,16 @@ export default function ResumeBuilder() {
         <div className="mb-6">
           <Link href="/" className="text-gray-600 hover:text-black">← Back to Home</Link>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold mb-6 text-black">Resume Builder</h1>
-          
+
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-700">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Personal Information */}
             <section>

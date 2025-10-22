@@ -23,51 +23,43 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   // Load saved data on mount
-  const [personalInfo, setPersonalInfo] = useState(() =>
-    loadSavedData(STORAGE_KEY, {
+  const [personalInfo, setPersonalInfo] = useState(() => {
+    const saved = loadSavedData(STORAGE_KEY, {
       firstName: '',
       lastName: '',
       email: '',
       phone: '',
       linkedin: '',
       address: ''
-    }).personalInfo || {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      linkedin: '',
-      address: ''
-    }
-  )
+    })
+    return (saved as any).personalInfo || saved
+  })
 
-  const [recipientInfo, setRecipientInfo] = useState(() =>
-    loadSavedData(STORAGE_KEY, {
+  const [recipientInfo, setRecipientInfo] = useState(() => {
+    const saved = loadSavedData(STORAGE_KEY, {
       company: '',
       role: '',
       hiringManager: '',
       address: '',
       city: ''
-    }).recipientInfo || {
-      company: '',
-      role: '',
-      hiringManager: '',
-      address: '',
-      city: ''
-    }
-  )
+    })
+    return (saved as any).recipientInfo || saved
+  })
 
-  const [openingParagraph, setOpeningParagraph] = useState(() =>
-    loadSavedData(STORAGE_KEY, { openingParagraph: '' }).openingParagraph || ''
-  )
+  const [openingParagraph, setOpeningParagraph] = useState(() => {
+    const saved = loadSavedData(STORAGE_KEY, { openingParagraph: '' })
+    return (saved as any).openingParagraph || ''
+  })
 
-  const [bodyParagraphs, setBodyParagraphs] = useState<string[]>(() =>
-    loadSavedData(STORAGE_KEY, { bodyParagraphs: [] }).bodyParagraphs || []
-  )
+  const [bodyParagraphs, setBodyParagraphs] = useState<string[]>(() => {
+    const saved = loadSavedData(STORAGE_KEY, { bodyParagraphs: [] })
+    return (saved as any).bodyParagraphs || []
+  })
 
-  const [closingParagraph, setClosingParagraph] = useState(() =>
-    loadSavedData(STORAGE_KEY, { closingParagraph: '' }).closingParagraph || ''
-  )
+  const [closingParagraph, setClosingParagraph] = useState(() => {
+    const saved = loadSavedData(STORAGE_KEY, { closingParagraph: '' })
+    return (saved as any).closingParagraph || ''
+  })
 
   // Auto-save all data
   const allData = {

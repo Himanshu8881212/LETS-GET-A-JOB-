@@ -84,23 +84,17 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   // Personal Info
-  const [personalInfo, setPersonalInfo] = useState(() =>
-    loadSavedData(STORAGE_KEY, {
+  const [personalInfo, setPersonalInfo] = useState(() => {
+    const saved = loadSavedData(STORAGE_KEY, {
       firstName: '',
       lastName: '',
       email: '',
       phone: '',
       linkedin: '',
       github: ''
-    }).personalInfo || {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      linkedin: '',
-      github: ''
-    }
-  )
+    })
+    return (saved as any).personalInfo || saved
+  })
 
   const [summary, setSummary] = useState(() =>
     loadSavedData(STORAGE_KEY, { summary: '' }).summary || ''

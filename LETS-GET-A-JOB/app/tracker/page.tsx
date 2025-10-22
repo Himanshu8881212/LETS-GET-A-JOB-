@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, Plus, BarChart3, TrendingUp } from 'lucide-react'
 import JobTrackerBoard from '@/components/JobTrackerBoard'
 import JobAnalytics from '@/components/JobAnalytics'
-import { JobApplication } from '@/types/job-tracker'
+import { JobApplication, JobStatus } from '@/types/job-tracker'
 
 export default function JobTrackerPage() {
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')

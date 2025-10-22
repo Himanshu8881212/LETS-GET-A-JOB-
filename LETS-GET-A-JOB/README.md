@@ -1,26 +1,46 @@
-# Resume & Cover Letter Generator
+# LETS GET A JOB - Resume & Cover Letter Generator
 
-Professional resume and cover letter generator with ATS-friendly LaTeX templates.
+Professional resume and cover letter generator with ATS-friendly LaTeX templates and comprehensive job application tracking.
 
 ## Features
 
-- 🎨 **Modern UI** - Clean interface built with Next.js and Tailwind CSS
-- 📝 **Resume Builder** - Comprehensive form with drag-and-drop section ordering
-- 📄 **Cover Letter Generator** - Professional cover letter creation
-- 📊 **Job Tracker** - Track applications with analytics dashboard
-- 📥 **PDF Generation** - High-quality LaTeX compilation to PDF
-- ✅ **ATS-Friendly** - Optimized for Applicant Tracking Systems
-- 🎯 **Dynamic Sections** - Enable/disable sections as needed
-- 🔄 **Section Reordering** - Drag and drop to customize section order
+### 📝 Resume Builder
+- Comprehensive form with drag-and-drop section ordering
+- Dynamic sections - enable/disable as needed
+- Real-time PDF preview
+- ATS-optimized formatting
+
+### 📄 Cover Letter Generator
+- Professional cover letter creation
+- Customizable content sections
+- Recipient information management
+- PDF preview before download
+
+### 📊 Job Application Tracker
+- Kanban board with drag-and-drop status updates
+- Track applications across multiple stages (Applied, Interview, Offer, Rejected)
+- Detailed job information with notes
+- Status history tracking
+- Analytics dashboard
+- SQLite database for persistent storage
+
+### 🎨 Modern UI
+- Clean, professional black/white/grey theme
+- Responsive design
+- Intuitive navigation
+- Form validation
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (React)
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
-- **Language**: TypeScript
-- **Backend**: Next.js API Routes
-- **PDF Generation**: LaTeX (via parent directory)
+- **Database**: SQLite (better-sqlite3)
+- **Validation**: Zod
+- **Drag & Drop**: @dnd-kit
+- **PDF Generation**: LaTeX (pdflatex)
+- **Session Management**: Cookie-based sessions
 
 ## Quick Start
 
@@ -28,7 +48,7 @@ Professional resume and cover letter generator with ATS-friendly LaTeX templates
 
 - Node.js 18+
 - LaTeX distribution (TeX Live, MacTeX, or MiKTeX)
-- Make
+- pdflatex command available in PATH
 
 ### 1. Install Dependencies
 
@@ -44,104 +64,93 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 3. Test Resume Generation
-
-```bash
-node scripts/generate-full-resume.js
-```
-
-### 4. Test Cover Letter Generation
-
-```bash
-node scripts/generate-full-cover-letter.js
-```
-
-### 5. Build for Production
+### 3. Build for Production
 
 ```bash
 npm run build
 npm start
 ```
 
+## Usage
+
+### Resume Builder
+1. Navigate to `/resume` or click "Resume" from home
+2. Fill in your personal information, experience, education, skills, and projects
+3. Drag and drop to reorder sections
+4. Toggle sections on/off as needed
+5. Click "Preview PDF" to see the result
+6. Click "Download PDF" to save
+
+### Cover Letter Builder
+1. Navigate to `/cover-letter` or click "Cover Letter" from home
+2. Enter your information and recipient details
+3. Write your cover letter content
+4. Click "Preview PDF" to review
+5. Click "Download PDF" to save
+
+### Job Tracker
+1. Navigate to `/tracker` or click "Job Tracker" from home
+2. Click "Add Application" to create a new job entry
+3. Fill in job details (company, position, date, etc.)
+4. Drag cards between columns to update status
+5. Click on a card to view/edit details or delete
+6. Switch to "Analytics" tab to view statistics
+
 ## Project Structure
 
 ```
-web-app/
+LETS-GET-A-JOB/
 ├── app/
 │   ├── api/
-│   │   ├── generate-resume/
-│   │   │   └── route.ts          # Resume generation API
-│   │   └── generate-cover-letter/
-│   │       └── route.ts          # Cover letter generation API
-│   ├── globals.css               # Global styles
-│   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Home page
+│   │   ├── generate-resume/      # Resume PDF generation
+│   │   ├── generate-cover-letter/ # Cover letter PDF generation
+│   │   ├── jobs/                 # Job tracker CRUD operations
+│   │   ├── resumes/              # Resume version management
+│   │   └── cover-letters/        # Cover letter version management
+│   ├── resume/                   # Resume builder page
+│   ├── cover-letter/             # Cover letter builder page
+│   ├── tracker/                  # Job tracker page
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
 ├── components/
-│   ├── ResumeBuilder.tsx         # Resume builder component
-│   └── CoverLetterBuilder.tsx    # Cover letter builder component
-├── public/                       # Static assets
-├── package.json
-├── tsconfig.json
-├── tailwind.config.js
-└── next.config.js
+│   ├── EnhancedResumeBuilder.tsx
+│   ├── ImprovedCoverLetterBuilder.tsx
+│   ├── JobTrackerBoard.tsx
+│   ├── JobCard.tsx
+│   ├── JobDetailsModal.tsx
+│   ├── AddJobModal.tsx
+│   ├── JobAnalytics.tsx
+│   └── PDFPreviewModal.tsx
+├── lib/
+│   ├── db/                       # Database setup and schema
+│   ├── services/                 # Business logic services
+│   └── validation/               # Zod schemas
+├── types/                        # TypeScript type definitions
+├── common/                       # Shared LaTeX files
+├── resume/                       # Resume LaTeX templates
+├── cover_letter/                 # Cover letter LaTeX templates
+└── data/                         # SQLite database (gitignored)
 ```
 
-## How It Works
+## API Endpoints
 
-### Resume Builder
+### Resume & Cover Letter
+- `POST /api/generate-resume` - Generate resume PDF
+- `POST /api/generate-cover-letter` - Generate cover letter PDF
 
-1. **Personal Info** - Enter your contact details
-2. **Summary & Skills** - Add professional summary and skills
-3. **Experience** - Add up to 10 work experiences with bullets
-4. **Projects** - Add up to 10 projects
-5. **Education** - Add educational background
-6. **Generate** - Creates RESUME_DATA.tex and compiles PDF
+### Job Tracker
+- `GET /api/jobs` - List all job applications
+- `POST /api/jobs` - Create new job application
+- `GET /api/jobs/[id]` - Get job details
+- `PATCH /api/jobs/[id]` - Update job application
+- `DELETE /api/jobs/[id]` - Delete job application
 
-### Cover Letter Builder
-
-1. **Your Info** - Enter your contact details
-2. **Recipient** - Company and hiring manager details
-3. **Content** - Opening, body paragraphs (1-5), and closing
-4. **Generate** - Creates COVER_LETTER_DATA.tex and compiles PDF
-
-### API Endpoints
-
-#### POST `/api/generate-resume`
-
-Generates resume PDF from form data.
-
-**Request Body:**
-```json
-{
-  "personalInfo": { ... },
-  "summary": "...",
-  "skills": { ... },
-  "experiences": [ ... ],
-  "projects": [ ... ],
-  "education": [ ... ]
-}
-```
-
-**Response:** PDF file
-
-#### POST `/api/generate-cover-letter`
-
-Generates cover letter PDF from form data.
-
-**Request Body:**
-```json
-{
-  "personalInfo": { ... },
-  "recipient": { ... },
-  "content": {
-    "opening": "...",
-    "bodyParagraphs": [ ... ],
-    "closing": "..."
-  }
-}
-```
-
-**Response:** PDF file
+### Document Versions (Future)
+- `GET /api/resumes` - List saved resume versions
+- `POST /api/resumes` - Save resume version
+- `GET /api/cover-letters` - List saved cover letter versions
+- `POST /api/cover-letters` - Save cover letter version
 
 ## Development
 

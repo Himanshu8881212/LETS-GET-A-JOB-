@@ -47,4 +47,11 @@ next-env.d.ts
 !common/*.tex
 !resume/sections/*.tex
 !cover_letter/sections/*.tex
-!*example.tex
+!resume/main.tex
+!cover_letter/main.tex
+
+# Test and demo files
+/test-data
+/scripts
+demo-data.ts
+*example.pdf
