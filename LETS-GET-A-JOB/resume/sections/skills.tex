@@ -1,115 +1,86 @@
-% Technical Skills - only show if at least one category exists
-\ifx\SkillCategoryOneName\empty\else
-\SectionHeading{Technical Skills}
+% Technical Skills - only show if at least one category has both name AND skills
+\ifx\SkillCategoryOneName\empty
+  % Category One is empty, don't show anything
+\else
+  \ifx\SkillCategoryOneSkills\empty
+    % Category One has name but no skills, don't show
+  \else
+    % Category One has both name and skills, show the section
+    \SectionHeading{Technical Skills}
 
-\noindent
-\textbf{\SkillCategoryOneName:} \SkillCategoryOneSkills
+    \noindent
+    \textbf{\SkillCategoryOneName:} \SkillCategoryOneSkills
 
-\ifx\SkillCategoryTwoName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryTwoName:} \SkillCategoryTwoSkills
-\fi
+    \ifx\SkillCategoryTwoName\empty\else
+      \ifx\SkillCategoryTwoSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryTwoName:} \SkillCategoryTwoSkills
+      \fi
+    \fi
 
-\ifx\SkillCategoryThreeName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryThreeName:} \SkillCategoryThreeSkills
-\fi
+    \ifx\SkillCategoryThreeName\empty\else
+      \ifx\SkillCategoryThreeSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryThreeName:} \SkillCategoryThreeSkills
+      \fi
+    \fi
 
-\ifx\SkillCategoryFourName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryFourName:} \SkillCategoryFourSkills
-\fi
+    \ifx\SkillCategoryFourName\empty\else
+      \ifx\SkillCategoryFourSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryFourName:} \SkillCategoryFourSkills
+      \fi
+    \fi
 
-\ifx\SkillCategoryFiveName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryFiveName:} \SkillCategoryFiveSkills
-\fi
+    \ifx\SkillCategoryFiveName\empty\else
+      \ifx\SkillCategoryFiveSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryFiveName:} \SkillCategoryFiveSkills
+      \fi
+    \fi
 
-\ifx\SkillCategorySixName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategorySixName:} \SkillCategorySixSkills
-\fi
+    \ifx\SkillCategorySixName\empty\else
+      \ifx\SkillCategorySixSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategorySixName:} \SkillCategorySixSkills
+      \fi
+    \fi
 
-\ifx\SkillCategorySevenName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategorySevenName:} \SkillCategorySevenSkills
-\fi
+    \ifx\SkillCategorySevenName\empty\else
+      \ifx\SkillCategorySevenSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategorySevenName:} \SkillCategorySevenSkills
+      \fi
+    \fi
 
-\ifx\SkillCategoryEightName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryEightName:} \SkillCategoryEightSkills
-\fi
+    \ifx\SkillCategoryEightName\empty\else
+      \ifx\SkillCategoryEightSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryEightName:} \SkillCategoryEightSkills
+      \fi
+    \fi
 
-\ifx\SkillCategoryNineName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryNineName:} \SkillCategoryNineSkills
-\fi
+    \ifx\SkillCategoryNineName\empty\else
+      \ifx\SkillCategoryNineSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryNineName:} \SkillCategoryNineSkills
+      \fi
+    \fi
 
-\ifx\SkillCategoryTenName\empty\else
-\vspace{1.5pt}
-\noindent
-\textbf{\SkillCategoryTenName:} \SkillCategoryTenSkills
-\fi
-
-\fi
-
-\ifx\SkillCategoryTwoName\empty\else
-\noindent
-\textbf{\SkillCategoryTwoName:} \SkillCategoryTwoSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategoryThreeName\empty\else
-\noindent
-\textbf{\SkillCategoryThreeName:} \SkillCategoryThreeSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategoryFourName\empty\else
-\noindent
-\textbf{\SkillCategoryFourName:} \SkillCategoryFourSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategoryFiveName\empty\else
-\noindent
-\textbf{\SkillCategoryFiveName:} \SkillCategoryFiveSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategorySixName\empty\else
-\noindent
-\textbf{\SkillCategorySixName:} \SkillCategorySixSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategorySevenName\empty\else
-\noindent
-\textbf{\SkillCategorySevenName:} \SkillCategorySevenSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategoryEightName\empty\else
-\noindent
-\textbf{\SkillCategoryEightName:} \SkillCategoryEightSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategoryNineName\empty\else
-\noindent
-\textbf{\SkillCategoryNineName:} \SkillCategoryNineSkills
-\vspace{1.5pt}
-\fi
-
-\ifx\SkillCategoryTenName\empty\else
-\noindent
-\textbf{\SkillCategoryTenName:} \SkillCategoryTenSkills
+    \ifx\SkillCategoryTenName\empty\else
+      \ifx\SkillCategoryTenSkills\empty\else
+        \vspace{1.5pt}
+        \noindent
+        \textbf{\SkillCategoryTenName:} \SkillCategoryTenSkills
+      \fi
+    \fi
+  \fi
 \fi

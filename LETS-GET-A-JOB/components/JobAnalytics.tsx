@@ -71,15 +71,15 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'applied':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800 border-gray-300'
       case 'interview':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-50 text-blue-700 border-blue-300'
       case 'offer':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-50 text-green-700 border-green-300'
       case 'rejected':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-50 text-red-700 border-red-300'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800 border-gray-300'
     }
   }
 
@@ -203,13 +203,12 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
-                          resume.offerRate >= 10
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${resume.offerRate >= 10
                             ? 'bg-green-100 text-green-800'
                             : resume.offerRate >= 5
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
                       >
                         {resume.offerRate >= 10 ? (
                           <TrendingUp className="w-4 h-4" />

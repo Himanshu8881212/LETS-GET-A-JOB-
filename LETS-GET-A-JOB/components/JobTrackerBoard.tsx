@@ -23,11 +23,11 @@ interface JobTrackerBoardProps {
   onDeleteJob: (jobId: string) => void
 }
 
-const COLUMNS: { id: JobStatus; title: string; color: string }[] = [
-  { id: 'applied', title: 'Applied', color: 'bg-gray-100' },
-  { id: 'interview', title: 'Interview', color: 'bg-blue-50' },
-  { id: 'offer', title: 'Offer', color: 'bg-green-50' },
-  { id: 'rejected', title: 'Rejected', color: 'bg-red-50' },
+const COLUMNS: { id: JobStatus; title: string; color: string; headerColor: string; count: number }[] = [
+  { id: 'applied', title: 'Applied', color: 'bg-gray-50', headerColor: 'bg-gray-800', count: 0 },
+  { id: 'interview', title: 'Interview', color: 'bg-blue-50', headerColor: 'bg-blue-600', count: 0 },
+  { id: 'offer', title: 'Offer', color: 'bg-green-50', headerColor: 'bg-green-600', count: 0 },
+  { id: 'rejected', title: 'Rejected', color: 'bg-red-50', headerColor: 'bg-red-600', count: 0 },
 ]
 
 export default function JobTrackerBoard({
@@ -115,26 +115,28 @@ export default function JobTrackerBoard({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {COLUMNS.map(column => {
             const columnJobs = getJobsByStatus(column.id)
             return (
               <div
                 key={column.id}
-                className="bg-white rounded-xl border-2 border-gray-900 shadow-lg overflow-hidden"
+                className="bg-white rounded-lg border-2 border-gray-200 shadow-sm overflow-hidden flex flex-col"
               >
                 {/* Column Header */}
-                <div className="bg-black text-white p-4">
-                  <h3 className="font-bold text-lg">{column.title}</h3>
-                  <p className="text-gray-400 text-sm mt-1">
-                    {columnJobs.length} {columnJobs.length === 1 ? 'application' : 'applications'}
-                  </p>
+                <div className={`${column.headerColor} text-white p-3`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-base">{column.title}</h3>
+                    <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-semibold">
+                      {columnJobs.length}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Column Content */}
                 <div
                   id={column.id}
-                  className={`min-h-[500px] p-4 space-y-3 ${column.color}`}
+                  className={`flex-1 min-h-[500px] p-3 space-y-2 ${column.color}`}
                 >
                   {columnJobs.map(job => (
                     <JobCard
@@ -144,8 +146,9 @@ export default function JobTrackerBoard({
                     />
                   ))}
                   {columnJobs.length === 0 && (
-                    <div className="text-center text-gray-400 py-12">
-                      <p className="text-sm">No applications yet</p>
+                    <div className="text-center text-gray-400 py-16">
+                      <p className="text-sm font-medium">No applications</p>
+                      <p className="text-xs mt-1">Drag cards here</p>
                     </div>
                   )}
                 </div>
@@ -157,7 +160,7 @@ export default function JobTrackerBoard({
         <DragOverlay>
           {activeJob ? (
             <div className="rotate-3 opacity-80">
-              <JobCard job={activeJob} onClick={() => {}} />
+              <JobCard job={activeJob} onClick={() => { }} />
             </div>
           ) : null}
         </DragOverlay>
