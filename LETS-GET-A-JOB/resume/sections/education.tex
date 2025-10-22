@@ -2,10 +2,10 @@
 \ifx\EduOneDegree\empty\else
 \SectionHeading{Education}
 \noindent
-\textbf{\EduOneDegree} \hfill \textit{\EduOneGPA}
+\textbf{\EduOneDegree} \hfill \EduOneDates
 
 \noindent
-\EduOneUniversity
+\EduOneUniversity, \textit{\EduOneLocation} \hfill \ifx\EduOneGPA\empty\else GPA: \EduOneGPA\fi
 
 \vspace{3pt}
 \fi
@@ -13,10 +13,10 @@
 % Education 2
 \ifx\EduTwoDegree\empty\else
 \noindent
-\textbf{\EduTwoDegree} \hfill \textit{\EduTwoGPA}
+\textbf{\EduTwoDegree} \hfill \EduTwoDates
 
 \noindent
-\EduTwoUniversity
+\EduTwoUniversity, \textit{\EduTwoLocation} \hfill \ifx\EduTwoGPA\empty\else GPA: \EduTwoGPA\fi
 
 \vspace{3pt}
 \fi
