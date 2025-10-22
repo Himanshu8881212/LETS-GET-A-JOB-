@@ -46,17 +46,39 @@ function generateMainTex(data: any): string {
   // Determine which sections have actual data
   const hasName = personalInfo?.firstName || personalInfo?.lastName
   const hasSummary = summary && summary.trim().length > 0
-  const hasSkills = skillCategories.length > 0 && skillCategories.some((cat: any) => cat.name || cat.skills)
-  const hasExperiences = experiences.length > 0 && experiences.some((exp: any) => exp.title || exp.company)
-  const hasProjects = projects.length > 0 && projects.some((proj: any) => proj.title || proj.description)
-  const hasEducation = education.length > 0 && education.some((edu: any) => edu.degree || edu.university)
-  const hasCertifications = certifications.length > 0 && certifications.some((cert: any) => cert)
-  const hasLanguages = languages.length > 0 && languages.some((lang: any) => lang)
-  const hasAwards = awards.length > 0 && awards.some((award: any) => award)
-  const hasPublications = publications.length > 0 && publications.some((pub: any) => pub)
-  const hasExtracurricular = extracurricular.length > 0 && extracurricular.some((ext: any) => ext)
-  const hasVolunteer = volunteer.length > 0 && volunteer.some((vol: any) => vol)
-  const hasHobbies = hobbies.length > 0 && hobbies.some((hobby: any) => hobby)
+  const hasSkills = skillCategories.length > 0 && skillCategories.some((cat: any) =>
+    cat && typeof cat === 'object' && (cat.name?.trim() || cat.skills?.trim())
+  )
+  const hasExperiences = experiences.length > 0 && experiences.some((exp: any) =>
+    exp && typeof exp === 'object' && (exp.title?.trim() || exp.company?.trim())
+  )
+  const hasProjects = projects.length > 0 && projects.some((proj: any) =>
+    proj && typeof proj === 'object' && (proj.title?.trim() || proj.description?.trim())
+  )
+  const hasEducation = education.length > 0 && education.some((edu: any) =>
+    edu && typeof edu === 'object' && (edu.degree?.trim() || edu.university?.trim())
+  )
+  const hasCertifications = certifications.length > 0 && certifications.some((cert: any) =>
+    cert && typeof cert === 'string' && cert.trim()
+  )
+  const hasLanguages = languages.length > 0 && languages.some((lang: any) =>
+    lang && typeof lang === 'string' && lang.trim()
+  )
+  const hasAwards = awards.length > 0 && awards.some((award: any) =>
+    award && typeof award === 'string' && award.trim()
+  )
+  const hasPublications = publications.length > 0 && publications.some((pub: any) =>
+    pub && typeof pub === 'string' && pub.trim()
+  )
+  const hasExtracurricular = extracurricular.length > 0 && extracurricular.some((ext: any) =>
+    ext && typeof ext === 'string' && ext.trim()
+  )
+  const hasVolunteer = volunteer.length > 0 && volunteer.some((vol: any) =>
+    vol && typeof vol === 'string' && vol.trim()
+  )
+  const hasHobbies = hobbies.length > 0 && hobbies.some((hobby: any) =>
+    hobby && typeof hobby === 'string' && hobby.trim()
+  )
 
   // Check section order for enabled sections
   const enabledSections = new Set(

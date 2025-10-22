@@ -86,7 +86,12 @@ export async function POST(request: NextRequest) {
     await fs.writeFile(mainFilePath, mainTex)
 
     // Compile PDF
-    await execAsync('make cover_letter', { cwd: rootDir })
+    try {
+      await execAsync('make cover_letter', { cwd: rootDir })
+    } catch (compileError: any) {
+      console.error('LaTeX compilation error:', compileError.stderr || compileError.message)
+      throw new Error('PDF compilation failed')
+    }
 
     // Read PDF
     const pdfPath = path.join(rootDir, 'cover_letter.pdf')
@@ -98,10 +103,10 @@ export async function POST(request: NextRequest) {
         'Content-Disposition': 'attachment; filename=cover_letter.pdf'
       }
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating cover letter:', error)
     return NextResponse.json(
-      { error: 'Failed to generate cover letter' },
+      { error: error.message || 'Failed to generate cover letter' },
       { status: 500 }
     )
   }

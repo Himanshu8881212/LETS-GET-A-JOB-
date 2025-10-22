@@ -49,37 +49,13 @@ export default function PDFPreviewModal({
           </div>
 
           {/* PDF Viewer */}
-          <div className="flex-1 overflow-hidden bg-gray-100 p-4">
-            <div className="w-full h-full bg-white rounded-lg shadow-inner overflow-hidden border-2 border-gray-300">
+          <div className="flex-1 overflow-hidden bg-gray-100">
+            <div className="w-full h-full bg-white shadow-inner overflow-hidden">
               <iframe
                 src={pdfUrl}
                 className="w-full h-full border-0"
                 title="PDF Preview"
               />
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-4 border-t-2 border-gray-900 bg-gray-100 flex items-center justify-between">
-            <p className="text-sm text-gray-700 font-medium">
-              Review your document before downloading
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onClose}
-              >
-                Close
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                icon={<Download className="w-4 h-4" />}
-                onClick={onDownload}
-              >
-                Download
-              </Button>
             </div>
           </div>
         </div>
