@@ -17,23 +17,33 @@ export default function JobTrackerPage() {
   }, [])
 
   // Transform database format to frontend format
-  const transformJob = (dbJob: any): JobApplication => ({
-    id: dbJob.id.toString(),
-    company: dbJob.company,
-    position: dbJob.position,
-    status: dbJob.status as JobStatus,
-    applicationDate: new Date(dbJob.application_date),
-    resumeVersion: dbJob.resume_version,
-    salary: dbJob.salary_range,
-    location: dbJob.location,
-    jobUrl: dbJob.job_url,
-    contactPerson: dbJob.contact_name,
-    contactEmail: dbJob.contact_email,
-    notes: dbJob.notes || '',
-    statusHistory: [],
-    createdAt: new Date(dbJob.created_at),
-    updatedAt: new Date(dbJob.updated_at),
-  })
+  const transformJob = (dbJob: any): JobApplication => {
+    // Map backend status to frontend status
+    const statusMap: Record<string, JobStatus> = {
+      'interviewing': 'interview',
+      'applied': 'applied',
+      'offer': 'offer',
+      'rejected': 'rejected'
+    }
+
+    return {
+      id: dbJob.id.toString(),
+      company: dbJob.company,
+      position: dbJob.position,
+      status: statusMap[dbJob.status] || dbJob.status as JobStatus,
+      applicationDate: new Date(dbJob.application_date || dbJob.created_at),
+      resumeVersion: dbJob.resume_version,
+      salary: dbJob.salary_range,
+      location: dbJob.location,
+      jobUrl: dbJob.job_url,
+      contactPerson: dbJob.contact_name,
+      contactEmail: dbJob.contact_email,
+      notes: dbJob.notes || '',
+      statusHistory: [],
+      createdAt: new Date(dbJob.created_at),
+      updatedAt: new Date(dbJob.updated_at),
+    }
+  }
 
   const fetchJobs = async () => {
     try {
@@ -75,14 +85,22 @@ export default function JobTrackerPage() {
 
   const handleUpdateJob = async (updatedJob: JobApplication) => {
     try {
+      // Map frontend status to backend status
+      const statusMap: Record<string, string> = {
+        'interview': 'interviewing',
+        'applied': 'applied',
+        'offer': 'offer',
+        'rejected': 'rejected'
+      }
+
       const response = await fetch(`/api/jobs/${updatedJob.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           company: updatedJob.company,
           position: updatedJob.position,
-          status: updatedJob.status,
-          salary: updatedJob.salary,
+          status: statusMap[updatedJob.status] || updatedJob.status,
+          salary_range: updatedJob.salary,
           location: updatedJob.location,
           notes: updatedJob.notes,
           resume_version: updatedJob.resumeVersion,
