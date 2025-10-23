@@ -3,10 +3,10 @@ import { getUserSession } from '@/lib/db/session'
 import { updateCoverLetterVersionSchema } from '@/lib/validation/schemas'
 import {
   getCoverLetterVersion,
-  deleteCoverLetterVersion
-} from '@/lib/services/document-service'
+  deleteCoverLetterVersion,
+  updateCoverLetterVersion
+} from '@/lib/services/cover-letter-service'
 import { ZodError } from 'zod'
-import { getDatabase } from '@/lib/db/index'
 
 export const maxDuration = 10 // 10 seconds max
 
@@ -74,49 +74,14 @@ export async function PATCH(
     const body = await request.json()
     const validatedData = updateCoverLetterVersionSchema.parse(body)
 
-    const db = getDatabase()
-    const fields: string[] = []
-    const values: any[] = []
+    const version = await updateCoverLetterVersion(userId, versionId, validatedData)
 
-    if (validatedData.version_name !== undefined) {
-      fields.push('version_name = ?')
-      values.push(validatedData.version_name)
+    if (!version) {
+      return NextResponse.json(
+        { error: 'Cover letter version not found' },
+        { status: 404 }
+      )
     }
-    if (validatedData.description !== undefined) {
-      fields.push('description = ?')
-      values.push(validatedData.description || null)
-    }
-    if (validatedData.tags !== undefined) {
-      fields.push('tags = ?')
-      values.push(validatedData.tags || null)
-    }
-    if (validatedData.is_favorite !== undefined) {
-      fields.push('is_favorite = ?')
-      values.push(validatedData.is_favorite ? 1 : 0)
-    }
-    if (validatedData.job_application_id !== undefined) {
-      fields.push('job_application_id = ?')
-      values.push(validatedData.job_application_id || null)
-    }
-
-    if (fields.length > 0) {
-      values.push(versionId, userId)
-
-      const result = db.prepare(`
-        UPDATE cover_letter_versions
-        SET ${fields.join(', ')}
-        WHERE id = ? AND user_id = ?
-      `).run(...values)
-
-      if (result.changes === 0) {
-        return NextResponse.json(
-          { error: 'Cover letter version not found' },
-          { status: 404 }
-        )
-      }
-    }
-
-    const version = getCoverLetterVersion(userId, versionId)
 
     return NextResponse.json({
       ...version,

@@ -4,7 +4,7 @@ import { saveCoverLetterVersionSchema } from '@/lib/validation/schemas'
 import {
   saveCoverLetterVersion,
   getAllCoverLetterVersions
-} from '@/lib/services/document-service'
+} from '@/lib/services/cover-letter-service'
 import { ZodError } from 'zod'
 
 export const maxDuration = 10 // 10 seconds max
@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
         description: validatedData.description,
         tags: validatedData.tags,
         isFavorite: validatedData.is_favorite,
-        jobApplicationId: validatedData.job_application_id
+        parentVersionId: validatedData.parent_version_id || undefined,
+        branchName: validatedData.branch_name || undefined,
+        jobApplicationId: validatedData.job_application_id || undefined
       }
     )
 

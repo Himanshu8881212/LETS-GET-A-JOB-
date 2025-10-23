@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, ChevronRight } from 'lucide-react'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
 
 interface AddJobModalProps {
@@ -9,17 +9,93 @@ interface AddJobModalProps {
   onAdd: (job: JobApplication) => void
 }
 
+interface VersionNode {
+  id: number
+  version_name: string
+  version_number: string
+  branch_name: string
+  parent_version_id: number | null
+  children: VersionNode[]
+}
+
 export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
+  const [resumeVersions, setResumeVersions] = useState<VersionNode[]>([])
+  const [coverLetterVersions, setCoverLetterVersions] = useState<VersionNode[]>([])
+  const [loadingVersions, setLoadingVersions] = useState(true)
+  const [lastUsedResumeId, setLastUsedResumeId] = useState<number | null>(null)
+  const [lastUsedCoverLetterId, setLastUsedCoverLetterId] = useState<number | null>(null)
+
   const [formData, setFormData] = useState({
     company: '',
     position: '',
     status: 'applied' as JobStatus,
     applicationDate: new Date().toISOString().split('T')[0],
-    salary: '',
+    jobUrl: '', // MANDATORY
     location: '',
     notes: '',
-    resumeVersion: '',
+    resumeVersionId: null as number | null,
+    coverLetterVersionId: null as number | null,
   })
+
+  // Load versions and last used on mount
+  useEffect(() => {
+    fetchResumeVersions()
+    fetchCoverLetterVersions()
+    loadLastUsedResume()
+    loadLastUsedCoverLetter()
+  }, [])
+
+  const fetchResumeVersions = async () => {
+    try {
+      const response = await fetch('/api/resumes/lineage')
+      if (response.ok) {
+        const lineage = await response.json()
+        setResumeVersions(lineage)
+      }
+    } catch (error) {
+      console.error('Error fetching resume versions:', error)
+    } finally {
+      setLoadingVersions(false)
+    }
+  }
+
+  const fetchCoverLetterVersions = async () => {
+    try {
+      const response = await fetch('/api/cover-letters/lineage')
+      if (response.ok) {
+        const lineage = await response.json()
+        setCoverLetterVersions(lineage)
+      }
+    } catch (error) {
+      console.error('Error fetching cover letter versions:', error)
+    }
+  }
+
+  const loadLastUsedResume = () => {
+    const lastUsed = localStorage.getItem('lastUsedResumeId')
+    if (lastUsed) {
+      const resumeId = parseInt(lastUsed)
+      setLastUsedResumeId(resumeId)
+      setFormData(prev => ({ ...prev, resumeVersionId: resumeId }))
+    }
+  }
+
+  const loadLastUsedCoverLetter = () => {
+    const lastUsed = localStorage.getItem('lastUsedCoverLetterId')
+    if (lastUsed) {
+      const coverLetterId = parseInt(lastUsed)
+      setLastUsedCoverLetterId(coverLetterId)
+      setFormData(prev => ({ ...prev, coverLetterVersionId: coverLetterId }))
+    }
+  }
+
+  const saveLastUsedResume = (resumeId: number) => {
+    localStorage.setItem('lastUsedResumeId', resumeId.toString())
+  }
+
+  const saveLastUsedCoverLetter = (coverLetterId: number) => {
+    localStorage.setItem('lastUsedCoverLetterId', coverLetterId.toString())
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,15 +105,55 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
       position: formData.position,
       status: formData.status,
       application_date: formData.applicationDate,
-      salary: formData.salary || undefined,
+      job_url: formData.jobUrl, // MANDATORY
       location: formData.location || undefined,
       notes: formData.notes,
-      resume_version: formData.resumeVersion || undefined,
+      resume_version_id: formData.resumeVersionId || undefined,
+      cover_letter_version_id: formData.coverLetterVersionId || undefined,
+    }
+
+    // Save last used versions for next time
+    if (formData.resumeVersionId) {
+      saveLastUsedResume(formData.resumeVersionId)
+    }
+    if (formData.coverLetterVersionId) {
+      saveLastUsedCoverLetter(formData.coverLetterVersionId)
     }
 
     onAdd(jobData as any)
     onClose()
   }
+
+  // Flatten the tree structure for dropdown display
+  const flattenVersions = (versions: VersionNode[], depth = 0): Array<{ version: VersionNode; depth: number }> => {
+    const result: Array<{ version: VersionNode; depth: number }> = []
+
+    versions.forEach(version => {
+      result.push({ version, depth })
+      if (version.children && version.children.length > 0) {
+        result.push(...flattenVersions(version.children, depth + 1))
+      }
+    })
+
+    return result
+  }
+
+  // Get all flattened versions
+  const allResumeVersions = flattenVersions(resumeVersions)
+  const allCoverLetterVersions = flattenVersions(coverLetterVersions)
+
+  // Sort versions: last used first, then by creation date (newest first)
+  const sortedResumeVersions = [...allResumeVersions].sort((a, b) => {
+    if (a.version.id === lastUsedResumeId) return -1
+    if (b.version.id === lastUsedResumeId) return 1
+    return 0
+  })
+
+  const sortedCoverLetterVersions = [...allCoverLetterVersions].sort((a, b) => {
+    if (a.version.id === lastUsedCoverLetterId) return -1
+    if (b.version.id === lastUsedCoverLetterId) return 1
+    return 0
+  })
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -118,21 +234,23 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
             </div>
           </div>
 
+          {/* Job URL - Now Mandatory */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              Job URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="url"
+              required
+              value={formData.jobUrl}
+              onChange={e => setFormData({ ...formData, jobUrl: e.target.value })}
+              className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
+              placeholder="https://company.com/jobs/123"
+            />
+          </div>
+
           {/* Optional Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                Salary Range
-              </label>
-              <input
-                type="text"
-                value={formData.salary}
-                onChange={e => setFormData({ ...formData, salary: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
-                placeholder="$100k - $150k"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-1.5">
                 Location
@@ -150,13 +268,60 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
               <label className="block text-sm font-semibold text-gray-900 mb-1.5">
                 Resume Version
               </label>
-              <input
-                type="text"
-                value={formData.resumeVersion}
-                onChange={e => setFormData({ ...formData, resumeVersion: e.target.value })}
-                className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
-                placeholder="v1.0 - Software Engineer"
-              />
+              {loadingVersions ? (
+                <div className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm text-gray-500">
+                  Loading versions...
+                </div>
+              ) : (
+                <select
+                  value={formData.resumeVersionId || ''}
+                  onChange={e => setFormData({ ...formData, resumeVersionId: e.target.value ? parseInt(e.target.value) : null })}
+                  className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
+                >
+                  <option value="">No resume selected</option>
+                  {sortedResumeVersions.map(({ version, depth }) => (
+                    <option key={version.id} value={version.id}>
+                      {version.id === lastUsedResumeId && '⭐ '}
+                      {'  '.repeat(depth)}
+                      {depth > 0 && '└─ '}
+                      {version.version_number} - {version.version_name} ({version.branch_name})
+                    </option>
+                  ))}
+                </select>
+              )}
+              {lastUsedResumeId && formData.resumeVersionId === lastUsedResumeId && (
+                <p className="text-xs text-gray-500 mt-1">⭐ Last used resume</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                Cover Letter Version
+              </label>
+              {loadingVersions ? (
+                <div className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm text-gray-500">
+                  Loading versions...
+                </div>
+              ) : (
+                <select
+                  value={formData.coverLetterVersionId || ''}
+                  onChange={e => setFormData({ ...formData, coverLetterVersionId: e.target.value ? parseInt(e.target.value) : null })}
+                  className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors text-sm text-black"
+                >
+                  <option value="">No cover letter selected</option>
+                  {sortedCoverLetterVersions.map(({ version, depth }) => (
+                    <option key={version.id} value={version.id}>
+                      {version.id === lastUsedCoverLetterId && '⭐ '}
+                      {'  '.repeat(depth)}
+                      {depth > 0 && '└─ '}
+                      {version.version_number} - {version.version_name} ({version.branch_name})
+                    </option>
+                  ))}
+                </select>
+              )}
+              {lastUsedCoverLetterId && formData.coverLetterVersionId === lastUsedCoverLetterId && (
+                <p className="text-xs text-gray-500 mt-1">⭐ Last used cover letter</p>
+              )}
             </div>
 
             <div className="md:col-span-2">

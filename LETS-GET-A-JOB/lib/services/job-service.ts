@@ -19,8 +19,9 @@ export async function createJobApplication(userId: number, data: JobApplication)
     INSERT INTO job_applications (
       user_id, company, position, location, job_url, status, salary_range,
       job_description, notes, applied_date, follow_up_date, interview_date,
-      offer_date, rejection_date, priority, source, contact_name, contact_email, contact_phone
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      offer_date, rejection_date, priority, source, contact_name, contact_email, contact_phone,
+      resume_version_id, cover_letter_version_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     userId,
     data.company,
@@ -40,7 +41,9 @@ export async function createJobApplication(userId: number, data: JobApplication)
     data.source || null,
     data.contact_name || null,
     data.contact_email || null,
-    data.contact_phone || null
+    data.contact_phone || null,
+    (data as any).resume_version_id || null,
+    (data as any).cover_letter_version_id || null
   )
 
   const jobId = result.lastInsertRowid as number

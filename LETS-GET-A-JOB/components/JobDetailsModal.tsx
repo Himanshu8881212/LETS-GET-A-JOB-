@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Trash2, ExternalLink, Calendar, MapPin, DollarSign, User, Mail, FileText, Clock } from 'lucide-react'
+import { X, Trash2, ExternalLink, Calendar, MapPin, User, Mail, FileText, Clock } from 'lucide-react'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
 
 interface JobDetailsModalProps {
@@ -26,7 +26,6 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
     position: job.position,
     status: job.status,
     applicationDate: formatDateForInput(job.applicationDate),
-    salary: job.salary || '',
     location: job.location || '',
     jobUrl: job.jobUrl || '',
     contactPerson: job.contactPerson || '',
@@ -42,7 +41,6 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
       position: formData.position,
       status: formData.status,
       applicationDate: new Date(formData.applicationDate),
-      salary: formData.salary || undefined,
       location: formData.location || undefined,
       jobUrl: formData.jobUrl || undefined,
       contactPerson: formData.contactPerson || undefined,
@@ -170,17 +168,6 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range (Optional)</label>
-                  <input
-                    type="text"
-                    value={formData.salary}
-                    onChange={e => setFormData({ ...formData, salary: e.target.value })}
-                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
-                    placeholder="e.g., $100k - $150k"
-                  />
-                </div>
-
-                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                   <input
                     type="text"
@@ -260,16 +247,6 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     <div>
                       <p className="text-sm text-gray-600">Location</p>
                       <p className="font-medium">{job.location}</p>
-                    </div>
-                  </div>
-                )}
-
-                {job.salary && (
-                  <div className="flex items-start gap-3">
-                    <DollarSign className="w-5 h-5 text-gray-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-600">Salary Range</p>
-                      <p className="font-medium">{job.salary}</p>
                     </div>
                   </div>
                 )}
