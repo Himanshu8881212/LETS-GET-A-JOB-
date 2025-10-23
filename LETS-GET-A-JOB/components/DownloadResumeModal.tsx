@@ -6,7 +6,7 @@ import { X, Download, AlertCircle, FileText } from 'lucide-react'
 interface DownloadResumeModalProps {
   isOpen: boolean
   onClose: () => void
-  onDownload: (name: string) => Promise<void>
+  onDownload: (name: string, branchName: string) => Promise<void>
   versionId: number
   currentVersionName?: string
   isBranchedResume?: boolean  // If true, name field is readonly
@@ -21,6 +21,7 @@ export default function DownloadResumeModal({
   isBranchedResume = false
 }: DownloadResumeModalProps) {
   const [resumeName, setResumeName] = useState('')
+  const [branchName, setBranchName] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
   const [existingVersions, setExistingVersions] = useState<string[]>([])
   const [suggestedName, setSuggestedName] = useState('')
@@ -31,8 +32,15 @@ export default function DownloadResumeModal({
       // Set initial name from current version
       const baseName = currentVersionName.replace(/\s+v\d+\.\d+$/, '')
       setResumeName(baseName || 'My Resume')
+      // Generate default branch name from resume name
+      if (isBranchedResume) {
+        const defaultBranch = baseName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        setBranchName(defaultBranch || 'new-branch')
+      } else {
+        setBranchName('main')
+      }
     }
-  }, [isOpen, currentVersionName])
+  }, [isOpen, currentVersionName, isBranchedResume])
 
   const fetchExistingVersions = async () => {
     try {
@@ -74,16 +82,17 @@ export default function DownloadResumeModal({
   }, [resumeName, existingVersions])
 
   const handleDownload = async () => {
-    if (!resumeName.trim()) {
+    if (!resumeName.trim() || !branchName.trim()) {
       return
     }
 
     setIsDownloading(true)
     try {
       const finalName = getAutoVersionedName(resumeName.trim())
-      await onDownload(finalName)
+      await onDownload(finalName, branchName.trim())
       onClose()
       setResumeName('')
+      setBranchName('')
     } catch (error) {
       console.error('Error downloading:', error)
     } finally {
@@ -143,6 +152,23 @@ export default function DownloadResumeModal({
               autoFocus={!isBranchedResume}
               readOnly={isBranchedResume}
             />
+          </div>
+
+          {/* Branch Name Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Branch Name
+            </label>
+            <input
+              type="text"
+              value={branchName}
+              onChange={(e) => setBranchName(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
+              onKeyPress={handleKeyPress}
+              placeholder="e.g., tech-focused, senior-level"
+              className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+              autoFocus={isBranchedResume}
+            />
+            <p className="text-xs text-gray-600 mt-1">Use lowercase letters, numbers, and hyphens only</p>
           </div>
 
           {/* Auto-versioning Info */}

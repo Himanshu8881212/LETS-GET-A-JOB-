@@ -430,29 +430,45 @@ function VersionTree({
 
           {/* Bottom row: 4 rings and buttons */}
           <div className="flex items-center justify-between">
-            {/* 4 Rings */}
+            {/* 4 Rings - Show percentages */}
             <div className="flex items-center gap-6">
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 rounded-full border-4 border-blue-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-sm font-bold text-gray-900">{node.stats.appliedCount || 0}</span>
+                  <span className="text-xs font-bold text-gray-900">
+                    {node.stats.totalApplications > 0
+                      ? `${Math.round((node.stats.appliedCount / node.stats.totalApplications) * 100)}%`
+                      : '0%'}
+                  </span>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Applied</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 rounded-full border-4 border-yellow-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-sm font-bold text-gray-900">{node.stats.interviewCount || 0}</span>
+                  <span className="text-xs font-bold text-gray-900">
+                    {node.stats.totalApplications > 0
+                      ? `${Math.round((node.stats.interviewCount / node.stats.totalApplications) * 100)}%`
+                      : '0%'}
+                  </span>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Interview</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 rounded-full border-4 border-green-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-sm font-bold text-gray-900">{node.stats.offerCount || 0}</span>
+                  <span className="text-xs font-bold text-gray-900">
+                    {node.stats.totalApplications > 0
+                      ? `${Math.round((node.stats.offerCount / node.stats.totalApplications) * 100)}%`
+                      : '0%'}
+                  </span>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Offer</span>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 rounded-full border-4 border-red-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-sm font-bold text-gray-900">{node.stats.rejectedCount || 0}</span>
+                  <span className="text-xs font-bold text-gray-900">
+                    {node.stats.totalApplications > 0
+                      ? `${Math.round((node.stats.rejectedCount / node.stats.totalApplications) * 100)}%`
+                      : '0%'}
+                  </span>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Rejected</span>
               </div>

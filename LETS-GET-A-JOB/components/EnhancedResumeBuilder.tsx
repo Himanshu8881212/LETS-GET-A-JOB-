@@ -453,7 +453,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     setShowSaveModal(true)
   }
 
-  const handleModalSave = async (customName: string) => {
+  const handleModalSave = async (customName: string, branchName: string) => {
     if (previewUrl) {
       // Download from existing preview
       const a = document.createElement('a')
@@ -462,7 +462,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      showToast('success', 'Resume downloaded successfully!')
+      showToast('success', `Resume saved as ${branchName} branch!`)
       setShowPreview(false)
     } else {
       // Generate and download directly
@@ -488,7 +488,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
 
-        showToast('success', 'Resume downloaded successfully!')
+        showToast('success', `Resume saved as ${branchName} branch!`)
       } catch (error) {
         console.error('Error generating resume:', error)
         showToast('error', 'Failed to generate resume. Please try again.')
@@ -658,9 +658,31 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={handleClearData}>
-                Clear All
-              </Button>
+              {!showLineage && (
+                <>
+                  <Button variant="outline" size="md" onClick={handleClearData}>
+                    Clear All
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    loading={isGenerating}
+                    icon={<Eye className="w-5 h-5" />}
+                    onClick={handlePreview}
+                  >
+                    {isGenerating ? 'Generating...' : 'Preview PDF'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    loading={isGenerating}
+                    icon={<CheckCircle className="w-5 h-5" />}
+                    onClick={handleSave}
+                  >
+                    {isGenerating ? 'Saving...' : 'Save'}
+                  </Button>
+                </>
+              )}
               <Button
                 variant="outline"
                 size="md"
@@ -668,24 +690,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
                 onClick={() => setShowLineage(!showLineage)}
               >
                 {showLineage ? 'Hide Lineage' : 'Show Lineage'}
-              </Button>
-              <Button
-                variant="secondary"
-                size="md"
-                loading={isGenerating}
-                icon={<Eye className="w-5 h-5" />}
-                onClick={handlePreview}
-              >
-                {isGenerating ? 'Generating...' : 'Preview PDF'}
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                loading={isGenerating}
-                icon={<CheckCircle className="w-5 h-5" />}
-                onClick={handleSave}
-              >
-                {isGenerating ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>
