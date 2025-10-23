@@ -64,69 +64,75 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header - Black/White/Grey Theme */}
-      <div className="bg-black border-b-2 border-gray-900 shadow-lg">
-        <div className="max-w-7xl mx-auto px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header - Professional Design */}
+      <div className="bg-black shadow-xl">
+        <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center">
-            <h1 className="text-5xl font-bold text-white tracking-tight mb-2">
+            <h1 className="text-6xl font-extrabold text-white tracking-tight mb-3 leading-tight">
               LETS GET A JOB
             </h1>
-            <p className="text-gray-400 text-lg">
-              Professional Resume & Cover Letter Generator
+            <p className="text-gray-300 text-xl font-light">
+              Enterprise-Grade Career Document Platform
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-8 py-16">
+      <div className="max-w-7xl mx-auto px-6 py-20">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Choose Your Document
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-5 tracking-tight">
+            Professional Document Suite
           </h2>
-          <p className="text-gray-600 max-w-xl mx-auto text-lg">
-            Create ATS-compatible documents with professional formatting
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+            Create ATS-optimized resumes, cover letters, and track your job applications with our comprehensive career management platform
           </p>
         </div>
 
         {/* Main Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Resume Card */}
           <div
             onClick={() => setActiveTab('resume')}
-            className="group bg-white rounded-xl border-2 border-gray-900 shadow-lg p-10 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+            className="group relative bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl p-8 cursor-pointer transition-all duration-300 hover:-translate-y-2 overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FileText className="w-8 h-8 text-white" />
-              </div>
-              <ChevronRight className="w-8 h-8 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Resume Builder
-            </h2>
-            <p className="text-gray-600 mb-6 text-lg">
-              12+ customizable sections with drag-and-drop ordering
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+            {/* Subtle gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <FileText className="w-7 h-7 text-white" />
                 </div>
-                <span>Drag-and-drop sections</span>
+                <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300" />
               </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                Resume Builder
+              </h3>
+
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Create professional resumes with 12+ customizable sections and intelligent formatting
+              </p>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Drag-and-drop section ordering</span>
                 </div>
-                <span>Custom skill categories</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Custom skill categories</span>
                 </div>
-                <span>Auto-save & validation</span>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Version control & branching</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Auto-save & validation</span>
+                </div>
               </div>
             </div>
           </div>
@@ -134,38 +140,44 @@ export default function Home() {
           {/* Cover Letter Card */}
           <div
             onClick={() => setActiveTab('cover')}
-            className="group bg-white rounded-xl border-2 border-gray-900 shadow-lg p-10 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+            className="group relative bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl p-8 cursor-pointer transition-all duration-300 hover:-translate-y-2 overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Mail className="w-8 h-8 text-white" />
-              </div>
-              <ChevronRight className="w-8 h-8 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Cover Letter Builder
-            </h2>
-            <p className="text-gray-600 mb-6 text-lg">
-              Professional cover letters with customizable paragraphs
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+            {/* Subtle gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Mail className="w-7 h-7 text-white" />
                 </div>
-                <span>1-5 body paragraphs</span>
+                <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300" />
               </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                Cover Letter Builder
+              </h3>
+
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Craft compelling cover letters with customizable paragraphs and professional formatting
+              </p>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>1-5 customizable paragraphs</span>
                 </div>
-                <span>Matching resume design</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Matches resume design</span>
                 </div>
-                <span>Professional LaTeX output</span>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Version control & branching</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Professional LaTeX output</span>
+                </div>
               </div>
             </div>
           </div>
@@ -173,47 +185,100 @@ export default function Home() {
           {/* Job Tracker Card */}
           <div
             onClick={() => setActiveTab('tracker')}
-            className="group bg-white rounded-xl border-2 border-gray-900 shadow-lg p-10 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-1"
+            className="group relative bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-2xl p-8 cursor-pointer transition-all duration-300 hover:-translate-y-2 overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <ChevronRight className="w-8 h-8 text-gray-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Job Tracker
-            </h2>
-            <p className="text-gray-600 mb-6 text-lg">
-              Track applications and analyze resume performance
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+            {/* Subtle gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <BarChart3 className="w-7 h-7 text-white" />
                 </div>
-                <span>Kanban-style board</span>
+                <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300" />
               </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+
+              <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                Job Tracker
+              </h3>
+
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Manage applications with a visual kanban board and track your job search progress
+              </p>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Kanban-style workflow</span>
                 </div>
-                <span>Drag-and-drop status</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-700">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs">✓</span>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Drag-and-drop status updates</span>
                 </div>
-                <span>Analytics dashboard</span>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Application analytics</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0"></div>
+                  <span>Resume version tracking</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
+        {/* Features Section */}
+        <div className="mt-20 pt-16 border-t border-gray-200">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">
+              Enterprise Features
+            </h3>
+            <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Built with modern technologies for professional results
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">ATS-Optimized</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Documents formatted to pass Applicant Tracking Systems with high compatibility scores
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">Version Control</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Git-like branching system to manage multiple versions and track changes over time
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">Professional Output</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                LaTeX-powered PDF generation ensures consistent, high-quality professional documents
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="text-center mt-16 pb-8">
-          <p className="text-gray-500 text-sm">
-            Built with Next.js, React, and LaTeX • ATS-Compatible Documents
+        <div className="text-center mt-20 pt-12 border-t border-gray-200 pb-8">
+          <p className="text-gray-500 text-sm font-medium">
+            Built with Next.js, React, and LaTeX
+          </p>
+          <p className="text-gray-400 text-xs mt-2">
+            ATS-Compatible • Version Control • Professional Formatting
           </p>
         </div>
       </div>
