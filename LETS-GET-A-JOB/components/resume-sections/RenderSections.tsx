@@ -121,8 +121,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="skills" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Technical Skills
               </h2>
               <p className="text-gray-600 text-xs mt-1">Organize your skills into custom categories</p>
@@ -179,8 +178,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="experience" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Work Experience
               </h2>
               <p className="text-gray-600 text-xs mt-1">Your professional work history and achievements</p>
@@ -289,13 +287,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="projects" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Projects
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={props.addProject}
@@ -347,13 +344,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="education" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Education
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={props.addEducation}
@@ -421,13 +417,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="certifications" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Certifications
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => props.addListItem('certifications')}
@@ -465,13 +460,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="languages" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Languages
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => props.addListItem('languages')}
@@ -509,13 +503,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="awards" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Awards & Honors
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => props.addListItem('awards')}
@@ -553,13 +546,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="publications" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Publications
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={props.addPublication}
@@ -610,13 +602,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="extracurricular" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Extracurricular Activities
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => props.addActivity('extracurricular')}
@@ -667,13 +658,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="volunteer" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Volunteer Experience
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => props.addActivity('volunteer')}
@@ -724,13 +714,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
         <section key="hobbies" className="bg-white border border-gray-300 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900"></div>
+              <h2 className="text-lg font-bold text-gray-900">
                 Hobbies & Interests
               </h2>
             </div>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => props.addListItem('hobbies')}
