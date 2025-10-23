@@ -125,7 +125,7 @@ export default function JobTrackerBoard({
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+          className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 hover:bg-gray-800 transition-colors font-medium"
         >
           <Plus className="w-5 h-5" />
           Add Application
@@ -143,13 +143,13 @@ export default function JobTrackerBoard({
             return (
               <div
                 key={column.id}
-                className="bg-white rounded-lg border-2 border-gray-200 shadow-sm overflow-hidden flex flex-col"
+                className="bg-white border border-gray-300 overflow-hidden flex flex-col"
               >
                 {/* Column Header */}
                 <div className={`${column.headerColor} text-white p-3`}>
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold text-base">{column.title}</h3>
-                    <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-semibold">
+                    <span className="bg-white/20 px-2 py-0.5 text-xs font-semibold">
                       {columnJobs.length}
                     </span>
                   </div>

@@ -186,14 +186,14 @@ export default function ResumeLineageDiagram({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        <div className="animate-spin h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     )
   }
 
   if (lineage.length === 0) {
     return (
-      <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200">
+      <div className="text-center py-16 bg-gray-50 border border-gray-300">
         <GitBranch className="w-16 h-16 text-gray-400 mx-auto mb-4" />
         <p className="text-lg font-semibold text-gray-700">No version history yet</p>
         <p className="text-sm text-gray-500 mt-2">Create your first resume to start tracking versions</p>
