@@ -69,14 +69,14 @@ export function getResumeVersionStats(versionId: number): ResumeVersionStats {
   // Get job application statistics for this resume version
   const stats = db
     .prepare(
-      `SELECT 
+      `SELECT
         COUNT(*) as total_applications,
         SUM(CASE WHEN status = 'applied' THEN 1 ELSE 0 END) as applied_count,
         SUM(CASE WHEN status = 'interview' THEN 1 ELSE 0 END) as interview_count,
         SUM(CASE WHEN status = 'offer' THEN 1 ELSE 0 END) as offer_count,
         SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_count
        FROM job_applications
-       WHERE resume_version = ?`
+       WHERE resume_version_id = ?`
     )
     .get(versionId) as any
 
