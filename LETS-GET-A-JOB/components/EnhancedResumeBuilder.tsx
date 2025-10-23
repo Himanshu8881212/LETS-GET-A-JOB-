@@ -656,44 +656,53 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         )}
 
         {/* Tab Navigation */}
-        <div className="border-t border-gray-800">
+        <div className="border-t border-gray-800 bg-gray-900">
           <div className="max-w-[1600px] mx-auto px-8">
-            <div className="flex gap-1">
+            <div className="flex gap-0">
               <button
                 onClick={() => setActiveTab('edit')}
-                className={`px-6 py-3 font-medium transition-all ${activeTab === 'edit'
-                  ? 'bg-white text-black border-t-2 border-white'
-                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800'
+                className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'edit'
+                    ? 'bg-white text-black'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
                   }`}
               >
                 <span className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4" />
                   Edit Resume
                 </span>
+                {activeTab === 'edit' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
+                )}
               </button>
               <button
                 onClick={() => setActiveTab('history')}
-                className={`px-6 py-3 font-medium transition-all ${activeTab === 'history'
-                  ? 'bg-white text-black border-t-2 border-white'
-                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800'
+                className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'history'
+                    ? 'bg-white text-black'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
                   }`}
               >
                 <span className="flex items-center gap-2">
                   <History className="w-4 h-4" />
                   Version History
                 </span>
+                {activeTab === 'history' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
+                )}
               </button>
               <button
                 onClick={() => setActiveTab('lineage')}
-                className={`px-6 py-3 font-medium transition-all ${activeTab === 'lineage'
-                  ? 'bg-white text-black border-t-2 border-white'
-                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800'
+                className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'lineage'
+                    ? 'bg-white text-black'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
                   }`}
               >
                 <span className="flex items-center gap-2">
                   <GitBranch className="w-4 h-4" />
                   Version Lineage
                 </span>
+                {activeTab === 'lineage' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
+                )}
               </button>
             </div>
           </div>

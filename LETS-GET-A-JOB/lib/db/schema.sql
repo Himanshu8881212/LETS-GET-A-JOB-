@@ -31,9 +31,11 @@ CREATE TABLE IF NOT EXISTS job_applications (
   contact_name TEXT,
   contact_email TEXT,
   contact_phone TEXT,
+  resume_version_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resume_version_id) REFERENCES resume_versions(id) ON DELETE SET NULL
 );
 
 -- Resume Versions table (with git-like version control)
@@ -131,6 +133,7 @@ CREATE INDEX IF NOT EXISTS idx_cover_user_favorite ON cover_letter_versions(user
 CREATE INDEX IF NOT EXISTS idx_activity_user_timestamp ON activity_logs(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_activity_entity ON activity_logs(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_status_history_job_created ON job_status_history(job_application_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_job_resume_version ON job_applications(resume_version_id);
 
 -- Triggers for updated_at timestamps
 CREATE TRIGGER IF NOT EXISTS update_users_timestamp 
