@@ -61,7 +61,7 @@ export default function JobTrackerPage() {
       company: dbJob.company,
       position: dbJob.position,
       status: statusMap[dbJob.status] || dbJob.status as JobStatus,
-      applicationDate: new Date(dbJob.application_date || dbJob.created_at),
+      applicationDate: new Date(dbJob.applied_date || dbJob.created_at),
       resumeVersion: dbJob.resume_version,
       resumeVersionId: dbJob.resume_version_id,
       coverLetterVersionId: dbJob.cover_letter_version_id,

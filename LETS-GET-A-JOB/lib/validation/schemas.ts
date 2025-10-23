@@ -4,24 +4,24 @@ import { z } from 'zod'
 export const jobApplicationSchema = z.object({
   company: z.string().min(1).max(200).trim(),
   position: z.string().min(1).max(200).trim(),
-  location: z.string().max(200).trim().optional(),
+  location: z.string().max(200).trim().nullable().optional(),
   job_url: z.string().url().min(1, 'Job URL is required'), // MANDATORY
   status: z.enum(['applied', 'interviewing', 'offer', 'rejected', 'accepted', 'withdrawn']).default('applied'),
   // salary_range field REMOVED
-  job_description: z.string().max(10000).trim().optional(),
-  notes: z.string().max(5000).trim().optional(),
-  applied_date: z.string().optional(), // ISO date string
-  follow_up_date: z.string().optional(),
-  interview_date: z.string().optional(),
-  offer_date: z.string().optional(),
-  rejection_date: z.string().optional(),
+  job_description: z.string().max(10000).trim().nullable().optional(),
+  notes: z.string().max(5000).trim().nullable().optional(),
+  applied_date: z.string().nullable().optional(), // ISO date string
+  follow_up_date: z.string().nullable().optional(),
+  interview_date: z.string().nullable().optional(),
+  offer_date: z.string().nullable().optional(),
+  rejection_date: z.string().nullable().optional(),
   priority: z.enum(['low', 'medium', 'high']).default('medium'),
-  source: z.string().max(100).trim().optional(),
-  contact_name: z.string().max(200).trim().optional(),
-  contact_email: z.string().email().optional().or(z.literal('')),
-  contact_phone: z.string().max(50).trim().optional(),
-  resume_version_id: z.number().int().positive().optional(),
-  cover_letter_version_id: z.number().int().positive().optional()
+  source: z.string().max(100).trim().nullable().optional(),
+  contact_name: z.string().max(200).trim().nullable().optional(),
+  contact_email: z.string().email().nullable().optional().or(z.literal('')),
+  contact_phone: z.string().max(50).trim().nullable().optional(),
+  resume_version_id: z.number().int().positive().nullable().optional(),
+  cover_letter_version_id: z.number().int().positive().nullable().optional()
 })
 
 export const updateJobApplicationSchema = jobApplicationSchema.partial()
