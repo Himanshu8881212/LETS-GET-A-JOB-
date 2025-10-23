@@ -196,18 +196,22 @@ export async function POST(request: NextRequest) {
       throw validationError
     }
 
-    // Check cache first
+    // Check cache first (unless disabled via header)
+    const disableCache = request.headers.get('X-Disable-Cache') === 'true'
     const dataHash = generateHash(data)
-    const cachedPDF = await getCachedPDF(dataHash)
 
-    if (cachedPDF) {
-      return new NextResponse(cachedPDF as any, {
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename=resume.pdf',
-          'X-Cache': 'HIT'
-        }
-      })
+    if (!disableCache) {
+      const cachedPDF = await getCachedPDF(dataHash)
+
+      if (cachedPDF) {
+        return new NextResponse(cachedPDF as any, {
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=resume.pdf',
+            'X-Cache': 'HIT'
+          }
+        })
+      }
     }
 
     // Validate working directory to prevent command injection
@@ -256,14 +260,16 @@ export async function POST(request: NextRequest) {
     const pdfPath = path.join(resolvedRoot, 'resume.pdf')
     const pdfBuffer = await fs.readFile(pdfPath)
 
-    // Cache the generated PDF
-    await cachePDF(dataHash, pdfBuffer)
+    // Cache the generated PDF (unless caching is disabled)
+    if (!disableCache) {
+      await cachePDF(dataHash, pdfBuffer)
+    }
 
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename=resume.pdf',
-        'X-Cache': 'MISS'
+        'X-Cache': disableCache ? 'DISABLED' : 'MISS'
       }
     })
   } catch (error) {

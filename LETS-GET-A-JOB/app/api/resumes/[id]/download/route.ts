@@ -52,11 +52,13 @@ export async function GET(
     const resumeData = JSON.parse(version.data_json)
 
     // Use the existing PDF generation logic
+    // IMPORTANT: Disable cache for version downloads to ensure we get the exact PDF for this version
     const response = await fetch(`${request.nextUrl.origin}/api/generate-resume`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': request.headers.get('cookie') || ''
+        'Cookie': request.headers.get('cookie') || '',
+        'X-Disable-Cache': 'true'  // Disable cache for version downloads
       },
       body: JSON.stringify(resumeData)
     })
