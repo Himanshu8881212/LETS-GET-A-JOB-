@@ -30,21 +30,21 @@ export default function PDFPreviewModal({
 
       {/* Modal */}
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden transform transition-all border-2 border-gray-900">
+        <div className="relative bg-white w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden border border-gray-300">
           {/* Header - Black/White/Grey Theme */}
-          <div className="flex items-center justify-between px-6 py-4 border-b-2 border-gray-900 bg-black">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-300 bg-gray-50">
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-lg font-bold text-gray-900">
                 PDF Preview
               </h2>
-              <p className="text-sm text-gray-400 mt-1">{title}</p>
+              <p className="text-xs text-gray-600 mt-1">{title}</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+              className="p-2 hover:bg-gray-200 transition-colors"
               aria-label="Close preview"
             >
-              <X className="w-6 h-6 text-gray-400 hover:text-white" />
+              <X className="w-6 h-6 text-gray-600" />
             </button>
           </div>
 
