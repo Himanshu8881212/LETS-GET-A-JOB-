@@ -33,7 +33,8 @@ export const personalInfoSchema = z.object({
   email: z.string().email().or(z.literal('')),
   phone: z.string().max(50).trim(),
   linkedin: z.string().max(200).trim().optional(),
-  github: z.string().max(200).trim().optional()
+  github: z.string().max(200).trim().optional(),
+  address: z.string().max(300).trim().optional()
 })
 
 export const skillCategorySchema = z.object({
@@ -150,7 +151,7 @@ export const saveCoverLetterVersionSchema = z.object({
   tags: z.string().max(200).trim().optional(),
   is_favorite: z.boolean().optional(),
   job_application_id: z.number().int().positive().optional(),
-  parent_version_id: z.number().int().positive().optional(),
+  parent_version_id: z.number().int().positive().nullable().optional(),
   branch_name: z.string().min(1).max(100).trim().optional()
 })
 

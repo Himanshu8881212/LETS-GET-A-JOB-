@@ -470,13 +470,15 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
 
       {/* Conditional Content: Lineage View or Cover Letter Builder */}
       {showLineage ? (
-        <CoverLetterLineageDiagram
-          onVersionClick={handleVersionClick}
-          onDownload={handleDownloadVersion}
-          onCreateBranch={handleCreateBranch}
-          onToggleStar={handleToggleStar}
-          onDelete={handleDeleteVersion}
-        />
+        <div className="max-w-[1600px] mx-auto px-8 py-8">
+          <CoverLetterLineageDiagram
+            onVersionClick={handleVersionClick}
+            onDownload={handleDownloadVersion}
+            onCreateBranch={handleCreateBranch}
+            onToggleStar={handleToggleStar}
+            onDelete={handleDeleteVersion}
+          />
+        </div>
       ) : (
         <>
           {/* Main Content */}

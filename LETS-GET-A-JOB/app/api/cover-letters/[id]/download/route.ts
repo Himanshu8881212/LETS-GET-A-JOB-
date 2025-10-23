@@ -46,6 +46,20 @@ export async function GET(
     // Generate PDF from data_json
     const coverLetterData = JSON.parse(version.data_json)
 
+    // DEBUG: Log the opening paragraph to verify correct data
+    console.log(`[DOWNLOAD v${version.version_number}] Opening paragraph:`, coverLetterData.openingParagraph?.substring(0, 100))
+
+    // Transform data to match the API schema
+    const apiData = {
+      personalInfo: coverLetterData.personalInfo,
+      recipient: coverLetterData.recipientInfo,
+      content: {
+        opening: coverLetterData.openingParagraph,
+        bodyParagraphs: coverLetterData.bodyParagraphs,
+        closing: coverLetterData.closingParagraph
+      }
+    }
+
     // Use the existing PDF generation logic
     // IMPORTANT: Disable cache for version downloads to ensure we get the exact PDF for this version
     const response = await fetch(`${request.nextUrl.origin}/api/generate-cover-letter`, {
@@ -55,7 +69,7 @@ export async function GET(
         'Cookie': request.headers.get('cookie') || '',
         'X-Disable-Cache': 'true'  // Disable cache for version downloads
       },
-      body: JSON.stringify(coverLetterData)
+      body: JSON.stringify(apiData)
     })
 
     if (!response.ok) {

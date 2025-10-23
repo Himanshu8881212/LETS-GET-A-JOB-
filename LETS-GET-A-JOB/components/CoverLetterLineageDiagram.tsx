@@ -418,7 +418,7 @@ function VersionTree({
             flex flex-col gap-4 px-5 py-4 rounded-xl border-2 transition-all w-full
             ${isSelected
               ? 'border-black bg-gray-50 shadow-xl'
-              : 'border-gray-300 hover:border-gray-900 hover:shadow-lg'
+              : 'border-gray-900 hover:shadow-lg bg-white'
             }
           `}
         >

@@ -17,11 +17,11 @@ export async function createJobApplication(userId: number, data: JobApplication)
 
   const result = db.prepare(`
     INSERT INTO job_applications (
-      user_id, company, position, location, job_url, status, salary_range,
+      user_id, company, position, location, job_url, status,
       job_description, notes, applied_date, follow_up_date, interview_date,
       offer_date, rejection_date, priority, source, contact_name, contact_email, contact_phone,
       resume_version_id, cover_letter_version_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     userId,
     data.company,
@@ -29,7 +29,6 @@ export async function createJobApplication(userId: number, data: JobApplication)
     data.location || null,
     data.job_url || null,
     data.status || 'applied',
-    data.salary_range || null,
     data.job_description || null,
     data.notes || null,
     data.applied_date || null,

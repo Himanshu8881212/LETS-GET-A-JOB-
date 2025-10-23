@@ -113,11 +113,15 @@ export async function POST(request: NextRequest) {
       throw validationError
     }
 
-    // Check cache first
+    // Check if cache should be disabled (for version downloads)
+    const disableCache = request.headers.get('X-Disable-Cache') === 'true'
+
+    // Check cache first (unless disabled)
     const dataHash = generateHash(data)
-    const cachedPDF = await getCachedPDF(dataHash)
+    const cachedPDF = !disableCache ? await getCachedPDF(dataHash) : null
 
     if (cachedPDF) {
+      console.log(`Cache HIT: ${dataHash} (age: ${Math.floor((Date.now() - (cachedPDF as any).timestamp) / 60000)} minutes)`)
       return new NextResponse(cachedPDF as any, {
         headers: {
           'Content-Type': 'application/pdf',
@@ -173,8 +177,13 @@ export async function POST(request: NextRequest) {
     const pdfPath = path.join(resolvedRoot, 'cover_letter.pdf')
     const pdfBuffer = await fs.readFile(pdfPath)
 
-    // Cache the generated PDF
-    await cachePDF(dataHash, pdfBuffer)
+    // Cache the generated PDF (unless cache is disabled)
+    if (!disableCache) {
+      await cachePDF(dataHash, pdfBuffer)
+      console.log(`Cache SAVE: ${dataHash} (${Math.round(pdfBuffer.length / 1024)} KB)`)
+    } else {
+      console.log(`Cache SKIP: ${dataHash} (cache disabled for version download)`)
+    }
 
     return new NextResponse(pdfBuffer, {
       headers: {
