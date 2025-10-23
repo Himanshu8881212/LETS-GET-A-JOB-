@@ -339,31 +339,6 @@ export default function ResumeLineageDiagram({
           )}
         </div>
       </div>
-
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl p-6">
-        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Award className="w-4 h-4" />
-          Success Rate Legend
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full bg-green-500 shadow-md"></div>
-            <span className="font-medium text-gray-700">High Success (&gt;50%)</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full bg-yellow-500 shadow-md"></div>
-            <span className="font-medium text-gray-700">Medium Success (25-50%)</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full bg-red-500 shadow-md"></div>
-            <span className="font-medium text-gray-700">Low Success (&lt;25%)</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 rounded-full bg-gray-300 shadow-md"></div>
-            <span className="font-medium text-gray-700">No Data</span>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
@@ -461,45 +436,156 @@ function VersionTree({
 
           {/* Bottom row: 4 rings and buttons */}
           <div className="flex items-center justify-between">
-            {/* 4 Rings - Show percentages */}
+            {/* 4 Rings - Show percentages with fill based on percentage */}
             <div className="flex items-center gap-6">
+              {/* Applied Ring */}
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full border-4 border-blue-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-xs font-bold text-gray-900">
-                    {node.stats.totalApplications > 0
-                      ? `${Math.round((node.stats.appliedCount / node.stats.totalApplications) * 100)}%`
-                      : '0%'}
-                  </span>
+                <div className="relative w-12 h-12">
+                  <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48">
+                    {/* Background circle */}
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="white"
+                      stroke="#e5e7eb"
+                      strokeWidth="4"
+                    />
+                    {/* Progress circle */}
+                    {node.stats.totalApplications > 0 && node.stats.appliedCount > 0 && (
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="4"
+                        strokeDasharray={`${(node.stats.appliedCount / node.stats.totalApplications) * 125.6} 125.6`}
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-900">
+                      {node.stats.totalApplications > 0
+                        ? `${Math.round((node.stats.appliedCount / node.stats.totalApplications) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Applied</span>
               </div>
+
+              {/* Interview Ring */}
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full border-4 border-yellow-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-xs font-bold text-gray-900">
-                    {node.stats.totalApplications > 0
-                      ? `${Math.round((node.stats.interviewCount / node.stats.totalApplications) * 100)}%`
-                      : '0%'}
-                  </span>
+                <div className="relative w-12 h-12">
+                  <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48">
+                    {/* Background circle */}
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="white"
+                      stroke="#e5e7eb"
+                      strokeWidth="4"
+                    />
+                    {/* Progress circle */}
+                    {node.stats.totalApplications > 0 && node.stats.interviewCount > 0 && (
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        fill="none"
+                        stroke="#eab308"
+                        strokeWidth="4"
+                        strokeDasharray={`${(node.stats.interviewCount / node.stats.totalApplications) * 125.6} 125.6`}
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-900">
+                      {node.stats.totalApplications > 0
+                        ? `${Math.round((node.stats.interviewCount / node.stats.totalApplications) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Interview</span>
               </div>
+
+              {/* Offer Ring */}
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full border-4 border-green-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-xs font-bold text-gray-900">
-                    {node.stats.totalApplications > 0
-                      ? `${Math.round((node.stats.offerCount / node.stats.totalApplications) * 100)}%`
-                      : '0%'}
-                  </span>
+                <div className="relative w-12 h-12">
+                  <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48">
+                    {/* Background circle */}
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="white"
+                      stroke="#e5e7eb"
+                      strokeWidth="4"
+                    />
+                    {/* Progress circle */}
+                    {node.stats.totalApplications > 0 && node.stats.offerCount > 0 && (
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        fill="none"
+                        stroke="#22c55e"
+                        strokeWidth="4"
+                        strokeDasharray={`${(node.stats.offerCount / node.stats.totalApplications) * 125.6} 125.6`}
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-900">
+                      {node.stats.totalApplications > 0
+                        ? `${Math.round((node.stats.offerCount / node.stats.totalApplications) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Offer</span>
               </div>
+
+              {/* Rejected Ring */}
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full border-4 border-red-500 flex items-center justify-center bg-white shadow-md">
-                  <span className="text-xs font-bold text-gray-900">
-                    {node.stats.totalApplications > 0
-                      ? `${Math.round((node.stats.rejectedCount / node.stats.totalApplications) * 100)}%`
-                      : '0%'}
-                  </span>
+                <div className="relative w-12 h-12">
+                  <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48">
+                    {/* Background circle */}
+                    <circle
+                      cx="24"
+                      cy="24"
+                      r="20"
+                      fill="white"
+                      stroke="#e5e7eb"
+                      strokeWidth="4"
+                    />
+                    {/* Progress circle */}
+                    {node.stats.totalApplications > 0 && node.stats.rejectedCount > 0 && (
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        fill="none"
+                        stroke="#ef4444"
+                        strokeWidth="4"
+                        strokeDasharray={`${(node.stats.rejectedCount / node.stats.totalApplications) * 125.6} 125.6`}
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-900">
+                      {node.stats.totalApplications > 0
+                        ? `${Math.round((node.stats.rejectedCount / node.stats.totalApplications) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
                 </div>
                 <span className="text-xs text-gray-600 font-medium mt-1">Rejected</span>
               </div>
