@@ -342,11 +342,11 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
       setCurrentParentVersionId(versionId)
       setCurrentVersionName(version.version_name)
 
-      // Close lineage and open save modal
+      // Close lineage view to show the builder with loaded data
       setShowLineage(false)
-      setShowSaveModal(true)
+      // DO NOT open save modal yet - let user edit first
 
-      showToast('info', `Creating branch from: ${version.version_name}`)
+      showToast('info', `📝 Branching from: ${version.version_name}. Make your edits and click Save when ready.`)
     } catch (error) {
       console.error('Error creating branch:', error)
       showToast('error', 'Failed to create branch')

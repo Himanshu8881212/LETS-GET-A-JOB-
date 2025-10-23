@@ -32,7 +32,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const showToast = useCallback((type: ToastType, message: string, duration = 3000) => {
     const id = Math.random().toString(36).substring(7)
     const toast: Toast = { id, type, message, duration }
-    
+
     setToasts(prev => [...prev, toast])
 
     if (duration > 0) {
@@ -63,13 +63,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      {/* Toast container - centered at bottom */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none">
         {toasts.map(toast => (
           <div
             key={toast.id}
             className={`
-              flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 shadow-lg
-              animate-in slide-in-from-right duration-300
+              flex items-center gap-3 px-6 py-3 rounded-lg border-l-4 shadow-xl
+              animate-in slide-in-from-bottom duration-300
+              pointer-events-auto min-w-[320px] max-w-[500px]
               ${colors[toast.type]}
             `}
           >
