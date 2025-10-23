@@ -91,25 +91,54 @@ export async function saveResumeVersion(
     }
   }
 
-  const result = db.prepare(`
-    INSERT INTO resume_versions (
-      user_id, version_name, description, data_json, tags, is_favorite,
-      parent_version_id, version_number, branch_name, is_active
+  // Check if a version with the same branch_name and version_number already exists
+  const existingVersion = db
+    .prepare(
+      `SELECT id FROM resume_versions
+       WHERE user_id = ? AND branch_name = ? AND version_number = ?`
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-  `).run(
-    userId,
-    versionName,
-    options?.description || null,
-    JSON.stringify(data),
-    options?.tags || null,
-    options?.isFavorite ? 1 : 0,
-    parentVersionId,
-    versionNumber,
-    branchName
-  )
+    .get(userId, branchName, versionNumber) as { id: number } | undefined
 
-  const versionId = result.lastInsertRowid as number
+  let versionId: number
+
+  if (existingVersion) {
+    // Update existing version
+    db.prepare(`
+      UPDATE resume_versions
+      SET version_name = ?, description = ?, data_json = ?, tags = ?, is_favorite = ?,
+          parent_version_id = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(
+      versionName,
+      options?.description || null,
+      JSON.stringify(data),
+      options?.tags || null,
+      options?.isFavorite ? 1 : 0,
+      parentVersionId,
+      existingVersion.id
+    )
+    versionId = existingVersion.id
+  } else {
+    // Insert new version
+    const result = db.prepare(`
+      INSERT INTO resume_versions (
+        user_id, version_name, description, data_json, tags, is_favorite,
+        parent_version_id, version_number, branch_name, is_active
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+    `).run(
+      userId,
+      versionName,
+      options?.description || null,
+      JSON.stringify(data),
+      options?.tags || null,
+      options?.isFavorite ? 1 : 0,
+      parentVersionId,
+      versionNumber,
+      branchName
+    )
+    versionId = result.lastInsertRowid as number
+  }
 
   // Log activity
   await logActivity({

@@ -88,8 +88,8 @@ export default function DownloadResumeModal({
 
     setIsDownloading(true)
     try {
-      const finalName = getAutoVersionedName(resumeName.trim())
-      await onDownload(finalName, branchName.trim())
+      // Don't add version suffix - version_number and branch_name handle versioning
+      await onDownload(resumeName.trim(), branchName.trim())
       onClose()
       setResumeName('')
       setBranchName('')
@@ -171,33 +171,20 @@ export default function DownloadResumeModal({
             <p className="text-xs text-gray-600 mt-1">Use lowercase letters, numbers, and hyphens only</p>
           </div>
 
-          {/* Auto-versioning Info */}
-          {nameExists && (
-            <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+          {/* Info message */}
+          {resumeName.trim() && branchName.trim() && (
+            <div className="bg-blue-50 border-2 border-blue-400 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-yellow-900">
-                    Name already exists
+                  <p className="text-sm font-semibold text-blue-900">
+                    Ready to save
                   </p>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Will be saved as: <span className="font-bold">{suggestedName}</span>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Will be saved as: <span className="font-bold">{resumeName}</span> ({branchName} branch)
                   </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!nameExists && resumeName.trim() && (
-            <div className="bg-green-50 border-2 border-green-400 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <FileText className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-green-900">
-                    Ready to download
-                  </p>
-                  <p className="text-sm text-green-700 mt-1">
-                    Will be saved as: <span className="font-bold">{resumeName}</span>
+                  <p className="text-xs text-blue-600 mt-1">
+                    If this branch and version already exist, it will be overwritten.
                   </p>
                 </div>
               </div>
