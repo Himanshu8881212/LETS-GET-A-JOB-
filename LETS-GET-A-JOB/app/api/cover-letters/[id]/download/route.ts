@@ -28,6 +28,13 @@ export async function GET(
       return NextResponse.json({ error: 'Cover letter version not found' }, { status: 404 })
     }
 
+    // Generate filename from version name and version number
+    const sanitizedName = version.version_name
+      .replace(/[^a-zA-Z0-9-_\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .toLowerCase()
+    const filename = `${sanitizedName}-${version.version_number}.pdf`
+
     // Check if PDF already exists
     if (version.pdf_path) {
       try {
@@ -35,7 +42,7 @@ export async function GET(
         return new NextResponse(pdfBuffer as any, {
           headers: {
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename=cover-letter-${version.version_number}.pdf`
+            'Content-Disposition': `attachment; filename="${filename}"`
           }
         })
       } catch (error) {
@@ -81,7 +88,7 @@ export async function GET(
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename=cover-letter-${version.version_number}.pdf`
+        'Content-Disposition': `attachment; filename="${filename}"`
       }
     })
   } catch (error) {
