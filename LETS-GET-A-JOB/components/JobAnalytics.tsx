@@ -175,56 +175,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
         </div>
       </div>
 
-      {/* Resume Performance */}
-      {resumePerformance.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Resume Performance</h2>
-          <div className="bg-white border border-gray-300 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-900 text-white">
-                <tr>
-                  <th className="px-6 py-4 text-left font-bold">Resume Version</th>
-                  <th className="px-6 py-4 text-center font-bold">Applications</th>
-                  <th className="px-6 py-4 text-center font-bold">Interviews</th>
-                  <th className="px-6 py-4 text-center font-bold">Offers</th>
-                  <th className="px-6 py-4 text-center font-bold">Success Rate</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-300">
-                {resumePerformance.map((resume, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{resume.version}</td>
-                    <td className="px-6 py-4 text-center text-gray-600">{resume.total}</td>
-                    <td className="px-6 py-4 text-center text-gray-600">
-                      {resume.interviews} ({resume.interviewRate.toFixed(0)}%)
-                    </td>
-                    <td className="px-6 py-4 text-center text-gray-600">
-                      {resume.offers} ({resume.offerRate.toFixed(0)}%)
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 text-sm font-medium ${resume.offerRate >= 10
-                          ? 'bg-green-100 text-green-800'
-                          : resume.offerRate >= 5
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                          }`}
-                      >
-                        {resume.offerRate >= 10 ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
-                        {resume.offerRate.toFixed(1)}%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+
 
       {/* Recent Activity - Max 5 items visible, then scroll */}
       <div>

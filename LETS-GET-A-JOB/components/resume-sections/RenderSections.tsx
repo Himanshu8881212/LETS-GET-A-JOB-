@@ -119,13 +119,13 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'skills':
       return (
         <section key="skills" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Technical Skills
               </h2>
-              <p className="text-gray-400 text-xs mt-1">Organize your skills into custom categories</p>
+              <p className="text-gray-600 text-xs mt-1">Organize your skills into custom categories</p>
             </div>
             <Button
               variant="outline"
@@ -177,13 +177,13 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'experience':
       return (
         <section key="experience" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Work Experience
               </h2>
-              <p className="text-gray-400 text-xs mt-1">Your professional work history and achievements</p>
+              <p className="text-gray-600 text-xs mt-1">Your professional work history and achievements</p>
             </div>
             <Button
               variant="outline"
@@ -287,10 +287,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'projects':
       return (
         <section key="projects" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Projects
               </h2>
             </div>
@@ -345,10 +345,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'education':
       return (
         <section key="education" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Education
               </h2>
             </div>
@@ -419,10 +419,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'certifications':
       return (
         <section key="certifications" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Certifications
               </h2>
             </div>
@@ -463,10 +463,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'languages':
       return (
         <section key="languages" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Languages
               </h2>
             </div>
@@ -507,10 +507,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'awards':
       return (
         <section key="awards" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Awards & Honors
               </h2>
             </div>
@@ -551,10 +551,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'publications':
       return (
         <section key="publications" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Publications
               </h2>
             </div>
@@ -608,10 +608,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'extracurricular':
       return (
         <section key="extracurricular" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Extracurricular Activities
               </h2>
             </div>
@@ -665,10 +665,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'volunteer':
       return (
         <section key="volunteer" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Volunteer Experience
               </h2>
             </div>
@@ -722,10 +722,10 @@ export function renderSection(sectionId: string, props: SectionProps) {
     case 'hobbies':
       return (
         <section key="hobbies" className="bg-white border border-gray-300 overflow-hidden">
-          <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <div className="w-1 h-5 bg-white"></div>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900"></div>
                 Hobbies & Interests
               </h2>
             </div>
