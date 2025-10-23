@@ -662,8 +662,8 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
               <button
                 onClick={() => setActiveTab('edit')}
                 className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'edit'
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-white text-black'
+                  : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
                   }`}
               >
                 <span className="flex items-center gap-2">
@@ -677,8 +677,8 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
               <button
                 onClick={() => setActiveTab('history')}
                 className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'history'
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-white text-black'
+                  : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
                   }`}
               >
                 <span className="flex items-center gap-2">
@@ -692,8 +692,8 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
               <button
                 onClick={() => setActiveTab('lineage')}
                 className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'lineage'
-                    ? 'bg-white text-black'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-white text-black'
+                  : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
                   }`}
               >
                 <span className="flex items-center gap-2">
@@ -892,7 +892,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         {/* Version History Tab */}
         {activeTab === 'history' && (
           <ResumeVersionHistory
-            onEdit={handleEditVersion}
             onCreateBranch={handleCreateBranch}
           />
         )}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GitBranch, Circle, TrendingUp, Calendar } from 'lucide-react'
+import { GitBranch, Filter, Calendar, Award } from 'lucide-react'
 
 interface VersionNode {
   id: number
@@ -28,6 +28,9 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
   const [lineage, setLineage] = useState<VersionNode[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedVersion, setSelectedVersion] = useState<number | null>(null)
+  const [selectedBranch, setSelectedBranch] = useState<string>('all')
+  const [minSuccessRate, setMinSuccessRate] = useState<number>(0)
+  const [showOnlyWithData, setShowOnlyWithData] = useState(false)
 
   useEffect(() => {
     fetchLineage()
@@ -52,6 +55,31 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
     onVersionClick(versionId)
   }
 
+  const filterNode = (node: VersionNode): boolean => {
+    if (selectedBranch !== 'all' && node.branch_name !== selectedBranch) {
+      return false
+    }
+    if (node.stats.successRate < minSuccessRate) {
+      return false
+    }
+    if (showOnlyWithData && node.stats.totalApplications === 0) {
+      return false
+    }
+    return true
+  }
+
+  const filterTree = (nodes: VersionNode[]): VersionNode[] => {
+    return nodes
+      .filter(filterNode)
+      .map(node => ({
+        ...node,
+        children: node.children ? filterTree(node.children) : []
+      }))
+  }
+
+  const filteredLineage = filterTree(lineage)
+  const branches = Array.from(new Set(lineage.flatMap(getAllBranches)))
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -62,64 +90,137 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
 
   if (lineage.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-gray-200">
-        <GitBranch className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-gray-600">No version history yet</p>
-        <p className="text-sm text-gray-500 mt-1">Create your first resume to start tracking versions</p>
+      <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200">
+        <GitBranch className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <p className="text-lg font-semibold text-gray-700">No version history yet</p>
+        <p className="text-sm text-gray-500 mt-2">Create your first resume to start tracking versions</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <GitBranch className="w-6 h-6" />
+          <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+              <GitBranch className="w-5 h-5 text-white" />
+            </div>
             Version Lineage
           </h2>
-          <p className="text-gray-600 text-sm mt-1">
+          <p className="text-gray-600 mt-2 ml-13">
             Visual representation of your resume evolution
           </p>
         </div>
-      </div>
 
-      {/* Lineage Tree */}
-      <div className="bg-white border-2 border-gray-900 rounded-xl p-8 overflow-x-auto">
-        <div className="min-w-max">
-          {lineage.map((root, index) => (
-            <div key={root.id}>
-              {index > 0 && <div className="h-8" />}
-              <VersionTree
-                node={root}
-                level={0}
-                isSelected={selectedVersion === root.id}
-                onVersionClick={handleVersionClick}
-              />
+        <div className="bg-white border-2 border-gray-900 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="w-5 h-5 text-gray-900" />
+            <h3 className="text-lg font-bold text-gray-900">Filters</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Branch
+              </label>
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="w-full px-4 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                <option value="all">All Branches</option>
+                {branches.map(branch => (
+                  <option key={branch} value={branch}>{branch}</option>
+                ))}
+              </select>
             </div>
-          ))}
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Min Success Rate: {minSuccessRate}%
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="10"
+                value={minSuccessRate}
+                onChange={(e) => setMinSuccessRate(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Display Options
+              </label>
+              <label className="flex items-center gap-3 px-4 py-2.5 border-2 border-gray-300 rounded-xl hover:border-gray-900 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showOnlyWithData}
+                  onChange={(e) => setShowOnlyWithData(e.target.checked)}
+                  className="w-4 h-4 accent-black cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Only show versions with applications
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Legend</h3>
+      <div className="bg-white border-2 border-gray-900 rounded-2xl p-8 overflow-x-auto">
+        <div className="min-w-max">
+          {filteredLineage.length === 0 ? (
+            <div className="text-center py-12">
+              <Filter className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600">No versions match the current filters</p>
+              <p className="text-sm text-gray-500 mt-1">Try adjusting your filter criteria</p>
+            </div>
+          ) : (
+            filteredLineage.map((root, index) => (
+              <div key={root.id}>
+                {index > 0 && <div className="h-8" />}
+                <VersionTree
+                  node={root}
+                  level={0}
+                  isSelected={selectedVersion === root.id}
+                  onVersionClick={handleVersionClick}
+                />
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-2xl p-6">
+        <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Award className="w-4 h-4" />
+          Success Rate Legend
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-green-500"></div>
-            <span className="text-gray-600">High Success (&gt;50%)</span>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full bg-green-500 shadow-md"></div>
+            <span className="font-medium text-gray-700">High Success (&gt;50%)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-            <span className="text-gray-600">Medium Success (25-50%)</span>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full bg-yellow-500 shadow-md"></div>
+            <span className="font-medium text-gray-700">Medium Success (25-50%)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-red-500"></div>
-            <span className="text-gray-600">Low Success (&lt;25%)</span>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full bg-red-500 shadow-md"></div>
+            <span className="font-medium text-gray-700">Low Success (&lt;25%)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gray-300"></div>
-            <span className="text-gray-600">No Data</span>
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 rounded-full bg-gray-300 shadow-md"></div>
+            <span className="font-medium text-gray-700">No Data</span>
           </div>
         </div>
       </div>
@@ -127,7 +228,16 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
   )
 }
 
-// Recursive component to render version tree
+function getAllBranches(node: VersionNode): string[] {
+  const branches = [node.branch_name]
+  if (node.children) {
+    node.children.forEach(child => {
+      branches.push(...getAllBranches(child))
+    })
+  }
+  return branches
+}
+
 function VersionTree({
   node,
   level,
@@ -151,70 +261,70 @@ function VersionTree({
 
   return (
     <div className="flex items-start">
-      {/* Indentation */}
       {level > 0 && (
         <div className="flex items-center">
-          {/* Horizontal line */}
-          <div className="w-8 h-px bg-gray-400"></div>
-          {/* Vertical connector */}
-          <div className="w-px h-full bg-gray-400 absolute left-0 top-0"></div>
+          <div className="w-12 h-px bg-gray-400"></div>
         </div>
       )}
 
-      {/* Version Node */}
-      <div className="relative">
+      <div className="relative flex-1">
         <button
           onClick={() => onVersionClick(node.id)}
           className={`
-            flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all
+            flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all w-full text-left
             ${isSelected 
-              ? 'border-black bg-gray-50 shadow-md' 
-              : 'border-gray-300 hover:border-gray-900 hover:shadow-sm'
+              ? 'border-black bg-gray-50 shadow-xl scale-105' 
+              : 'border-gray-300 hover:border-gray-900 hover:shadow-lg hover:scale-102'
             }
           `}
         >
-          {/* Status Indicator */}
-          <div className={`w-3 h-3 rounded-full ${successColor} flex-shrink-0`}></div>
+          <div className={`w-4 h-4 rounded-full ${successColor} flex-shrink-0 shadow-md`}></div>
 
-          {/* Version Info */}
-          <div className="text-left">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-gray-900">{node.version_number}</span>
-              <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="font-bold text-lg text-gray-900">{node.version_number}</span>
+              <span className="px-2.5 py-0.5 bg-gray-900 text-white rounded-lg text-xs font-semibold">
                 {node.branch_name}
               </span>
+              {node.stats.successRate >= 70 && hasData && (
+                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-lg text-xs font-semibold flex items-center gap-1">
+                  <Award className="w-3 h-3" />
+                  Top
+                </span>
+              )}
             </div>
-            <div className="text-xs text-gray-600 mt-0.5">{node.version_name}</div>
+            <div className="text-sm text-gray-600 font-medium">{node.version_name}</div>
           </div>
 
-          {/* Stats */}
           {hasData && (
-            <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-300">
+            <div className="flex items-center gap-4 pl-4 border-l-2 border-gray-300">
               <div className="text-center">
-                <div className="text-xs text-gray-500">Success</div>
-                <div className="text-sm font-bold text-gray-900">{node.stats.successRate}%</div>
+                <div className="text-xs text-gray-500 font-medium">Success</div>
+                <div className="text-lg font-black text-gray-900">{node.stats.successRate}%</div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-gray-500">Apps</div>
-                <div className="text-sm font-bold text-gray-900">{node.stats.totalApplications}</div>
+                <div className="text-xs text-gray-500 font-medium">Apps</div>
+                <div className="text-lg font-black text-gray-900">{node.stats.totalApplications}</div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-gray-500">Offers</div>
-                <div className="text-sm font-bold text-green-600">{node.stats.offerCount}</div>
+                <div className="text-xs text-gray-500 font-medium">Offers</div>
+                <div className="text-lg font-black text-green-600">{node.stats.offerCount}</div>
               </div>
             </div>
           )}
 
-          {/* Date */}
-          <div className="text-xs text-gray-500 ml-auto">
-            {new Date(node.created_at).toLocaleDateString()}
+          <div className="text-xs text-gray-500 font-medium flex items-center gap-1">
+            <Calendar className="w-3.5 h-3.5" />
+            {new Date(node.created_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
           </div>
         </button>
 
-        {/* Children */}
         {node.children && node.children.length > 0 && (
-          <div className="ml-8 mt-4 space-y-4 relative">
-            {/* Vertical line for children */}
+          <div className="ml-12 mt-4 space-y-4 relative">
             <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-400"></div>
             
             {node.children.map((child) => (
@@ -232,4 +342,3 @@ function VersionTree({
     </div>
   )
 }
-

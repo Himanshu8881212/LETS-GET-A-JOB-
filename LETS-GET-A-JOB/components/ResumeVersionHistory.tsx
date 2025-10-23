@@ -1,30 +1,30 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Download, 
-  Edit, 
-  GitBranch, 
-  Clock, 
-  TrendingUp, 
+import {
+  Download,
+  GitBranch,
+  Clock,
+  TrendingUp,
   FileText,
   Star,
-  Copy,
-  Trash2,
-  Eye
+  Award
 } from 'lucide-react'
 import { ResumeVersionWithStats } from '@/lib/services/resume-stats-service'
+import DownloadResumeModal from './DownloadResumeModal'
 
 interface ResumeVersionHistoryProps {
-  onEdit: (versionId: number) => void
   onCreateBranch: (versionId: number) => void
 }
 
-export default function ResumeVersionHistory({ onEdit, onCreateBranch }: ResumeVersionHistoryProps) {
+export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHistoryProps) {
   const [versions, setVersions] = useState<ResumeVersionWithStats[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedBranch, setSelectedBranch] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'date' | 'success'>('date')
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const [selectedVersionForDownload, setSelectedVersionForDownload] = useState<number | null>(null)
+  const [selectedVersionName, setSelectedVersionName] = useState<string>('')
 
   useEffect(() => {
     fetchVersions()
@@ -44,15 +44,23 @@ export default function ResumeVersionHistory({ onEdit, onCreateBranch }: ResumeV
     }
   }
 
-  const handleDownload = async (versionId: number) => {
+  const handleDownloadClick = (versionId: number, versionName: string) => {
+    setSelectedVersionForDownload(versionId)
+    setSelectedVersionName(versionName)
+    setShowDownloadModal(true)
+  }
+
+  const handleDownload = async (customName: string) => {
+    if (!selectedVersionForDownload) return
+
     try {
-      const response = await fetch(`/api/resumes/${versionId}/download`)
+      const response = await fetch(`/api/resumes/${selectedVersionForDownload}/download`)
       if (response.ok) {
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `resume-v${versionId}.pdf`
+        a.download = `${customName}.pdf`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
@@ -60,6 +68,7 @@ export default function ResumeVersionHistory({ onEdit, onCreateBranch }: ResumeV
       }
     } catch (error) {
       console.error('Error downloading resume:', error)
+      throw error
     }
   }
 
@@ -97,166 +106,200 @@ export default function ResumeVersionHistory({ onEdit, onCreateBranch }: ResumeV
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Filters */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Resume Version History</h2>
-          <p className="text-gray-600 text-sm mt-1">
-            Track performance and manage different versions of your resume
-          </p>
-        </div>
-
-        <div className="flex gap-3">
-          {/* Branch Filter */}
-          <select
-            value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
-            className="px-4 py-2 border-2 border-gray-900 rounded-lg bg-white text-sm font-medium"
-          >
-            <option value="all">All Branches</option>
-            {branches.map(branch => (
-              <option key={branch} value={branch}>{branch}</option>
-            ))}
-          </select>
-
-          {/* Sort By */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'date' | 'success')}
-            className="px-4 py-2 border-2 border-gray-900 rounded-lg bg-white text-sm font-medium"
-          >
-            <option value="date">Sort by Date</option>
-            <option value="success">Sort by Success Rate</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Version Cards */}
-      <div className="grid gap-4">
-        {filteredVersions.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-gray-200">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">No resume versions found</p>
-            <p className="text-sm text-gray-500 mt-1">Create your first resume to get started</p>
+    <>
+      <div className="space-y-8">
+        {/* Header with Filters */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              Resume Version History
+            </h2>
+            <p className="text-gray-600 mt-2 ml-13">
+              Track performance and manage different versions of your resume
+            </p>
           </div>
-        ) : (
-          filteredVersions.map((version) => (
-            <div
-              key={version.id}
-              className="bg-white border-2 border-gray-900 rounded-xl p-6 hover:shadow-lg transition-shadow"
+
+          <div className="flex gap-3">
+            {/* Branch Filter */}
+            <select
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+              className="px-5 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
             >
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Left: Version Info */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-bold text-gray-900">{version.versionName}</h3>
-                        <button
-                          onClick={() => handleToggleFavorite(version.id, version.isFavorite)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <Star
-                            className={`w-4 h-4 ${
-                              version.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'
-                            }`}
-                          />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <GitBranch className="w-4 h-4" />
-                          {version.branchName} • {version.versionNumber}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {new Date(version.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
+              <option value="all">All Branches</option>
+              {branches.map(branch => (
+                <option key={branch} value={branch}>{branch}</option>
+              ))}
+            </select>
+
+            {/* Sort By */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'date' | 'success')}
+              className="px-5 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <option value="date">📅 Sort by Date</option>
+              <option value="success">🏆 Sort by Success Rate</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Version Cards */}
+        <div className="grid gap-6">
+          {filteredVersions.length === 0 ? (
+            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200">
+              <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-lg font-semibold text-gray-700">No resume versions found</p>
+              <p className="text-sm text-gray-500 mt-2">Create your first resume to get started</p>
+            </div>
+          ) : (
+            filteredVersions.map((version) => (
+              <div
+                key={version.id}
+                className="group bg-white border-2 border-gray-900 rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300"
+              >
+                {/* Top Bar with Favorite */}
+                <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-white">
+                      <GitBranch className="w-4 h-4" />
+                      <span className="text-sm font-semibold">{version.branchName}</span>
+                      <span className="text-xs opacity-75">•</span>
+                      <span className="text-sm font-mono">{version.versionNumber}</span>
                     </div>
                   </div>
-
-                  {version.description && (
-                    <p className="text-sm text-gray-600 mb-3">{version.description}</p>
-                  )}
-
-                  {/* Statistics Rings */}
-                  <div className="flex items-center gap-4 mt-4">
-                    <StatRing
-                      label="Applied"
-                      percentage={version.stats.appliedPercentage}
-                      count={version.stats.appliedCount}
-                      color="bg-blue-500"
-                    />
-                    <StatRing
-                      label="Interview"
-                      percentage={version.stats.interviewPercentage}
-                      count={version.stats.interviewCount}
-                      color="bg-yellow-500"
-                    />
-                    <StatRing
-                      label="Offer"
-                      percentage={version.stats.offerPercentage}
-                      count={version.stats.offerCount}
-                      color="bg-green-500"
-                    />
-                    <StatRing
-                      label="Rejected"
-                      percentage={version.stats.rejectedPercentage}
-                      count={version.stats.rejectedCount}
-                      color="bg-red-500"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-white/80 text-xs">
+                      <Clock className="w-3.5 h-3.5" />
+                      {new Date(version.createdAt).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </div>
+                    <button
+                      onClick={() => handleToggleFavorite(version.id, version.isFavorite)}
+                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <Star
+                        className={`w-4 h-4 ${
+                          version.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-white/60 hover:text-white'
+                        }`}
+                      />
+                    </button>
                   </div>
                 </div>
 
-                {/* Right: Success Metrics & Actions */}
-                <div className="lg:w-64 flex flex-col justify-between">
-                  {/* Success Rate */}
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Success Rate</span>
-                      <TrendingUp className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div className="text-3xl font-bold text-gray-900">
-                      {version.stats.successRate}%
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {version.stats.totalApplications} total applications
-                    </div>
-                  </div>
+                <div className="p-6">
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Left: Version Info */}
+                    <div className="flex-1">
+                      <div className="mb-4">
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                          {version.versionName}
+                          {version.stats.successRate >= 70 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-lg">
+                              <Award className="w-3 h-3" />
+                              Top Performer
+                            </span>
+                          )}
+                        </h3>
+                        {version.description && (
+                          <p className="text-sm text-gray-600 leading-relaxed">{version.description}</p>
+                        )}
+                      </div>
 
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => onEdit(version.id)}
-                      className="flex items-center justify-center gap-2 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDownload(version.id)}
-                      className="flex items-center justify-center gap-2 px-3 py-2 border-2 border-gray-900 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
-                    <button
-                      onClick={() => onCreateBranch(version.id)}
-                      className="flex items-center justify-center gap-2 px-3 py-2 border-2 border-gray-900 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium col-span-2"
-                    >
-                      <GitBranch className="w-4 h-4" />
-                      Create Branch
-                    </button>
+                      {/* Statistics Rings */}
+                      <div className="flex items-center gap-6 mt-6">
+                        <StatRing
+                          label="Applied"
+                          percentage={version.stats.appliedPercentage}
+                          count={version.stats.appliedCount}
+                          color="bg-blue-500"
+                        />
+                        <StatRing
+                          label="Interview"
+                          percentage={version.stats.interviewPercentage}
+                          count={version.stats.interviewCount}
+                          color="bg-yellow-500"
+                        />
+                        <StatRing
+                          label="Offer"
+                          percentage={version.stats.offerPercentage}
+                          count={version.stats.offerCount}
+                          color="bg-green-500"
+                        />
+                        <StatRing
+                          label="Rejected"
+                          percentage={version.stats.rejectedPercentage}
+                          count={version.stats.rejectedCount}
+                          color="bg-red-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right: Success Metrics & Actions */}
+                    <div className="lg:w-72 flex flex-col justify-between">
+                      {/* Success Rate Card */}
+                      <div className={`rounded-xl p-5 mb-4 ${
+                        version.stats.successRate >= 70 ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300' :
+                        version.stats.successRate >= 40 ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300' :
+                        'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300'
+                      }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-semibold text-gray-700">Success Rate</span>
+                          <TrendingUp className={`w-5 h-5 ${
+                            version.stats.successRate >= 70 ? 'text-green-600' :
+                            version.stats.successRate >= 40 ? 'text-yellow-600' :
+                            'text-gray-600'
+                          }`} />
+                        </div>
+                        <div className="text-4xl font-black text-gray-900 mb-1">
+                          {version.stats.successRate}%
+                        </div>
+                        <div className="text-xs font-medium text-gray-600">
+                          {version.stats.totalApplications} total application{version.stats.totalApplications !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => handleDownloadClick(version.id, version.versionName)}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-all text-sm font-semibold shadow-lg hover:shadow-xl"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download PDF
+                        </button>
+                        <button
+                          onClick={() => onCreateBranch(version.id)}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-900 rounded-xl hover:bg-gray-50 transition-all text-sm font-semibold"
+                        >
+                          <GitBranch className="w-4 h-4" />
+                          Create Branch
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Download Modal */}
+      <DownloadResumeModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+        onDownload={handleDownload}
+        versionId={selectedVersionForDownload || 0}
+        currentVersionName={selectedVersionName}
+      />
+    </>
   )
 }
 
