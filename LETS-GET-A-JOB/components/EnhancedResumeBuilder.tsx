@@ -523,7 +523,8 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       const response = await fetch(`/api/resumes/${versionId}`)
       if (response.ok) {
         const version = await response.json()
-        const data = JSON.parse(version.data_json)
+        // API now returns parsed data in version.data (not version.data_json)
+        const data = version.data || {}
 
         // Load the version data into the form
         setPersonalInfo(data.personalInfo || {})
