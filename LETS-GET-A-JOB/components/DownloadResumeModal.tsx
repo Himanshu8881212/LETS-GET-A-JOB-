@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Download, AlertCircle, FileText } from 'lucide-react'
+import { X, Save, AlertCircle, FileText } from 'lucide-react'
 
 interface DownloadResumeModalProps {
   isOpen: boolean
@@ -117,11 +117,11 @@ export default function DownloadResumeModal({
         <div className="flex items-center justify-between p-6 border-b-2 border-gray-900">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-              <Download className="w-5 h-5 text-white" />
+              <Save className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Download Resume</h2>
-              <p className="text-sm text-gray-600">Save with a custom name</p>
+              <h2 className="text-xl font-bold text-gray-900">Save to Lineage</h2>
+              <p className="text-sm text-gray-600">Save resume version to your lineage tree</p>
             </div>
           </div>
           <button
@@ -233,18 +233,18 @@ export default function DownloadResumeModal({
           </button>
           <button
             onClick={handleDownload}
-            disabled={!resumeName.trim() || isDownloading}
+            disabled={!resumeName.trim() || !branchName.trim() || isDownloading}
             className="px-6 py-2.5 text-sm font-semibold bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             {isDownloading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Downloading...
+                Saving...
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" />
-                Download PDF
+                <Save className="w-4 h-4" />
+                Save to Lineage
               </>
             )}
           </button>

@@ -454,47 +454,47 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   }
 
   const handleModalSave = async (customName: string, branchName: string) => {
-    if (previewUrl) {
-      // Download from existing preview
-      const a = document.createElement('a')
-      a.href = previewUrl
-      a.download = `${customName}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      showToast('success', `Resume saved as ${branchName} branch!`)
-      setShowPreview(false)
-    } else {
-      // Generate and download directly
-      setIsGenerating(true)
-      try {
-        const response = await fetch('/api/generate-resume', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(allData)
+    setIsGenerating(true)
+    setShowSaveModal(false)
+
+    try {
+      // Save resume to database (lineage)
+      const response = await fetch('/api/resumes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version_name: customName,
+          data: allData,
+          description: `Resume version saved on ${new Date().toLocaleDateString()}`,
+          parent_version_id: currentParentVersionId || currentVersionId || null,
+          branch_name: branchName
         })
+      })
 
-        if (!response.ok) {
-          throw new Error('Failed to generate resume')
-        }
-
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${customName}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-
-        showToast('success', `Resume saved as ${branchName} branch!`)
-      } catch (error) {
-        console.error('Error generating resume:', error)
-        showToast('error', 'Failed to generate resume. Please try again.')
-      } finally {
-        setIsGenerating(false)
+      if (!response.ok) {
+        throw new Error('Failed to save resume')
       }
+
+      const savedVersion = await response.json()
+
+      // Update current version tracking
+      setCurrentVersionId(savedVersion.id)
+      setCurrentVersionName(savedVersion.version_name || customName)
+      setCurrentParentVersionId(savedVersion.parent_version_id)
+
+      showToast('success', `Resume saved to lineage as ${branchName} branch (${savedVersion.version_number})!`)
+
+      // Refresh lineage if visible
+      if (showLineage) {
+        // Trigger a re-render by toggling state
+        setShowLineage(false)
+        setTimeout(() => setShowLineage(true), 100)
+      }
+    } catch (error) {
+      console.error('Error saving resume:', error)
+      showToast('error', 'Failed to save resume. Please try again.')
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -555,8 +555,40 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
 
   const handleCreateBranch = async (versionId: number) => {
     // Load the version data first, then switch to edit tab
-    await handleEditVersion(versionId)
-    showToast('info', 'Ready to create a branch from this version. Make your changes and download.')
+    try {
+      const response = await fetch(`/api/resumes/${versionId}`)
+      if (response.ok) {
+        const version = await response.json()
+        const data = version.data || {}
+
+        // Load the version data into the form
+        setPersonalInfo(data.personalInfo || {})
+        setSummary(data.summary || '')
+        setSkillCategories(data.skillCategories || [])
+        setExperiences(data.experiences || [])
+        setProjects(data.projects || [])
+        setEducation(data.education || [])
+        setCertifications(data.certifications || [])
+        setLanguages(data.languages || [])
+        setAwards(data.awards || [])
+        setHobbies(data.hobbies || [])
+        setPublications(data.publications || [])
+        setExtracurricular(data.extracurricular || [])
+        setVolunteer(data.volunteer || [])
+
+        // IMPORTANT: Set the parent to the version we're branching FROM (not its parent)
+        setCurrentVersionId(null) // Clear current version ID since this is a new branch
+        setCurrentVersionName(version.version_name)
+        setCurrentParentVersionId(version.id) // Set parent to the version we're branching from
+
+        // Hide lineage to show edit view
+        setShowLineage(false)
+        showToast('info', `Ready to create a branch from ${version.version_name}. Make your changes and save.`)
+      }
+    } catch (error) {
+      console.error('Error loading version for branching:', error)
+      showToast('error', 'Failed to load version for branching')
+    }
   }
 
   const handleVersionClick = (versionId: number) => {
@@ -586,6 +618,48 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       showToast('error', 'Failed to download resume')
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleToggleStar = async (versionId: number, currentStarred: boolean) => {
+    try {
+      const response = await fetch(`/api/resumes/${versionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_favorite: !currentStarred })
+      })
+
+      if (response.ok) {
+        showToast('success', currentStarred ? 'Removed from favorites' : 'Added to favorites')
+        // Refresh lineage to show updated star status
+        setShowLineage(false)
+        setTimeout(() => setShowLineage(true), 100)
+      } else {
+        throw new Error('Failed to update favorite status')
+      }
+    } catch (error) {
+      console.error('Error toggling star:', error)
+      showToast('error', 'Failed to update favorite status')
+    }
+  }
+
+  const handleDeleteVersion = async (versionId: number) => {
+    try {
+      const response = await fetch(`/api/resumes/${versionId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        showToast('success', 'Resume deleted successfully')
+        // Refresh lineage to remove deleted version
+        setShowLineage(false)
+        setTimeout(() => setShowLineage(true), 100)
+      } else {
+        throw new Error('Failed to delete resume')
+      }
+    } catch (error) {
+      console.error('Error deleting resume:', error)
+      showToast('error', 'Failed to delete resume')
     }
   }
 
@@ -709,6 +783,8 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
             onVersionClick={handleVersionClick}
             onDownload={handleDownloadVersion}
             onCreateBranch={handleCreateBranch}
+            onToggleStar={handleToggleStar}
+            onDelete={handleDeleteVersion}
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">

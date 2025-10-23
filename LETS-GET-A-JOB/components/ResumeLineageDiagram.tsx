@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GitBranch, Filter, Calendar, Award, Search, Download } from 'lucide-react'
+import { GitBranch, Filter, Calendar, Award, Search, Download, Star, Trash2 } from 'lucide-react'
 
 interface VersionNode {
   id: number
@@ -27,12 +27,16 @@ interface ResumeLineageDiagramProps {
   onVersionClick: (versionId: number) => void
   onDownload?: (versionId: number) => void
   onCreateBranch?: (versionId: number) => void
+  onToggleStar?: (versionId: number, currentStarred: boolean) => void
+  onDelete?: (versionId: number) => void
 }
 
 export default function ResumeLineageDiagram({
   onVersionClick,
   onDownload,
-  onCreateBranch
+  onCreateBranch,
+  onToggleStar,
+  onDelete
 }: ResumeLineageDiagramProps) {
   const [lineage, setLineage] = useState<VersionNode[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,6 +44,7 @@ export default function ResumeLineageDiagram({
   const [selectedBranch, setSelectedBranch] = useState<string>('all')
   const [minSuccessRate, setMinSuccessRate] = useState<number>(0)
   const [showOnlyWithData, setShowOnlyWithData] = useState(false)
+  const [showOnlyStarred, setShowOnlyStarred] = useState(false)
   const [selectedMainResume, setSelectedMainResume] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
@@ -84,6 +89,11 @@ export default function ResumeLineageDiagram({
 
     // Show only with data filter
     if (showOnlyWithData && node.stats.totalApplications === 0) {
+      return false
+    }
+
+    // Show only starred filter
+    if (showOnlyStarred && !node.is_favorite) {
       return false
     }
 
@@ -140,17 +150,19 @@ export default function ResumeLineageDiagram({
 
   const mainResumes = getAllMainResumes(lineage)
 
-  // Filter lineage: if no main resume selected, show only "main" branch root resumes
+  // Apply filters in order: first filter tree (search, branch, success rate), then filter by main resume
   let filteredLineage = filterTree(lineage)
 
-  if (!selectedMainResume && !searchQuery) {
-    // Show only main branch resumes by default (not all root resumes)
+  // If a specific main resume is selected, show only its lineage
+  if (selectedMainResume) {
+    filteredLineage = filterByMainResume(filteredLineage)
+  } else if (!searchQuery && selectedBranch === 'all') {
+    // Default view: show only main branch root resumes (when no search or branch filter)
     filteredLineage = filteredLineage.filter(node =>
       !node.parent_version_id && node.branch_name === 'main'
     )
-  } else {
-    filteredLineage = filterByMainResume(filteredLineage)
   }
+  // Otherwise show all filtered results (search or branch filter is active)
 
   const branches = Array.from(new Set(lineage.flatMap(getAllBranches)))
 
@@ -271,17 +283,30 @@ export default function ResumeLineageDiagram({
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Display Options
               </label>
-              <label className="flex items-center gap-3 px-4 py-2.5 border-2 border-gray-300 rounded-xl hover:border-gray-900 transition-colors cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showOnlyWithData}
-                  onChange={(e) => setShowOnlyWithData(e.target.checked)}
-                  className="w-4 h-4 accent-black cursor-pointer"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  Only show versions with applications
-                </span>
-              </label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-3 px-4 py-2.5 border-2 border-gray-300 rounded-xl hover:border-gray-900 transition-colors cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showOnlyWithData}
+                    onChange={(e) => setShowOnlyWithData(e.target.checked)}
+                    className="w-4 h-4 accent-black cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Only show versions with applications
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 px-4 py-2.5 border-2 border-gray-300 rounded-xl hover:border-gray-900 transition-colors cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showOnlyStarred}
+                    onChange={(e) => setShowOnlyStarred(e.target.checked)}
+                    className="w-4 h-4 accent-black cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Only show starred resumes
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -306,6 +331,8 @@ export default function ResumeLineageDiagram({
                   onVersionClick={handleVersionClick}
                   onDownload={onDownload}
                   onCreateBranch={onCreateBranch}
+                  onToggleStar={onToggleStar}
+                  onDelete={onDelete}
                 />
               </div>
             ))
@@ -358,6 +385,8 @@ function VersionTree({
   onVersionClick,
   onDownload,
   onCreateBranch,
+  onToggleStar,
+  onDelete,
   isLast = false
 }: {
   node: VersionNode
@@ -366,6 +395,8 @@ function VersionTree({
   onVersionClick: (id: number) => void
   onDownload?: (id: number) => void
   onCreateBranch?: (id: number) => void
+  onToggleStar?: (id: number, currentStarred: boolean) => void
+  onDelete?: (id: number) => void
   isLast?: boolean
 }) {
   const getSuccessColor = (successRate: number, hasData: boolean) => {
@@ -476,6 +507,21 @@ function VersionTree({
 
             {/* Buttons */}
             <div className="flex items-center gap-2">
+              {onToggleStar && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onToggleStar(node.id, node.is_favorite)
+                  }}
+                  className={`p-2 rounded-lg font-semibold transition-colors ${node.is_favorite
+                    ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                    : 'bg-white border-2 border-gray-300 text-gray-600 hover:border-yellow-500 hover:text-yellow-600'
+                    }`}
+                  title={node.is_favorite ? 'Unstar' : 'Star'}
+                >
+                  <Star className={`w-4 h-4 ${node.is_favorite ? 'fill-current' : ''}`} />
+                </button>
+              )}
               {onDownload && (
                 <button
                   onClick={(e) => {
@@ -500,6 +546,20 @@ function VersionTree({
                   Branch
                 </button>
               )}
+              {onDelete && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (confirm(`Are you sure you want to delete "${node.version_name}"? This action cannot be undone.`)) {
+                      onDelete(node.id)
+                    }
+                  }}
+                  className="p-2 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -518,6 +578,8 @@ function VersionTree({
                   onVersionClick={onVersionClick}
                   onDownload={onDownload}
                   onCreateBranch={onCreateBranch}
+                  onToggleStar={onToggleStar}
+                  onDelete={onDelete}
                   isLast={index === node.children.length - 1}
                 />
               </div>

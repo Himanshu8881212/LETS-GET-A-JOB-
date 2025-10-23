@@ -53,7 +53,9 @@ export async function POST(request: NextRequest) {
       {
         description: validatedData.description,
         tags: validatedData.tags,
-        isFavorite: validatedData.is_favorite
+        isFavorite: validatedData.is_favorite,
+        parentVersionId: validatedData.parent_version_id || undefined,
+        branchName: validatedData.branch_name || undefined
       }
     )
 

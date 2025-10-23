@@ -45,7 +45,7 @@ export interface CoverLetterVersion {
 }
 
 /**
- * Save a resume version
+ * Save a resume version (creates new main version or branches from parent)
  */
 export async function saveResumeVersion(
   userId: number,
@@ -55,20 +55,58 @@ export async function saveResumeVersion(
     description?: string
     tags?: string
     isFavorite?: boolean
+    parentVersionId?: number
+    branchName?: string
   }
 ): Promise<ResumeVersion> {
   const db = getDatabase()
 
+  let versionNumber = 'v1.0'
+  let branchName = options?.branchName || 'main'
+  let parentVersionId = options?.parentVersionId || null
+
+  // If parent version is provided, calculate semantic version
+  if (parentVersionId) {
+    const parentVersion = db
+      .prepare('SELECT version_number FROM resume_versions WHERE id = ? AND user_id = ?')
+      .get(parentVersionId, userId) as { version_number: string } | undefined
+
+    if (parentVersion) {
+      versionNumber = calculateSemanticVersion(parentVersion.version_number || 'v1.0')
+    }
+  } else {
+    // For new main versions, find the highest version number
+    const latestVersion = db
+      .prepare(
+        `SELECT version_number FROM resume_versions
+         WHERE user_id = ? AND parent_version_id IS NULL
+         ORDER BY created_at DESC LIMIT 1`
+      )
+      .get(userId) as { version_number: string } | undefined
+
+    if (latestVersion) {
+      const versionStr = latestVersion.version_number.replace('v', '')
+      const parts = versionStr.split('.').map(Number)
+      versionNumber = `v${parts[0] + 1}.0`
+    }
+  }
+
   const result = db.prepare(`
-    INSERT INTO resume_versions (user_id, version_name, description, data_json, tags, is_favorite)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO resume_versions (
+      user_id, version_name, description, data_json, tags, is_favorite,
+      parent_version_id, version_number, branch_name, is_active
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
   `).run(
     userId,
     versionName,
     options?.description || null,
     JSON.stringify(data),
     options?.tags || null,
-    options?.isFavorite ? 1 : 0
+    options?.isFavorite ? 1 : 0,
+    parentVersionId,
+    versionNumber,
+    branchName
   )
 
   const versionId = result.lastInsertRowid as number
@@ -79,7 +117,12 @@ export async function saveResumeVersion(
     action: 'create',
     entityType: 'resume',
     entityId: versionId,
-    details: { version_name: versionName }
+    details: {
+      version_name: versionName,
+      version_number: versionNumber,
+      branch_name: branchName,
+      parent_version_id: parentVersionId
+    }
   })
 
   return getResumeVersion(userId, versionId)!
@@ -340,6 +383,31 @@ export async function deleteCoverLetterVersion(userId: number, versionId: number
 }
 
 /**
+ * Calculate semantic version number based on parent version
+ * Examples:
+ * - v1.0 → v1.1 (branch from major version)
+ * - v2.0 → v2.1 (branch from major version)
+ * - v2.1 → v2.1.1 (branch from minor version)
+ * - v2.1.1 → v2.1.2 (branch from patch version)
+ */
+function calculateSemanticVersion(parentVersionNumber: string): string {
+  const versionStr = parentVersionNumber.replace('v', '')
+  const parts = versionStr.split('.').map(Number)
+
+  if (parts.length === 2) {
+    // Parent is v1.0 or v2.0 → create v1.1 or v2.1
+    return `v${parts[0]}.${parts[1] + 1}`
+  } else if (parts.length === 3) {
+    // Parent is v2.1 → create v2.1.1
+    // Parent is v2.1.1 → create v2.1.2
+    return `v${parts[0]}.${parts[1]}.${parts[2] + 1}`
+  } else {
+    // Fallback for unexpected format
+    return `v${parts[0]}.${parts[1] + 1}`
+  }
+}
+
+/**
  * Create a new resume version from an existing one (branching)
  */
 export async function createResumeVersionBranch(
@@ -360,10 +428,9 @@ export async function createResumeVersionBranch(
     throw new Error('Parent version not found')
   }
 
-  // Calculate new version number
+  // Calculate new semantic version number
   const parentVersionNum = parentVersion.version_number || 'v1.0'
-  const [major, minor] = parentVersionNum.replace('v', '').split('.').map(Number)
-  const newVersionNumber = `v${major}.${minor + 1}`
+  const newVersionNumber = calculateSemanticVersion(parentVersionNum)
 
   // Create new version
   const result = db
@@ -393,7 +460,8 @@ export async function createResumeVersionBranch(
     details: {
       version_name: versionName,
       branch_name: branchName,
-      parent_version_id: parentVersionId
+      parent_version_id: parentVersionId,
+      version_number: newVersionNumber
     }
   })
 

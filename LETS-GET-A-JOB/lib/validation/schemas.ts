@@ -128,7 +128,9 @@ export const saveResumeVersionSchema = z.object({
   description: z.string().max(500).trim().optional(),
   data: resumeDataSchema,
   tags: z.string().max(200).trim().optional(),
-  is_favorite: z.boolean().optional()
+  is_favorite: z.boolean().optional(),
+  parent_version_id: z.number().nullable().optional(),
+  branch_name: z.string().min(1).max(100).trim().optional()
 })
 
 export const updateResumeVersionSchema = z.object({
