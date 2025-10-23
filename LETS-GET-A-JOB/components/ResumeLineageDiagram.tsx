@@ -156,13 +156,13 @@ export default function ResumeLineageDiagram({
   // If a specific main resume is selected, show only its lineage
   if (selectedMainResume) {
     filteredLineage = filterByMainResume(filteredLineage)
-  } else if (!searchQuery && selectedBranch === 'all') {
-    // Default view: show only main branch root resumes (when no search or branch filter)
+  } else if (!searchQuery && selectedBranch === 'all' && !showOnlyWithData && !showOnlyStarred && minSuccessRate === 0) {
+    // Default view: show only main branch root resumes (when NO filters are active)
     filteredLineage = filteredLineage.filter(node =>
       !node.parent_version_id && node.branch_name === 'main'
     )
   }
-  // Otherwise show all filtered results (search or branch filter is active)
+  // Otherwise show all filtered results (any filter is active)
 
   const branches = Array.from(new Set(lineage.flatMap(getAllBranches)))
 
@@ -199,22 +199,23 @@ export default function ResumeLineageDiagram({
           </p>
         </div>
 
-        <div className="bg-white border-2 border-gray-900 rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-gray-900" />
-            <h3 className="text-lg font-bold text-gray-900">Filters</h3>
+        {/* Compact Filters Panel */}
+        <div className="bg-white border-2 border-gray-900 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="w-4 h-4 text-gray-900" />
+            <h3 className="text-sm font-bold text-gray-900">Filters</h3>
           </div>
 
-          {/* Main Resume Selector and Search */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            {/* Main Resume Selector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
                 Select Main Resume
               </label>
               <select
                 value={selectedMainResume || ''}
                 onChange={(e) => setSelectedMainResume(e.target.value ? Number(e.target.value) : null)}
-                className="w-full px-4 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 border-2 border-gray-900 rounded-lg bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <option value="">All Resumes</option>
                 {mainResumes.map(resume => (
@@ -225,32 +226,32 @@ export default function ResumeLineageDiagram({
               </select>
             </div>
 
+            {/* Search */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
                 Search Resumes
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name..."
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+                  className="w-full pl-8 pr-3 py-2 border-2 border-gray-900 rounded-lg bg-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-1"
                 />
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Branch Filter */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
                 Branch
               </label>
               <select
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full px-4 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 border-2 border-gray-900 rounded-lg bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <option value="all">All Branches</option>
                 {branches.map(branch => (
@@ -259,54 +260,52 @@ export default function ResumeLineageDiagram({
               </select>
             </div>
 
+            {/* Display Options */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Min Success Rate: {minSuccessRate}%
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="10"
-                value={minSuccessRate}
-                onChange={(e) => setMinSuccessRate(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0%</span>
-                <span>50%</span>
-                <span>100%</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
                 Display Options
               </label>
-              <div className="space-y-2">
-                <label className="flex items-center gap-3 px-4 py-2.5 border-2 border-gray-300 rounded-xl hover:border-gray-900 transition-colors cursor-pointer">
+              <div className="space-y-1">
+                <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={showOnlyWithData}
                     onChange={(e) => setShowOnlyWithData(e.target.checked)}
-                    className="w-4 h-4 accent-black cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-gray-700">
-                    Only show versions with applications
-                  </span>
+                  <span className="text-xs text-gray-700">Only show versions with applications</span>
                 </label>
-                <label className="flex items-center gap-3 px-4 py-2.5 border-2 border-gray-300 rounded-xl hover:border-gray-900 transition-colors cursor-pointer">
+                <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={showOnlyStarred}
                     onChange={(e) => setShowOnlyStarred(e.target.checked)}
-                    className="w-4 h-4 accent-black cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-gray-700">
-                    Only show starred resumes
-                  </span>
+                  <span className="text-xs text-gray-700">Only show starred resumes</span>
                 </label>
               </div>
+            </div>
+          </div>
+
+          {/* Min Success Rate Slider - Full Width Below */}
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
+              Min Success Rate: {minSuccessRate}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="10"
+              value={minSuccessRate}
+              onChange={(e) => setMinSuccessRate(Number(e.target.value))}
+              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-0.5">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
             </div>
           </div>
         </div>
