@@ -11,6 +11,7 @@ import { renderSection } from './resume-sections/RenderSections'
 import PDFPreviewModal from './PDFPreviewModal'
 import ResumeVersionHistory from './ResumeVersionHistory'
 import ResumeLineageDiagram from './ResumeLineageDiagram'
+import DownloadResumeModal from './DownloadResumeModal'
 import {
   DndContext,
   closestCenter,
@@ -87,6 +88,10 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   const [activeTab, setActiveTab] = useState<'edit' | 'history' | 'lineage'>('edit')
   const [showBranchModal, setShowBranchModal] = useState(false)
   const [selectedVersionForBranch, setSelectedVersionForBranch] = useState<number | null>(null)
+  const [currentVersionId, setCurrentVersionId] = useState<number | null>(null)
+  const [currentVersionName, setCurrentVersionName] = useState<string>('')
+  const [currentParentVersionId, setCurrentParentVersionId] = useState<number | null>(null)
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
 
   // Personal Info
   const [personalInfo, setPersonalInfo] = useState(() => {
@@ -447,11 +452,16 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   }
 
   const handleDownload = async () => {
+    // Show download modal instead of downloading directly
+    setShowDownloadModal(true)
+  }
+
+  const handleModalDownload = async (customName: string) => {
     if (previewUrl) {
       // Download from existing preview
       const a = document.createElement('a')
       a.href = previewUrl
-      a.download = 'resume.pdf'
+      a.download = `${customName}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -475,7 +485,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'resume.pdf'
+        a.download = `${customName}.pdf`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
@@ -530,6 +540,11 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         setExtracurricular(data.extracurricular || [])
         setVolunteer(data.volunteer || [])
 
+        // Track current version info
+        setCurrentVersionId(version.id)
+        setCurrentVersionName(version.version_name)
+        setCurrentParentVersionId(version.parent_version_id)
+
         // Switch to edit tab
         setActiveTab('edit')
         showToast('success', `Loaded version: ${version.version_name}`)
@@ -540,9 +555,10 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     }
   }
 
-  const handleCreateBranch = (versionId: number) => {
-    setSelectedVersionForBranch(versionId)
-    setShowBranchModal(true)
+  const handleCreateBranch = async (versionId: number) => {
+    // Load the version data first, then switch to edit tab
+    await handleEditVersion(versionId)
+    showToast('info', 'Ready to create a branch from this version. Make your changes and download.')
   }
 
   const handleVersionClick = (versionId: number) => {
@@ -909,6 +925,16 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         pdfUrl={previewUrl}
         title="Resume Preview"
         onDownload={handleDownload}
+      />
+
+      {/* Download Resume Modal */}
+      <DownloadResumeModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+        onDownload={handleModalDownload}
+        versionId={currentVersionId || 0}
+        currentVersionName={currentVersionName || 'My Resume'}
+        isBranchedResume={currentParentVersionId !== null}
       />
     </div>
   )

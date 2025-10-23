@@ -21,7 +21,7 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
   const [versions, setVersions] = useState<ResumeVersionWithStats[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedBranch, setSelectedBranch] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<'date' | 'success'>('date')
+  const [sortBy, setSortBy] = useState<'date' | 'success' | 'starred'>('date')
   const [showDownloadModal, setShowDownloadModal] = useState(false)
   const [selectedVersionForDownload, setSelectedVersionForDownload] = useState<number | null>(null)
   const [selectedVersionName, setSelectedVersionName] = useState<string>('')
@@ -90,8 +90,14 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
     .sort((a, b) => {
       if (sortBy === 'date') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      } else {
+      } else if (sortBy === 'success') {
         return b.stats.successRate - a.stats.successRate
+      } else {
+        // Sort by starred - favorites first, then by date
+        if (a.isFavorite === b.isFavorite) {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        }
+        return a.isFavorite ? -1 : 1
       }
     })
 
@@ -138,11 +144,12 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
             {/* Sort By */}
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'date' | 'success')}
+              onChange={(e) => setSortBy(e.target.value as 'date' | 'success' | 'starred')}
               className="px-5 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <option value="date">📅 Sort by Date</option>
               <option value="success">🏆 Sort by Success Rate</option>
+              <option value="starred">⭐ Sort by Starred</option>
             </select>
           </div>
         </div>
@@ -174,10 +181,10 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 text-white/80 text-xs">
                       <Clock className="w-3.5 h-3.5" />
-                      {new Date(version.createdAt).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
+                      {new Date(version.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
                       })}
                     </div>
                     <button
@@ -185,9 +192,8 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                       className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
                     >
                       <Star
-                        className={`w-4 h-4 ${
-                          version.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-white/60 hover:text-white'
-                        }`}
+                        className={`w-4 h-4 ${version.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-white/60 hover:text-white'
+                          }`}
                       />
                     </button>
                   </div>
@@ -244,18 +250,16 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                     {/* Right: Success Metrics & Actions */}
                     <div className="lg:w-72 flex flex-col justify-between">
                       {/* Success Rate Card */}
-                      <div className={`rounded-xl p-5 mb-4 ${
-                        version.stats.successRate >= 70 ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300' :
+                      <div className={`rounded-xl p-5 mb-4 ${version.stats.successRate >= 70 ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300' :
                         version.stats.successRate >= 40 ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300' :
-                        'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300'
-                      }`}>
+                          'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300'
+                        }`}>
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-sm font-semibold text-gray-700">Success Rate</span>
-                          <TrendingUp className={`w-5 h-5 ${
-                            version.stats.successRate >= 70 ? 'text-green-600' :
+                          <TrendingUp className={`w-5 h-5 ${version.stats.successRate >= 70 ? 'text-green-600' :
                             version.stats.successRate >= 40 ? 'text-yellow-600' :
-                            'text-gray-600'
-                          }`} />
+                              'text-gray-600'
+                            }`} />
                         </div>
                         <div className="text-4xl font-black text-gray-900 mb-1">
                           {version.stats.successRate}%
@@ -304,11 +308,11 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
 }
 
 // Stat Ring Component
-function StatRing({ label, percentage, count, color }: { 
+function StatRing({ label, percentage, count, color }: {
   label: string
   percentage: number
   count: number
-  color: string 
+  color: string
 }) {
   return (
     <div className="flex flex-col items-center">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GitBranch, Filter, Calendar, Award } from 'lucide-react'
+import { GitBranch, Filter, Calendar, Award, Search } from 'lucide-react'
 
 interface VersionNode {
   id: number
@@ -31,6 +31,8 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
   const [selectedBranch, setSelectedBranch] = useState<string>('all')
   const [minSuccessRate, setMinSuccessRate] = useState<number>(0)
   const [showOnlyWithData, setShowOnlyWithData] = useState(false)
+  const [selectedMainResume, setSelectedMainResume] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
   useEffect(() => {
     fetchLineage()
@@ -56,15 +58,26 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
   }
 
   const filterNode = (node: VersionNode): boolean => {
+    // Search filter
+    if (searchQuery && !node.version_name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false
+    }
+
+    // Branch filter
     if (selectedBranch !== 'all' && node.branch_name !== selectedBranch) {
       return false
     }
+
+    // Success rate filter
     if (node.stats.successRate < minSuccessRate) {
       return false
     }
+
+    // Show only with data filter
     if (showOnlyWithData && node.stats.totalApplications === 0) {
       return false
     }
+
     return true
   }
 
@@ -77,8 +90,51 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
       }))
   }
 
-  const filteredLineage = filterTree(lineage)
+  // Filter by specific main resume lineage
+  const filterByMainResume = (nodes: VersionNode[]): VersionNode[] => {
+    if (!selectedMainResume) return nodes
+
+    // Find the selected resume and return only its lineage
+    const findResumeLineage = (nodes: VersionNode[]): VersionNode | null => {
+      for (const node of nodes) {
+        if (node.id === selectedMainResume) {
+          return node
+        }
+        if (node.children) {
+          const found = findResumeLineage(node.children)
+          if (found) return found
+        }
+      }
+      return null
+    }
+
+    const selectedNode = findResumeLineage(nodes)
+    return selectedNode ? [selectedNode] : []
+  }
+
+  let filteredLineage = filterTree(lineage)
+  filteredLineage = filterByMainResume(filteredLineage)
+
   const branches = Array.from(new Set(lineage.flatMap(getAllBranches)))
+
+  // Get all main resumes (resumes without parents)
+  const getAllMainResumes = (nodes: VersionNode[]): VersionNode[] => {
+    const mainResumes: VersionNode[] = []
+    const traverse = (nodes: VersionNode[]) => {
+      for (const node of nodes) {
+        if (!node.parent_version_id) {
+          mainResumes.push(node)
+        }
+        if (node.children) {
+          traverse(node.children)
+        }
+      }
+    }
+    traverse(nodes)
+    return mainResumes
+  }
+
+  const mainResumes = getAllMainResumes(lineage)
 
   if (loading) {
     return (
@@ -118,7 +174,44 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
             <Filter className="w-5 h-5 text-gray-900" />
             <h3 className="text-lg font-bold text-gray-900">Filters</h3>
           </div>
-          
+
+          {/* Main Resume Selector and Search */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Select Main Resume
+              </label>
+              <select
+                value={selectedMainResume || ''}
+                onChange={(e) => setSelectedMainResume(e.target.value ? Number(e.target.value) : null)}
+                className="w-full px-4 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                <option value="">All Resumes</option>
+                {mainResumes.map(resume => (
+                  <option key={resume.id} value={resume.id}>
+                    {resume.version_name} ({resume.branch_name})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Search Resumes
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name..."
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -272,8 +365,8 @@ function VersionTree({
           onClick={() => onVersionClick(node.id)}
           className={`
             flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all w-full text-left
-            ${isSelected 
-              ? 'border-black bg-gray-50 shadow-xl scale-105' 
+            ${isSelected
+              ? 'border-black bg-gray-50 shadow-xl scale-105'
               : 'border-gray-300 hover:border-gray-900 hover:shadow-lg hover:scale-102'
             }
           `}
@@ -326,7 +419,7 @@ function VersionTree({
         {node.children && node.children.length > 0 && (
           <div className="ml-12 mt-4 space-y-4 relative">
             <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-400"></div>
-            
+
             {node.children.map((child) => (
               <VersionTree
                 key={child.id}

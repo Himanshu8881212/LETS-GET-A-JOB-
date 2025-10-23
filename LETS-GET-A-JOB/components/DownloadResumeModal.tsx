@@ -9,6 +9,7 @@ interface DownloadResumeModalProps {
   onDownload: (name: string) => Promise<void>
   versionId: number
   currentVersionName?: string
+  isBranchedResume?: boolean  // If true, name field is readonly
 }
 
 export default function DownloadResumeModal({
@@ -16,7 +17,8 @@ export default function DownloadResumeModal({
   onClose,
   onDownload,
   versionId,
-  currentVersionName = ''
+  currentVersionName = '',
+  isBranchedResume = false
 }: DownloadResumeModalProps) {
   const [resumeName, setResumeName] = useState('')
   const [isDownloading, setIsDownloading] = useState(false)
@@ -53,7 +55,7 @@ export default function DownloadResumeModal({
 
     // Extract version number if exists
     const versionMatch = baseName.match(/^(.+?)\s+v(\d+)\.(\d+)$/)
-    
+
     if (versionMatch) {
       const [, name, major, minor] = versionMatch
       const newMinor = parseInt(minor) + 1
@@ -126,16 +128,20 @@ export default function DownloadResumeModal({
           {/* Name Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Resume Name
+              Resume Name {isBranchedResume && <span className="text-gray-500 text-xs">(Read-only for branched resume)</span>}
             </label>
             <input
               type="text"
               value={resumeName}
-              onChange={(e) => setResumeName(e.target.value)}
+              onChange={(e) => !isBranchedResume && setResumeName(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="e.g., Software Engineer Resume"
-              className="w-full px-4 py-3 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 text-gray-900 font-medium"
-              autoFocus
+              className={`w-full px-4 py-3 border-2 rounded-lg text-gray-900 font-medium ${isBranchedResume
+                ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
+                : 'border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
+                }`}
+              autoFocus={!isBranchedResume}
+              readOnly={isBranchedResume}
             />
           </div>
 
@@ -172,21 +178,23 @@ export default function DownloadResumeModal({
             </div>
           )}
 
-          {/* Quick Suggestions */}
-          <div>
-            <p className="text-xs font-semibold text-gray-600 mb-2">Quick Suggestions:</p>
-            <div className="flex flex-wrap gap-2">
-              {['Software Engineer Resume', 'Data Scientist Resume', 'Product Manager Resume'].map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => setResumeName(suggestion)}
-                  className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
-                >
-                  {suggestion}
-                </button>
-              ))}
+          {/* Quick Suggestions - Only show for new resumes */}
+          {!isBranchedResume && (
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-2">Quick Suggestions:</p>
+              <div className="flex flex-wrap gap-2">
+                {['Software Engineer Resume', 'Data Scientist Resume', 'Product Manager Resume'].map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    onClick={() => setResumeName(suggestion)}
+                    className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}
