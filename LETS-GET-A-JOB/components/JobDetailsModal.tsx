@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Trash2, ExternalLink, Calendar, MapPin, User, Mail, FileText, Clock } from 'lucide-react'
+import { X, Trash2, ExternalLink, Calendar, MapPin, User, Mail, FileText, Clock, DollarSign, Phone, Tag, AlertCircle, CheckCircle2, XCircle, Briefcase } from 'lucide-react'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
 
 interface JobDetailsModalProps {
@@ -27,7 +27,9 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
     status: job.status,
     applicationDate: formatDateForInput(job.applicationDate),
     location: job.location || '',
+    salary: job.salary || '',
     jobUrl: job.jobUrl || '',
+    jobDescription: job.jobDescription || '',
     contactPerson: job.contactPerson || '',
     contactEmail: job.contactEmail || '',
     notes: job.notes,
@@ -42,7 +44,9 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
       status: formData.status,
       applicationDate: new Date(formData.applicationDate),
       location: formData.location || undefined,
+      salary: formData.salary || undefined,
       jobUrl: formData.jobUrl || undefined,
+      jobDescription: formData.jobDescription || undefined,
       contactPerson: formData.contactPerson || undefined,
       contactEmail: formData.contactEmail || undefined,
       notes: formData.notes,
@@ -173,6 +177,18 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.location}
                     onChange={e => setFormData({ ...formData, location: e.target.value })}
+                    placeholder="e.g., San Francisco, CA or Remote"
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
+                  <input
+                    type="text"
+                    value={formData.salary}
+                    onChange={e => setFormData({ ...formData, salary: e.target.value })}
+                    placeholder="e.g., $120,000 - $150,000"
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
@@ -183,6 +199,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.resumeVersion}
                     onChange={e => setFormData({ ...formData, resumeVersion: e.target.value })}
+                    placeholder="e.g., v1.2 - Software Engineer"
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
@@ -193,6 +210,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="text"
                     value={formData.contactPerson}
                     onChange={e => setFormData({ ...formData, contactPerson: e.target.value })}
+                    placeholder="e.g., John Smith"
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
@@ -203,26 +221,40 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     type="email"
                     value={formData.contactEmail}
                     onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
+                    placeholder="e.g., recruiter@company.com"
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Posting URL</label>
                   <input
                     type="url"
                     value={formData.jobUrl}
                     onChange={e => setFormData({ ...formData, jobUrl: e.target.value })}
+                    placeholder="https://company.com/careers/job-posting"
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
+                  <textarea
+                    value={formData.jobDescription}
+                    onChange={e => setFormData({ ...formData, jobDescription: e.target.value })}
+                    rows={6}
+                    placeholder="Paste the full job description here for reference..."
+                    className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Personal Notes</label>
                   <textarea
                     value={formData.notes}
                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
                     rows={4}
+                    placeholder="Add your notes, interview prep, follow-up reminders, etc..."
                     className="w-full px-4 py-2 border-2 border-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black"
                   />
                 </div>
@@ -231,79 +263,127 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
           ) : (
             /* View Mode */
             <div className="space-y-6">
-              {/* Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-gray-600 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-600">Applied On</p>
-                    <p className="font-medium">{formatDate(job.applicationDate)}</p>
+              {/* Application Details Section */}
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5" />
+                  Application Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <Calendar className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-gray-600">Applied On</p>
+                      <p className="font-medium text-gray-900">{formatDate(job.applicationDate)}</p>
+                    </div>
                   </div>
+
+                  {job.location && (
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-600">Location</p>
+                        <p className="font-medium text-gray-900">{job.location}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {job.salary && (
+                    <div className="flex items-start gap-3">
+                      <DollarSign className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-600">Salary Range</p>
+                        <p className="font-medium text-gray-900">{job.salary}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {job.resumeVersion && (
+                    <div className="flex items-start gap-3">
+                      <FileText className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-600">Resume Version</p>
+                        <p className="font-medium text-gray-900">{job.resumeVersion}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                {job.location && (
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-600">Location</p>
-                      <p className="font-medium">{job.location}</p>
-                    </div>
-                  </div>
-                )}
-
-                {job.resumeVersion && (
-                  <div className="flex items-start gap-3">
-                    <FileText className="w-5 h-5 text-gray-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-600">Resume Version</p>
-                      <p className="font-medium">{job.resumeVersion}</p>
-                    </div>
-                  </div>
-                )}
-
-                {job.contactPerson && (
-                  <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 text-gray-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-600">Contact Person</p>
-                      <p className="font-medium">{job.contactPerson}</p>
-                    </div>
-                  </div>
-                )}
-
-                {job.contactEmail && (
-                  <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-gray-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-600">Contact Email</p>
-                      <p className="font-medium">{job.contactEmail}</p>
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Job URL */}
+              {/* Contact Information Section */}
+              {(job.contactPerson || job.contactEmail) && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    Contact Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {job.contactPerson && (
+                      <div className="flex items-start gap-3">
+                        <User className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-gray-600">Contact Person</p>
+                          <p className="font-medium text-gray-900">{job.contactPerson}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {job.contactEmail && (
+                      <div className="flex items-start gap-3">
+                        <Mail className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-gray-600">Email</p>
+                          <a href={`mailto:${job.contactEmail}`} className="font-medium text-gray-900 hover:text-black hover:underline">
+                            {job.contactEmail}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Job Posting Link */}
               {job.jobUrl && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Job Posting</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <ExternalLink className="w-5 h-5" />
+                    Job Posting
+                  </h3>
                   <a
                     href={job.jobUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-black hover:underline"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    View Job Posting
+                    View Original Posting
                   </a>
+                </div>
+              )}
+
+              {/* Job Description */}
+              {job.jobDescription && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Job Description
+                  </h3>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{job.jobDescription}</p>
+                  </div>
                 </div>
               )}
 
               {/* Notes */}
               {job.notes && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Notes</p>
-                  <div className="bg-gray-50 border-2 border-gray-900 rounded-lg p-4">
-                    <p className="text-gray-700 whitespace-pre-wrap">{job.notes}</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Notes
+                  </h3>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{job.notes}</p>
                   </div>
                 </div>
               )}
@@ -311,18 +391,25 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               {/* Status History */}
               {job.statusHistory.length > 0 && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Status History
-                  </p>
-                  <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    Application Timeline
+                  </h3>
+                  <div className="space-y-3">
                     {job.statusHistory.map((change, index) => (
-                      <div key={index} className="flex items-center gap-3 text-sm">
-                        <div className="w-2 h-2 bg-black rounded-full"></div>
-                        <span className="text-gray-600">{formatDateTime(change.timestamp)}</span>
-                        <span className="font-medium">
-                          {getStatusLabel(change.from)} → {getStatusLabel(change.to)}
-                        </span>
+                      <div key={index} className="flex items-start gap-4 pb-3 border-b border-gray-200 last:border-0">
+                        <div className="flex-shrink-0 w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+                          {change.to === 'applied' && <CheckCircle2 className="w-5 h-5 text-white" />}
+                          {change.to === 'interview' && <Calendar className="w-5 h-5 text-white" />}
+                          {change.to === 'offer' && <CheckCircle2 className="w-5 h-5 text-white" />}
+                          {change.to === 'rejected' && <XCircle className="w-5 h-5 text-white" />}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">
+                            {getStatusLabel(change.from)} → {getStatusLabel(change.to)}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">{formatDateTime(change.timestamp)}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
