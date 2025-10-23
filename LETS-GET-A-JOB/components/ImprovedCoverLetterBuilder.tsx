@@ -415,7 +415,7 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-black sticky top-0 z-50">
+      <div className="bg-gray-900 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
