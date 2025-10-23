@@ -213,10 +213,10 @@ export default function JobTrackerPage() {
 
             <div className="flex items-center gap-2">
               {/* View Toggle */}
-              <div className="flex bg-gray-800 rounded p-1">
+              <div className="flex bg-gray-800 p-1">
                 <button
                   onClick={() => setActiveView('board')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'board'
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${activeView === 'board'
                     ? 'bg-white text-black'
                     : 'text-gray-400 hover:text-white'
                     }`}
@@ -225,7 +225,7 @@ export default function JobTrackerPage() {
                 </button>
                 <button
                   onClick={() => setActiveView('analytics')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'analytics'
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${activeView === 'analytics'
                     ? 'bg-white text-black'
                     : 'text-gray-400 hover:text-white'
                     }`}

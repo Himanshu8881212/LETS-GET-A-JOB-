@@ -16,8 +16,8 @@ export default function JobCard({ job, onClick }: JobCardProps) {
 
   const style = transform
     ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    }
     : undefined
 
   const formatDate = (date: Date) => {
@@ -44,9 +44,8 @@ export default function JobCard({ job, onClick }: JobCardProps) {
       {...listeners}
       {...attributes}
       onClick={onClick}
-      className={`bg-white border-2 border-gray-900 rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      className={`bg-white border border-gray-900 p-4 cursor-pointer hover:border-gray-600 transition-all ${isDragging ? 'opacity-50' : ''
+        }`}
     >
       {/* Company & Position */}
       <div className="mb-3">
@@ -83,7 +82,7 @@ export default function JobCard({ job, onClick }: JobCardProps) {
         {job.resumeVersion && (
           <div className="flex items-center gap-2 text-gray-600">
             <FileText className="w-4 h-4" />
-            <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+            <span className="text-xs bg-gray-100 px-2 py-1">
               {job.resumeVersion}
             </span>
           </div>
