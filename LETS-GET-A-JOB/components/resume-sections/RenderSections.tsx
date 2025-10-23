@@ -83,12 +83,11 @@ interface SectionProps {
 // Professional section header component
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
-      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-        <div className="w-1.5 h-6 bg-white rounded-full"></div>
+    <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+      <h2 className="text-lg font-bold text-gray-900">
         {title}
       </h2>
-      {subtitle && <p className="text-gray-400 text-sm mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-gray-600 text-xs mt-1">{subtitle}</p>}
     </div>
   )
 }
@@ -97,12 +96,12 @@ export function renderSection(sectionId: string, props: SectionProps) {
   switch (sectionId) {
     case 'summary':
       return (
-        <section key="summary" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
+        <section key="summary" className="bg-white border border-gray-300 overflow-hidden">
           <SectionHeader
             title="Professional Summary"
             subtitle="A brief overview of your professional background and key strengths"
           />
-          <div className="p-8">
+          <div className="p-6">
             <Textarea
               label="Summary"
               required
@@ -119,14 +118,14 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'skills':
       return (
-        <section key="skills" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="skills" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Technical Skills
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Organize your skills into custom categories</p>
+              <p className="text-gray-400 text-xs mt-1">Organize your skills into custom categories</p>
             </div>
             <Button
               variant="outline"
@@ -138,22 +137,22 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Category
             </Button>
           </div>
-          <div className="p-8 space-y-5">
+          <div className="p-6 space-y-4">
             {props.skillCategories.map((category, index) => (
-              <div key={category.id} className="p-5 bg-gray-50 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-semibold text-gray-700">Category {index + 1}</span>
+              <div key={category.id} className="p-4 bg-gray-50 border border-gray-200 hover:border-gray-400 transition-colors">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-gray-700">Category {index + 1}</span>
                   {props.skillCategories.length > 1 && (
                     <button
                       onClick={() => props.removeSkillCategory(category.id)}
-                      className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium"
+                      className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 transition-colors flex items-center gap-1 text-xs font-medium"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                       Remove
                     </button>
                   )}
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <Input
                     label="Category Name"
                     value={category.name}
@@ -177,14 +176,14 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'experience':
       return (
-        <section key="experience" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="experience" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Work Experience
               </h2>
-              <p className="text-gray-400 text-sm mt-1">Your professional work history and achievements</p>
+              <p className="text-gray-400 text-xs mt-1">Your professional work history and achievements</p>
             </div>
             <Button
               variant="outline"
@@ -196,27 +195,27 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Experience
             </Button>
           </div>
-          <div className="p-8 space-y-6">
+          <div className="p-6 space-y-4">
             {props.experiences.map((exp, expIndex) => (
-              <div key={expIndex} className="p-6 bg-gray-50 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600 font-bold text-sm">{expIndex + 1}</span>
+              <div key={expIndex} className="p-4 bg-gray-50 border border-gray-200 hover:border-gray-400 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-gray-900 flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">{expIndex + 1}</span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">Experience {expIndex + 1}</h3>
+                    <h3 className="text-sm font-bold text-gray-900">Experience {expIndex + 1}</h3>
                   </div>
                   {props.experiences.length > 1 && (
                     <button
                       onClick={() => props.removeExperience(expIndex)}
-                      className="text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium"
+                      className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1.5 transition-colors flex items-center gap-1 text-xs font-medium"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                       Remove
                     </button>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <Input
                     label="Job Title"
                     required
@@ -242,9 +241,9 @@ export function renderSection(sectionId: string, props: SectionProps) {
                     onChange={(e) => props.updateExperience(expIndex, 'dates', e.target.value)}
                   />
                 </div>
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <label className="text-sm font-semibold text-gray-700">Key Achievements & Responsibilities</label>
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-xs font-semibold text-gray-700">Key Achievements & Responsibilities</label>
                     <Button
                       variant="outline"
                       size="sm"
@@ -270,9 +269,9 @@ export function renderSection(sectionId: string, props: SectionProps) {
                         {exp.bullets.length > 1 && (
                           <button
                             onClick={() => props.removeBullet(expIndex, bulletIndex)}
-                            className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-colors h-fit"
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 transition-colors h-fit"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
@@ -287,11 +286,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'projects':
       return (
-        <section key="projects" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="projects" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Projects
               </h2>
             </div>
@@ -305,18 +304,18 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Project
             </Button>
           </div>
-          <div className="p-8">
-            <div className="space-y-4">
+          <div className="p-6">
+            <div className="space-y-3">
               {props.projects.map((project, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                <div key={index} className="p-4 border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Project {index + 1}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">Project {index + 1}</h3>
                     {props.projects.length > 1 && (
                       <button
                         onClick={() => props.removeProject(index)}
-                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Remove
                       </button>
                     )}
@@ -345,11 +344,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'education':
       return (
-        <section key="education" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="education" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Education
               </h2>
             </div>
@@ -363,23 +362,23 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Education
             </Button>
           </div>
-          <div className="p-8">
-            <div className="space-y-4">
+          <div className="p-6">
+            <div className="space-y-3">
               {props.education.map((edu, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                <div key={index} className="p-4 border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Education {index + 1}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">Education {index + 1}</h3>
                     {props.education.length > 1 && (
                       <button
                         onClick={() => props.removeEducation(index)}
-                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Remove
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <Input
                       label="Degree"
                       required
@@ -419,11 +418,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'certifications':
       return (
-        <section key="certifications" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="certifications" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Certifications
               </h2>
             </div>
@@ -437,7 +436,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add
             </Button>
           </div>
-          <div className="p-8">
+          <div className="p-6">
             <div className="space-y-2">
               {props.certifications.map((cert, index) => (
                 <div key={index} className="flex gap-2">
@@ -451,7 +450,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                       onClick={() => props.removeListItem('certifications', index)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -463,11 +462,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'languages':
       return (
-        <section key="languages" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="languages" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Languages
               </h2>
             </div>
@@ -481,7 +480,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add
             </Button>
           </div>
-          <div className="p-8">
+          <div className="p-6">
             <div className="space-y-2">
               {props.languages.map((lang, index) => (
                 <div key={index} className="flex gap-2">
@@ -495,7 +494,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                       onClick={() => props.removeListItem('languages', index)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -507,11 +506,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'awards':
       return (
-        <section key="awards" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="awards" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Awards & Honors
               </h2>
             </div>
@@ -525,7 +524,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add
             </Button>
           </div>
-          <div className="p-8">
+          <div className="p-6">
             <div className="space-y-2">
               {props.awards.map((award, index) => (
                 <div key={index} className="flex gap-2">
@@ -539,7 +538,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                       onClick={() => props.removeListItem('awards', index)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -551,11 +550,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'publications':
       return (
-        <section key="publications" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="publications" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Publications
               </h2>
             </div>
@@ -569,18 +568,18 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Publication
             </Button>
           </div>
-          <div className="p-8">
-            <div className="space-y-4">
+          <div className="p-6">
+            <div className="space-y-3">
               {props.publications.map((pub, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                <div key={index} className="p-4 border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Publication {index + 1}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">Publication {index + 1}</h3>
                     {props.publications.length > 1 && (
                       <button
                         onClick={() => props.removePublication(index)}
-                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Remove
                       </button>
                     )}
@@ -608,11 +607,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'extracurricular':
       return (
-        <section key="extracurricular" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="extracurricular" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Extracurricular Activities
               </h2>
             </div>
@@ -626,18 +625,18 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Activity
             </Button>
           </div>
-          <div className="p-8">
-            <div className="space-y-4">
+          <div className="p-6">
+            <div className="space-y-3">
               {props.extracurricular.map((activity, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                <div key={index} className="p-4 border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Activity {index + 1}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">Activity {index + 1}</h3>
                     {props.extracurricular.length > 1 && (
                       <button
                         onClick={() => props.removeActivity('extracurricular', index)}
-                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Remove
                       </button>
                     )}
@@ -665,11 +664,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'volunteer':
       return (
-        <section key="volunteer" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="volunteer" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Volunteer Experience
               </h2>
             </div>
@@ -683,18 +682,18 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add Experience
             </Button>
           </div>
-          <div className="p-8">
-            <div className="space-y-4">
+          <div className="p-6">
+            <div className="space-y-3">
               {props.volunteer.map((activity, index) => (
-                <div key={index} className="p-4 border-2 border-gray-200 rounded-lg">
+                <div key={index} className="p-4 border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Experience {index + 1}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">Experience {index + 1}</h3>
                     {props.volunteer.length > 1 && (
                       <button
                         onClick={() => props.removeActivity('volunteer', index)}
-                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                        className="text-red-600 hover:text-red-800 flex items-center gap-1 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Remove
                       </button>
                     )}
@@ -722,11 +721,11 @@ export function renderSection(sectionId: string, props: SectionProps) {
 
     case 'hobbies':
       return (
-        <section key="hobbies" className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-          <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+        <section key="hobbies" className="bg-white border border-gray-300 overflow-hidden">
+          <div className="px-6 py-4 bg-black border-b border-gray-900 flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <div className="w-1 h-5 bg-white"></div>
                 Hobbies & Interests
               </h2>
             </div>
@@ -740,7 +739,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
               Add
             </Button>
           </div>
-          <div className="p-8">
+          <div className="p-6">
             <div className="space-y-2">
               {props.hobbies.map((hobby, index) => (
                 <div key={index} className="flex gap-2">
@@ -754,7 +753,7 @@ export function renderSection(sectionId: string, props: SectionProps) {
                       onClick={() => props.removeListItem('hobbies', index)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>

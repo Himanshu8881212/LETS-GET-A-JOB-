@@ -18,20 +18,20 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm hover:shadow-md active:shadow-sm transform hover:-translate-y-0.5 active:translate-y-0'
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors focus:outline-none'
 
   const variants = {
-    primary: 'bg-white text-black hover:bg-gray-100 focus:ring-gray-500 disabled:bg-gray-300 shadow-lg hover:shadow-xl border-2 border-black',
-    secondary: 'bg-gray-800 text-white hover:bg-gray-700 focus:ring-gray-500 disabled:bg-gray-400 shadow-lg hover:shadow-xl border-2 border-gray-700',
-    outline: 'border-2 border-black text-black bg-white hover:bg-gray-50 hover:border-gray-900 focus:ring-gray-500 disabled:border-gray-300 disabled:text-gray-300 shadow-md hover:shadow-lg',
-    danger: 'bg-gray-900 text-white hover:bg-black focus:ring-gray-500 disabled:bg-gray-400 shadow-lg hover:shadow-xl border-2 border-gray-800',
-    success: 'bg-gray-700 text-white hover:bg-gray-600 focus:ring-gray-500 disabled:bg-gray-400 shadow-lg hover:shadow-xl border-2 border-gray-600'
+    primary: 'bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-400 border border-gray-900',
+    secondary: 'bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-400 border border-gray-700',
+    outline: 'border border-gray-300 text-gray-900 bg-white hover:bg-gray-50 hover:border-gray-400 disabled:border-gray-200 disabled:text-gray-400',
+    danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400 border border-red-600',
+    success: 'bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400 border border-green-600'
   }
 
   const sizes = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-5 py-2.5 text-base',
-    lg: 'px-7 py-3.5 text-lg'
+    sm: 'px-3 py-1.5 text-xs',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-2.5 text-base'
   }
 
   return (
@@ -42,12 +42,12 @@ export function Button({
         ${baseStyles}
         ${variants[variant]}
         ${sizes[size]}
-        ${disabled || loading ? 'cursor-not-allowed opacity-60 transform-none hover:transform-none hover:shadow-sm' : 'cursor-pointer'}
+        ${disabled || loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
         ${className}
       `}
     >
-      {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-      {!loading && icon && <span className="mr-2">{icon}</span>}
+      {loading && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
+      {!loading && icon && <span className="mr-1.5">{icon}</span>}
       {children}
     </button>
   )

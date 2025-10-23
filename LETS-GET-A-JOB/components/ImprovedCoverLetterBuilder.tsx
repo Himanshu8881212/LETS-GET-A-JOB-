@@ -543,16 +543,14 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
               </section>
 
               {/* Recipient Information */}
-              <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-                <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <section className="bg-white border border-gray-300 overflow-hidden">
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+                  <h2 className="text-lg font-bold text-gray-900">
                     Recipient Information
                   </h2>
-                  <p className="text-gray-400 text-sm mt-1">Details about the company and position you're applying for</p>
                 </div>
-                <div className="p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                       label="Company Name"
                       required
@@ -592,15 +590,13 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
               </section>
 
               {/* Opening Paragraph */}
-              <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-                <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <section className="bg-white border border-gray-300 overflow-hidden">
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+                  <h2 className="text-lg font-bold text-gray-900">
                     Opening Paragraph
                   </h2>
-                  <p className="text-gray-400 text-sm mt-1">Introduce yourself and express your interest in the position</p>
                 </div>
-                <div className="p-8">
+                <div className="p-6">
                   <Textarea
                     label="Introduction"
                     required
@@ -615,14 +611,12 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
               </section>
 
               {/* Body Paragraphs */}
-              <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-                <div className="px-8 py-5 bg-black border-b-2 border-gray-900 flex items-center justify-between">
+              <section className="bg-white border border-gray-300 overflow-hidden">
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-300 flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      <div className="w-1.5 h-6 bg-white rounded-full"></div>
+                    <h2 className="text-lg font-bold text-gray-900">
                       Body Paragraphs
                     </h2>
-                    <p className="text-gray-400 text-sm mt-1">Highlight your qualifications and fit for the role (1-5 paragraphs)</p>
                   </div>
                   <Button
                     variant="outline"
@@ -634,24 +628,24 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
                     Add Paragraph
                   </Button>
                 </div>
-                <div className="p-8 space-y-5">
+                <div className="p-6 space-y-4">
                   {bodyParagraphs.map((paragraph, index) => (
-                    <div key={index} className="p-5 bg-gray-50 border-2 border-gray-900 rounded-lg hover:border-black transition-colors">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-white border-2 border-black rounded-lg flex items-center justify-center">
-                            <span className="text-black font-bold text-sm">{index + 1}</span>
+                    <div key={index} className="p-4 bg-gray-50 border border-gray-200 hover:border-gray-400 transition-colors">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-gray-900 flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">{index + 1}</span>
                           </div>
-                          <label className="text-sm font-semibold text-gray-700">
+                          <label className="text-xs font-semibold text-gray-700">
                             Paragraph {index + 1}
                           </label>
                         </div>
                         {bodyParagraphs.length > 1 && (
                           <button
                             onClick={() => removeBodyParagraph(index)}
-                            className="text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium"
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1.5 transition-colors flex items-center gap-1 text-xs font-medium"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                             Remove
                           </button>
                         )}
@@ -669,15 +663,13 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
               </section>
 
               {/* Closing Paragraph */}
-              <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-                <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <section className="bg-white border border-gray-300 overflow-hidden">
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+                  <h2 className="text-lg font-bold text-gray-900">
                     Closing Paragraph
                   </h2>
-                  <p className="text-gray-400 text-sm mt-1">Express gratitude and indicate your availability for follow-up</p>
                 </div>
-                <div className="p-8">
+                <div className="p-6">
                   <Textarea
                     label="Conclusion"
                     required
