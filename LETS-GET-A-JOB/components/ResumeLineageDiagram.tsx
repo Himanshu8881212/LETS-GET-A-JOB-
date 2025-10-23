@@ -72,9 +72,14 @@ export default function ResumeLineageDiagram({
   }
 
   const filterNode = (node: VersionNode): boolean => {
-    // Search filter
-    if (searchQuery && !node.version_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false
+    // Search filter - search both version name and branch name
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      const matchesName = node.version_name.toLowerCase().includes(query)
+      const matchesBranch = node.branch_name.toLowerCase().includes(query)
+      if (!matchesName && !matchesBranch) {
+        return false
+      }
     }
 
     // Branch filter
