@@ -15,26 +15,28 @@ export interface JobApplication {
   position: string
   status: JobStatus
   applicationDate: Date
-  
+
   // Resume tracking
   resumeVersion?: string
+  resumeVersionId?: number
+  coverLetterVersionId?: number
   resumeData?: any // Snapshot of resume data used for this application
   resumePdfUrl?: string
-  
+
   // Job details
   salary?: string
   location?: string
   jobUrl?: string
   jobDescription?: string
-  
+
   // Contact information
   contactPerson?: string
   contactEmail?: string
-  
+
   // Notes and tracking
   notes: string
   statusHistory: StatusChange[]
-  
+
   // Metadata
   createdAt: Date
   updatedAt: Date
