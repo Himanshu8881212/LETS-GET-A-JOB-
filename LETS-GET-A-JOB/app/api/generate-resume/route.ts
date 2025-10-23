@@ -3,6 +3,11 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import fs from 'fs/promises'
 import path from 'path'
+import { resumeDataSchema } from '@/lib/validation/schemas'
+import { ZodError } from 'zod'
+import { getUserSession } from '@/lib/db/session'
+import { pdfRateLimiter, getRateLimitError } from '@/lib/rate-limit'
+import { generateHash, getCachedPDF, cachePDF } from '@/lib/pdf-cache'
 
 const execAsync = promisify(exec)
 
@@ -152,7 +157,72 @@ function generateMainTex(data: any): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json()
+    // Rate limiting check
+    const userId = await getUserSession()
+    const rateLimitResult = pdfRateLimiter.check(userId.toString())
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        getRateLimitError(rateLimitResult.resetTime),
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000).toString(),
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(rateLimitResult.resetTime).toISOString()
+          }
+        }
+      )
+    }
+
+    const rawData = await request.json()
+
+    // Validate input data with Zod schema
+    let data
+    try {
+      data = resumeDataSchema.parse(rawData)
+    } catch (validationError) {
+      if (validationError instanceof ZodError) {
+        console.error('Validation error:', validationError.issues)
+        return NextResponse.json(
+          {
+            error: 'Invalid input data',
+            details: validationError.issues.slice(0, 5) // Limit to first 5 errors
+          },
+          { status: 400 }
+        )
+      }
+      throw validationError
+    }
+
+    // Check cache first
+    const dataHash = generateHash(data)
+    const cachedPDF = await getCachedPDF(dataHash)
+
+    if (cachedPDF) {
+      return new NextResponse(cachedPDF as any, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename=resume.pdf',
+          'X-Cache': 'HIT'
+        }
+      })
+    }
+
+    // Validate working directory to prevent command injection
+    const rootDir = process.cwd()
+    const resolvedRoot = path.resolve(rootDir)
+    const expectedRoot = path.resolve(__dirname, '../../../../..')
+
+    // Security: Ensure we're in the expected directory
+    if (!resolvedRoot.startsWith(expectedRoot)) {
+      console.error('Security: Invalid working directory detected')
+      return NextResponse.json(
+        { error: 'Invalid working directory' },
+        { status: 500 }
+      )
+    }
 
     // Generate RESUME_DATA.tex content
     const resumeData = generateResumeDataTex(data)
@@ -161,24 +231,39 @@ export async function POST(request: NextRequest) {
     const mainTex = generateMainTex(data)
 
     // Write to files in current directory (LETS-GET-A-JOB)
-    const rootDir = process.cwd()
-    const dataFilePath = path.join(rootDir, 'RESUME_DATA.tex')
-    const mainFilePath = path.join(rootDir, 'resume', 'main.tex')
+    const dataFilePath = path.join(resolvedRoot, 'RESUME_DATA.tex')
+    const mainFilePath = path.join(resolvedRoot, 'resume', 'main.tex')
 
     await fs.writeFile(dataFilePath, resumeData)
     await fs.writeFile(mainFilePath, mainTex)
 
-    // Compile PDF using make
-    await execAsync('make resume', { cwd: rootDir })
+    // Compile PDF using make with security constraints
+    try {
+      await execAsync('make resume', {
+        cwd: resolvedRoot,
+        timeout: 30000, // 30 second timeout
+        maxBuffer: 10 * 1024 * 1024 // 10MB max buffer
+      })
+    } catch (execError: any) {
+      console.error('PDF compilation error:', execError.message)
+      return NextResponse.json(
+        { error: 'PDF compilation failed. Please check your input.' },
+        { status: 500 }
+      )
+    }
 
     // Read PDF
-    const pdfPath = path.join(rootDir, 'resume.pdf')
+    const pdfPath = path.join(resolvedRoot, 'resume.pdf')
     const pdfBuffer = await fs.readFile(pdfPath)
+
+    // Cache the generated PDF
+    await cachePDF(dataHash, pdfBuffer)
 
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=resume.pdf'
+        'Content-Disposition': 'attachment; filename=resume.pdf',
+        'X-Cache': 'MISS'
       }
     })
   } catch (error) {
@@ -189,6 +274,9 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// Set maximum execution time for this route
+export const maxDuration = 30 // 30 seconds
 
 function generateResumeDataTex(data: any): string {
   const {

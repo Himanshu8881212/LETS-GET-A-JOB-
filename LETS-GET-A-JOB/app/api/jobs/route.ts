@@ -9,6 +9,8 @@ import {
 } from '@/lib/services/job-service'
 import { ZodError } from 'zod'
 
+export const maxDuration = 10 // 10 seconds max
+
 /**
  * GET /api/jobs - Get all job applications or filter by status
  */

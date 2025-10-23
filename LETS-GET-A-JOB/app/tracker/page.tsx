@@ -1,10 +1,40 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { ArrowLeft, Plus, BarChart3, TrendingUp } from 'lucide-react'
-import JobTrackerBoard from '@/components/JobTrackerBoard'
-import JobAnalytics from '@/components/JobAnalytics'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
+
+// Lazy load heavy components
+const JobTrackerBoard = dynamic(
+  () => import('@/components/JobTrackerBoard'),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Job Tracker...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
+
+const JobAnalytics = dynamic(
+  () => import('@/components/JobAnalytics'),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Analytics...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
 
 export default function JobTrackerPage() {
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')

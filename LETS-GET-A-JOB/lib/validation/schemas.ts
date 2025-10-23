@@ -111,6 +111,17 @@ export const coverLetterDataSchema = z.object({
   closingParagraph: z.string().max(1000).trim().optional()
 })
 
+// Cover Letter API Schema (for generate-cover-letter endpoint)
+export const coverLetterApiSchema = z.object({
+  personalInfo: personalInfoSchema,
+  recipient: recipientInfoSchema,
+  content: z.object({
+    opening: z.string().max(1000).trim().optional(),
+    bodyParagraphs: z.array(z.string().max(1000).trim()).optional(),
+    closing: z.string().max(1000).trim().optional()
+  }).optional()
+})
+
 // Resume Version Schemas
 export const saveResumeVersionSchema = z.object({
   version_name: z.string().min(1).max(200).trim(),

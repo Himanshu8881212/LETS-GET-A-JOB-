@@ -8,6 +8,8 @@ import {
 import { ZodError } from 'zod'
 import { getDatabase } from '@/lib/db/index'
 
+export const maxDuration = 10 // 10 seconds max
+
 /**
  * GET /api/cover-letters/[id] - Get a single cover letter version
  */

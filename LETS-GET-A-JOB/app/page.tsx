@@ -1,10 +1,40 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { FileText, Mail, BarChart3, ChevronRight } from 'lucide-react'
-import EnhancedResumeBuilder from '@/components/EnhancedResumeBuilder'
-import ImprovedCoverLetterBuilder from '@/components/ImprovedCoverLetterBuilder'
 import { ToastProvider } from '@/components/ui/Toast'
+
+// Lazy load heavy components
+const EnhancedResumeBuilder = dynamic(
+  () => import('@/components/EnhancedResumeBuilder'),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Resume Builder...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
+
+const ImprovedCoverLetterBuilder = dynamic(
+  () => import('@/components/ImprovedCoverLetterBuilder'),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Cover Letter Builder...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker'>('home')

@@ -109,6 +109,18 @@ CREATE INDEX IF NOT EXISTS idx_activity_user ON activity_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_status_history_job ON job_status_history(job_application_id);
 
+-- Additional composite indexes for common query patterns
+CREATE INDEX IF NOT EXISTS idx_jobs_user_status ON job_applications(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_jobs_user_applied_date ON job_applications(user_id, applied_date DESC);
+CREATE INDEX IF NOT EXISTS idx_jobs_user_priority ON job_applications(user_id, priority);
+CREATE INDEX IF NOT EXISTS idx_resume_user_created ON resume_versions(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_resume_user_favorite ON resume_versions(user_id, is_favorite);
+CREATE INDEX IF NOT EXISTS idx_cover_user_created ON cover_letter_versions(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_cover_user_favorite ON cover_letter_versions(user_id, is_favorite);
+CREATE INDEX IF NOT EXISTS idx_activity_user_timestamp ON activity_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_entity ON activity_logs(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_status_history_job_created ON job_status_history(job_application_id, created_at DESC);
+
 -- Triggers for updated_at timestamps
 CREATE TRIGGER IF NOT EXISTS update_users_timestamp 
 AFTER UPDATE ON users
