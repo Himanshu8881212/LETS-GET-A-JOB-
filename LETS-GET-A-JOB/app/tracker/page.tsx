@@ -198,25 +198,22 @@ export default function JobTrackerPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-black text-white shadow-lg sticky top-0 z-50">
+      <header className="bg-black text-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => window.location.href = '/'}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-800 rounded transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="text-2xl font-bold">Job Application Tracker</h1>
-                <p className="text-gray-400 text-sm">Track and analyze your job applications</p>
-              </div>
+              <h1 className="text-xl font-bold">Job Tracker</h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* View Toggle */}
-              <div className="flex bg-gray-800 rounded-lg p-1">
+              <div className="flex bg-gray-800 rounded p-1">
                 <button
                   onClick={() => setActiveView('board')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeView === 'board'

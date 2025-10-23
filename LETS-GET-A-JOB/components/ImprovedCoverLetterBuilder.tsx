@@ -413,73 +413,64 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header - DataGen Black/White/Grey Theme */}
-      <div className="bg-black border-b border-gray-800 sticky top-0 z-50 shadow-lg">
-        <div className="max-w-[1600px] mx-auto px-8 py-5">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-black sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-800 rounded transition-colors"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">
-                  Cover Letter Builder
-                </h1>
-                <p className="text-sm text-gray-400 mt-0.5">Professional Cover Letter • ATS-Compatible Format</p>
-              </div>
+              <h1 className="text-xl font-bold text-white">
+                Cover Letter Builder
+              </h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {!showLineage && (
                 <>
                   <Button variant="outline" size="md" onClick={handleClearData}>
-                    Clear All
+                    Clear
                   </Button>
                   <Button
                     variant="outline"
                     size="md"
                     loading={isGenerating}
-                    icon={<Eye className="w-5 h-5" />}
+                    icon={<Eye className="w-4 h-4" />}
                     onClick={handlePreview}
                   >
-                    {isGenerating ? 'Generating...' : 'Preview PDF'}
+                    Preview
                   </Button>
                   <Button
                     variant="primary"
                     size="md"
                     loading={isGenerating}
-                    icon={<CheckCircle className="w-5 h-5" />}
+                    icon={<CheckCircle className="w-4 h-4" />}
                     onClick={handleSave}
                   >
-                    {isGenerating ? 'Saving...' : 'Save'}
+                    Save
                   </Button>
                 </>
               )}
               <Button
-                variant={showLineage ? 'primary' : 'outline'}
+                variant="outline"
                 size="md"
-                icon={<GitBranch className="w-5 h-5" />}
+                icon={<GitBranch className="w-4 h-4" />}
                 onClick={() => setShowLineage(!showLineage)}
               >
-                {showLineage ? 'Hide Lineage' : 'Show Lineage'}
+                {showLineage ? 'Editor' : 'Versions'}
               </Button>
             </div>
           </div>
         </div>
-        {/* Progress bar when generating */}
-        {isGenerating && (
-          <div className="h-1 bg-gray-900">
-            <div className="h-full bg-white animate-pulse"></div>
-          </div>
-        )}
       </div>
 
       {/* Conditional Content: Lineage View or Cover Letter Builder */}
       {showLineage ? (
-        <div className="max-w-[1600px] mx-auto px-8 py-8">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <CoverLetterLineageDiagram
             onVersionClick={handleVersionClick}
             onDownload={handleDownloadVersion}
@@ -491,40 +482,12 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
       ) : (
         <>
           {/* Main Content */}
-          <div className="max-w-[1400px] mx-auto px-8 py-8">
-            {/* Quick Tips Banner */}
-            <div className="mb-6 bg-gray-100 border-2 border-gray-900 rounded-xl p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Quick Tips for a Great Cover Letter</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
-                      <span><strong>Opening:</strong> State the position and express enthusiasm</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
-                      <span><strong>Body:</strong> Highlight relevant skills and achievements</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
-                      <span><strong>Closing:</strong> Thank them and request an interview</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="space-y-4">
               {/* Personal Information */}
-              <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-                <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-white rounded-full"></div>
+              <section className="bg-white border border-gray-300">
+                <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+                  <h2 className="text-lg font-bold text-gray-900">
                     Your Information
                   </h2>
                   <p className="text-gray-400 text-sm mt-1">Your contact details for the cover letter header</p>
