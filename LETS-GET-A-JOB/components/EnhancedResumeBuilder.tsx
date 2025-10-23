@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, GitBranch, History } from 'lucide-react'
+import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, GitBranch } from 'lucide-react'
 import { useAutoSave, loadSavedData, clearSavedData } from '@/hooks/useAutoSave'
 import { useToast } from '@/components/ui/Toast'
 import { Input } from '@/components/ui/Input'
@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { renderSection } from './resume-sections/RenderSections'
 import PDFPreviewModal from './PDFPreviewModal'
-import ResumeVersionHistory from './ResumeVersionHistory'
 import ResumeLineageDiagram from './ResumeLineageDiagram'
 import DownloadResumeModal from './DownloadResumeModal'
 import {
@@ -85,13 +84,11 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'edit' | 'history' | 'lineage'>('edit')
-  const [showBranchModal, setShowBranchModal] = useState(false)
-  const [selectedVersionForBranch, setSelectedVersionForBranch] = useState<number | null>(null)
+  const [showLineage, setShowLineage] = useState(false)
   const [currentVersionId, setCurrentVersionId] = useState<number | null>(null)
   const [currentVersionName, setCurrentVersionName] = useState<string>('')
   const [currentParentVersionId, setCurrentParentVersionId] = useState<number | null>(null)
-  const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const [showSaveModal, setShowSaveModal] = useState(false)
 
   // Personal Info
   const [personalInfo, setPersonalInfo] = useState(() => {
@@ -451,12 +448,12 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     }
   }
 
-  const handleDownload = async () => {
-    // Show download modal instead of downloading directly
-    setShowDownloadModal(true)
+  const handleSave = async () => {
+    // Show save modal to save as new version
+    setShowSaveModal(true)
   }
 
-  const handleModalDownload = async (customName: string) => {
+  const handleModalSave = async (customName: string) => {
     if (previewUrl) {
       // Download from existing preview
       const a = document.createElement('a')
@@ -546,8 +543,8 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         setCurrentVersionName(version.version_name)
         setCurrentParentVersionId(version.parent_version_id)
 
-        // Switch to edit tab
-        setActiveTab('edit')
+        // Hide lineage to show edit view
+        setShowLineage(false)
         showToast('success', `Loaded version: ${version.version_name}`)
       }
     } catch (error) {
@@ -564,6 +561,32 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
 
   const handleVersionClick = (versionId: number) => {
     handleEditVersion(versionId)
+  }
+
+  const handleDownloadVersion = async (versionId: number) => {
+    try {
+      setIsGenerating(true)
+      const response = await fetch(`/api/resumes/${versionId}/download`)
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `resume-${versionId}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        showToast('success', 'Resume downloaded successfully')
+      } else {
+        throw new Error('Failed to download resume')
+      }
+    } catch (error) {
+      console.error('Error downloading resume:', error)
+      showToast('error', 'Failed to download resume')
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   // Professional Sortable Section Component
@@ -635,14 +658,16 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {lastSaved && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-gray-300 rounded-lg text-sm font-medium border border-gray-700 shadow-sm">
-                  <CheckCircle className="w-4 h-4" />
-                  Auto-saved
-                </div>
-              )}
               <Button variant="outline" size="sm" onClick={handleClearData}>
                 Clear All
+              </Button>
+              <Button
+                variant="outline"
+                size="md"
+                icon={<GitBranch className="w-5 h-5" />}
+                onClick={() => setShowLineage(!showLineage)}
+              >
+                {showLineage ? 'Hide Lineage' : 'Show Lineage'}
               </Button>
               <Button
                 variant="secondary"
@@ -657,10 +682,10 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
                 variant="primary"
                 size="md"
                 loading={isGenerating}
-                icon={<Download className="w-5 h-5" />}
-                onClick={handleDownload}
+                icon={<CheckCircle className="w-5 h-5" />}
+                onClick={handleSave}
               >
-                {isGenerating ? 'Generating...' : 'Download PDF'}
+                {isGenerating ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>
@@ -671,64 +696,17 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
             <div className="h-full bg-white animate-pulse"></div>
           </div>
         )}
-
-        {/* Tab Navigation */}
-        <div className="border-t border-gray-800 bg-gray-900">
-          <div className="max-w-[1600px] mx-auto px-8">
-            <div className="flex gap-0">
-              <button
-                onClick={() => setActiveTab('edit')}
-                className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'edit'
-                  ? 'bg-white text-black'
-                  : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
-                  }`}
-              >
-                <span className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Edit Resume
-                </span>
-                {activeTab === 'edit' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'history'
-                  ? 'bg-white text-black'
-                  : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
-                  }`}
-              >
-                <span className="flex items-center gap-2">
-                  <History className="w-4 h-4" />
-                  Version History
-                </span>
-                {activeTab === 'history' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('lineage')}
-                className={`px-6 py-3 font-medium transition-all relative ${activeTab === 'lineage'
-                  ? 'bg-white text-black'
-                  : 'bg-transparent text-gray-400 hover:text-white hover:bg-gray-800'
-                  }`}
-              >
-                <span className="flex items-center gap-2">
-                  <GitBranch className="w-4 h-4" />
-                  Version Lineage
-                </span>
-                {activeTab === 'lineage' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="max-w-[1600px] mx-auto px-8 py-8">
-        {/* Edit Tab - Resume Builder */}
-        {activeTab === 'edit' && (
+        {/* Show Lineage or Resume Builder */}
+        {showLineage ? (
+          <ResumeLineageDiagram
+            onVersionClick={handleVersionClick}
+            onDownload={handleDownloadVersion}
+            onCreateBranch={handleCreateBranch}
+          />
+        ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Left Sidebar - Section Manager - Black/White/Grey Theme */}
             <div className="lg:col-span-1">
@@ -905,18 +883,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
             </div>
           </div>
         )}
-
-        {/* Version History Tab */}
-        {activeTab === 'history' && (
-          <ResumeVersionHistory
-            onCreateBranch={handleCreateBranch}
-          />
-        )}
-
-        {/* Version Lineage Tab */}
-        {activeTab === 'lineage' && (
-          <ResumeLineageDiagram onVersionClick={handleVersionClick} />
-        )}
       </div>
 
       {/* PDF Preview Modal */}
@@ -925,14 +891,14 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
         onClose={handleClosePreview}
         pdfUrl={previewUrl}
         title="Resume Preview"
-        onDownload={handleDownload}
+        onDownload={handleSave}
       />
 
-      {/* Download Resume Modal */}
+      {/* Save Resume Modal */}
       <DownloadResumeModal
-        isOpen={showDownloadModal}
-        onClose={() => setShowDownloadModal(false)}
-        onDownload={handleModalDownload}
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        onDownload={handleModalSave}
         versionId={currentVersionId || 0}
         currentVersionName={currentVersionName || 'My Resume'}
         isBranchedResume={currentParentVersionId !== null}

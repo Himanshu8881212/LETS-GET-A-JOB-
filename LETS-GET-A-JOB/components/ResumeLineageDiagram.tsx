@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GitBranch, Filter, Calendar, Award, Search } from 'lucide-react'
+import { GitBranch, Filter, Calendar, Award, Search, Download } from 'lucide-react'
 
 interface VersionNode {
   id: number
@@ -17,14 +17,23 @@ interface VersionNode {
     totalApplications: number
     successRate: number
     offerCount: number
+    appliedCount: number
+    interviewCount: number
+    rejectedCount: number
   }
 }
 
 interface ResumeLineageDiagramProps {
   onVersionClick: (versionId: number) => void
+  onDownload?: (versionId: number) => void
+  onCreateBranch?: (versionId: number) => void
 }
 
-export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDiagramProps) {
+export default function ResumeLineageDiagram({
+  onVersionClick,
+  onDownload,
+  onCreateBranch
+}: ResumeLineageDiagramProps) {
   const [lineage, setLineage] = useState<VersionNode[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedVersion, setSelectedVersion] = useState<number | null>(null)
@@ -295,6 +304,8 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
                   level={0}
                   isSelected={selectedVersion === root.id}
                   onVersionClick={handleVersionClick}
+                  onDownload={onDownload}
+                  onCreateBranch={onCreateBranch}
                 />
               </div>
             ))
@@ -345,12 +356,16 @@ function VersionTree({
   level,
   isSelected,
   onVersionClick,
+  onDownload,
+  onCreateBranch,
   isLast = false
 }: {
   node: VersionNode
   level: number
   isSelected: boolean
   onVersionClick: (id: number) => void
+  onDownload?: (id: number) => void
+  onCreateBranch?: (id: number) => void
   isLast?: boolean
 }) {
   const getSuccessColor = (successRate: number, hasData: boolean) => {
@@ -376,60 +391,102 @@ function VersionTree({
       )}
 
       <div className="relative flex-1">
-        <button
-          onClick={() => onVersionClick(node.id)}
+        <div
           className={`
-            flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all w-full text-left
+            flex flex-col gap-4 px-5 py-4 rounded-xl border-2 transition-all w-full
             ${isSelected
-              ? 'border-black bg-gray-50 shadow-xl scale-105'
-              : 'border-gray-300 hover:border-gray-900 hover:shadow-lg hover:scale-102'
+              ? 'border-black bg-gray-50 shadow-xl'
+              : 'border-gray-300 hover:border-gray-900 hover:shadow-lg'
             }
           `}
         >
-          <div className={`w-4 h-4 rounded-full ${successColor} flex-shrink-0 shadow-md`}></div>
-
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <span className="font-bold text-lg text-gray-900">{node.version_number}</span>
-              <span className="px-2.5 py-0.5 bg-gray-900 text-white rounded-lg text-xs font-semibold">
-                {node.branch_name}
-              </span>
-              {node.stats.successRate >= 70 && hasData && (
-                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-lg text-xs font-semibold flex items-center gap-1">
-                  <Award className="w-3 h-3" />
-                  Top
+          {/* Top row: Version info and date */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`w-4 h-4 rounded-full ${successColor} flex-shrink-0 shadow-md`}></div>
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-lg text-gray-900">{node.version_number}</span>
+                <span className="px-2.5 py-0.5 bg-gray-900 text-white rounded-lg text-xs font-semibold">
+                  {node.branch_name}
                 </span>
+                {node.stats.successRate >= 70 && hasData && (
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <Award className="w-3 h-3" />
+                    Top
+                  </span>
+                )}
+              </div>
+              <div className="text-sm text-gray-600 font-medium">{node.version_name}</div>
+            </div>
+            <div className="text-xs text-gray-500 font-medium flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5" />
+              {new Date(node.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </div>
+          </div>
+
+          {/* Bottom row: 4 rings and buttons */}
+          <div className="flex items-center justify-between">
+            {/* 4 Rings */}
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full border-4 border-blue-500 flex items-center justify-center bg-white shadow-md">
+                  <span className="text-sm font-bold text-gray-900">{node.stats.appliedCount || 0}</span>
+                </div>
+                <span className="text-xs text-gray-600 font-medium mt-1">Applied</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full border-4 border-yellow-500 flex items-center justify-center bg-white shadow-md">
+                  <span className="text-sm font-bold text-gray-900">{node.stats.interviewCount || 0}</span>
+                </div>
+                <span className="text-xs text-gray-600 font-medium mt-1">Interview</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full border-4 border-green-500 flex items-center justify-center bg-white shadow-md">
+                  <span className="text-sm font-bold text-gray-900">{node.stats.offerCount || 0}</span>
+                </div>
+                <span className="text-xs text-gray-600 font-medium mt-1">Offer</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full border-4 border-red-500 flex items-center justify-center bg-white shadow-md">
+                  <span className="text-sm font-bold text-gray-900">{node.stats.rejectedCount || 0}</span>
+                </div>
+                <span className="text-xs text-gray-600 font-medium mt-1">Rejected</span>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex items-center gap-2">
+              {onDownload && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDownload(node.id)
+                  }}
+                  className="px-4 py-2 bg-white border-2 border-gray-900 text-gray-900 rounded-lg font-semibold hover:bg-gray-900 hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </button>
+              )}
+              {onCreateBranch && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onCreateBranch(node.id)
+                  }}
+                  className="px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-black transition-colors flex items-center gap-2"
+                >
+                  <GitBranch className="w-4 h-4" />
+                  Branch
+                </button>
               )}
             </div>
-            <div className="text-sm text-gray-600 font-medium">{node.version_name}</div>
           </div>
-
-          {hasData && (
-            <div className="flex items-center gap-4 pl-4 border-l-2 border-gray-300">
-              <div className="text-center">
-                <div className="text-xs text-gray-500 font-medium">Success</div>
-                <div className="text-lg font-black text-gray-900">{node.stats.successRate}%</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500 font-medium">Apps</div>
-                <div className="text-lg font-black text-gray-900">{node.stats.totalApplications}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500 font-medium">Offers</div>
-                <div className="text-lg font-black text-green-600">{node.stats.offerCount}</div>
-              </div>
-            </div>
-          )}
-
-          <div className="text-xs text-gray-500 font-medium flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" />
-            {new Date(node.created_at).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </div>
-        </button>
+        </div>
 
         {node.children && node.children.length > 0 && (
           <div className="ml-8 mt-6 space-y-6 relative">
@@ -443,6 +500,8 @@ function VersionTree({
                   level={level + 1}
                   isSelected={isSelected}
                   onVersionClick={onVersionClick}
+                  onDownload={onDownload}
+                  onCreateBranch={onCreateBranch}
                   isLast={index === node.children.length - 1}
                 />
               </div>

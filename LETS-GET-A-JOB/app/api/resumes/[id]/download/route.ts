@@ -27,7 +27,7 @@ export async function GET(
     }
 
     // Get the resume version
-    const version = getResumeVersion(versionId, userId)
+    const version = getResumeVersion(userId, versionId)
 
     if (!version) {
       return NextResponse.json({ error: 'Resume version not found' }, { status: 404 })
