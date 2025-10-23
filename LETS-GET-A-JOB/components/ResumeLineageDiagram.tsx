@@ -101,12 +101,24 @@ export default function ResumeLineageDiagram({
   }
 
   const filterTree = (nodes: VersionNode[]): VersionNode[] => {
-    return nodes
-      .filter(filterNode)
-      .map(node => ({
-        ...node,
-        children: node.children ? filterTree(node.children) : []
-      }))
+    const filtered: VersionNode[] = []
+
+    for (const node of nodes) {
+      // Recursively filter children first
+      const filteredChildren = node.children ? filterTree(node.children) : []
+
+      // Include node if:
+      // 1. It matches the filter criteria, OR
+      // 2. It has children that match (to preserve tree structure)
+      if (filterNode(node) || filteredChildren.length > 0) {
+        filtered.push({
+          ...node,
+          children: filteredChildren
+        })
+      }
+    }
+
+    return filtered
   }
 
   // Filter by specific main resume lineage
