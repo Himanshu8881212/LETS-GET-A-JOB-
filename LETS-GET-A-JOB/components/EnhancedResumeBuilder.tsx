@@ -726,15 +726,13 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       <div className="bg-black border-b border-gray-800 sticky top-0 z-50 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-8 py-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-900 rounded-lg transition-all font-medium shadow-sm hover:shadow border border-gray-800"
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
-                Back
               </button>
-              <div className="h-8 w-px bg-gray-700"></div>
               <div>
                 <h1 className="text-2xl font-bold text-white tracking-tight">
                   Resume Builder
