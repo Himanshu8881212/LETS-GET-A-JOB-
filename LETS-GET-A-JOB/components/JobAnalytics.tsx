@@ -100,7 +100,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Applications */}
-          <div className="bg-white border-2 border-gray-900 rounded-xl p-6">
+          <div className="bg-white border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-4">
               <Briefcase className="w-8 h-8 text-gray-600" />
               <span className="text-3xl font-bold text-gray-900">{stats.total}</span>
@@ -109,7 +109,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
           </div>
 
           {/* Interview Rate */}
-          <div className="bg-white border-2 border-gray-900 rounded-xl p-6">
+          <div className="bg-white border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-4">
               <TrendingUp className="w-8 h-8 text-blue-600" />
               <span className="text-3xl font-bold text-blue-600">{stats.interviewRate.toFixed(1)}%</span>
@@ -119,7 +119,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
           </div>
 
           {/* Success Rate */}
-          <div className="bg-white border-2 border-gray-900 rounded-xl p-6">
+          <div className="bg-white border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
               <span className="text-3xl font-bold text-green-600">{stats.successRate.toFixed(1)}%</span>
@@ -129,7 +129,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
           </div>
 
           {/* Rejection Rate */}
-          <div className="bg-white border-2 border-gray-900 rounded-xl p-6">
+          <div className="bg-white border border-gray-300 p-6">
             <div className="flex items-center justify-between mb-4">
               <XCircle className="w-8 h-8 text-red-600" />
               <span className="text-3xl font-bold text-red-600">
@@ -145,7 +145,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
       {/* Status Breakdown */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Status Breakdown</h2>
-        <div className="bg-white border-2 border-gray-900 rounded-xl p-6">
+        <div className="bg-white border border-gray-300 p-6">
           <div className="space-y-4">
             {[
               { label: 'Applied', count: stats.applied, color: 'bg-gray-600' },
@@ -162,9 +162,9 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                       {item.count} ({percentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-gray-200 h-3">
                     <div
-                      className={`${item.color} h-3 rounded-full transition-all`}
+                      className={`${item.color} h-3 transition-all`}
                       style={{ width: `${percentage}%` }}
                     ></div>
                   </div>
@@ -179,9 +179,9 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
       {resumePerformance.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Resume Performance</h2>
-          <div className="bg-white border-2 border-gray-900 rounded-xl overflow-hidden">
+          <div className="bg-white border border-gray-300 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-black text-white">
+              <thead className="bg-gray-900 text-white">
                 <tr>
                   <th className="px-6 py-4 text-left font-bold">Resume Version</th>
                   <th className="px-6 py-4 text-center font-bold">Applications</th>
@@ -190,7 +190,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                   <th className="px-6 py-4 text-center font-bold">Success Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-gray-900">
+              <tbody className="divide-y divide-gray-300">
                 {resumePerformance.map((resume, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">{resume.version}</td>
@@ -203,7 +203,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${resume.offerRate >= 10
+                        className={`inline-flex items-center gap-1 px-3 py-1 text-sm font-medium ${resume.offerRate >= 10
                           ? 'bg-green-100 text-green-800'
                           : resume.offerRate >= 5
                             ? 'bg-yellow-100 text-yellow-800'
@@ -229,7 +229,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
       {/* Recent Activity - Max 5 items visible, then scroll */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
-        <div className="bg-white border-2 border-gray-900 rounded-xl divide-y-2 divide-gray-900 overflow-y-auto" style={{ maxHeight: 'calc(5 * 140px)' }}>
+        <div className="bg-white border border-gray-300 divide-y divide-gray-300 overflow-y-auto" style={{ maxHeight: 'calc(5 * 140px)' }}>
           {recentActivity.slice(0, 10).map(job => (
             <div key={job.id} className="p-6 hover:bg-gray-50 transition-colors">
               <div className="flex items-start justify-between">
@@ -250,7 +250,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                   </div>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium capitalize border ${getStatusColor(
+                  className={`px-3 py-1 text-sm font-medium capitalize border ${getStatusColor(
                     job.status
                   )}`}
                 >
