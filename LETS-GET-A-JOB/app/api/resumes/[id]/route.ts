@@ -38,9 +38,20 @@ export async function GET(
       )
     }
 
+    // Parse data_json safely, handle null/undefined
+    let parsedData = {}
+    if (version.data_json) {
+      try {
+        parsedData = JSON.parse(version.data_json)
+      } catch (parseError) {
+        console.error('Error parsing data_json:', parseError)
+        parsedData = {}
+      }
+    }
+
     return NextResponse.json({
       ...version,
-      data: JSON.parse(version.data_json),
+      data: parsedData,
       data_json: undefined
     })
   } catch (error) {
@@ -83,9 +94,20 @@ export async function PATCH(
       )
     }
 
+    // Parse data_json safely, handle null/undefined
+    let parsedData = {}
+    if (version.data_json) {
+      try {
+        parsedData = JSON.parse(version.data_json)
+      } catch (parseError) {
+        console.error('Error parsing data_json:', parseError)
+        parsedData = {}
+      }
+    }
+
     return NextResponse.json({
       ...version,
-      data: JSON.parse(version.data_json),
+      data: parsedData,
       data_json: undefined
     })
   } catch (error) {

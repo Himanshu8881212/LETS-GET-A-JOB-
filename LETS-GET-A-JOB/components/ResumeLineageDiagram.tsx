@@ -112,11 +112,6 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
     return selectedNode ? [selectedNode] : []
   }
 
-  let filteredLineage = filterTree(lineage)
-  filteredLineage = filterByMainResume(filteredLineage)
-
-  const branches = Array.from(new Set(lineage.flatMap(getAllBranches)))
-
   // Get all main resumes (resumes without parents)
   const getAllMainResumes = (nodes: VersionNode[]): VersionNode[] => {
     const mainResumes: VersionNode[] = []
@@ -135,6 +130,20 @@ export default function ResumeLineageDiagram({ onVersionClick }: ResumeLineageDi
   }
 
   const mainResumes = getAllMainResumes(lineage)
+
+  // Filter lineage: if no main resume selected, show only "main" branch root resumes
+  let filteredLineage = filterTree(lineage)
+
+  if (!selectedMainResume && !searchQuery) {
+    // Show only main branch resumes by default (not all root resumes)
+    filteredLineage = filteredLineage.filter(node =>
+      !node.parent_version_id && node.branch_name === 'main'
+    )
+  } else {
+    filteredLineage = filterByMainResume(filteredLineage)
+  }
+
+  const branches = Array.from(new Set(lineage.flatMap(getAllBranches)))
 
   if (loading) {
     return (
@@ -335,12 +344,14 @@ function VersionTree({
   node,
   level,
   isSelected,
-  onVersionClick
+  onVersionClick,
+  isLast = false
 }: {
   node: VersionNode
   level: number
   isSelected: boolean
   onVersionClick: (id: number) => void
+  isLast?: boolean
 }) {
   const getSuccessColor = (successRate: number, hasData: boolean) => {
     if (!hasData) return 'bg-gray-300'
@@ -353,10 +364,14 @@ function VersionTree({
   const successColor = getSuccessColor(node.stats.successRate, hasData)
 
   return (
-    <div className="flex items-start">
+    <div className="flex items-start relative">
+      {/* Connecting line from parent */}
       {level > 0 && (
-        <div className="flex items-center">
-          <div className="w-12 h-px bg-gray-400"></div>
+        <div className="flex items-center mr-4">
+          {/* Horizontal line */}
+          <div className="w-8 h-px bg-gray-400"></div>
+          {/* Arrow head */}
+          <div className="w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-8 border-l-gray-400"></div>
         </div>
       )}
 
@@ -417,17 +432,20 @@ function VersionTree({
         </button>
 
         {node.children && node.children.length > 0 && (
-          <div className="ml-12 mt-4 space-y-4 relative">
-            <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-400"></div>
+          <div className="ml-8 mt-6 space-y-6 relative">
+            {/* Vertical connecting line */}
+            <div className="absolute left-0 top-0 bottom-6 w-px bg-gray-400"></div>
 
-            {node.children.map((child) => (
-              <VersionTree
-                key={child.id}
-                node={child}
-                level={level + 1}
-                isSelected={isSelected}
-                onVersionClick={onVersionClick}
-              />
+            {node.children.map((child, index) => (
+              <div key={child.id} className="relative">
+                <VersionTree
+                  node={child}
+                  level={level + 1}
+                  isSelected={isSelected}
+                  onVersionClick={onVersionClick}
+                  isLast={index === node.children.length - 1}
+                />
+              </div>
             ))}
           </div>
         )}
