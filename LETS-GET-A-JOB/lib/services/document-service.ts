@@ -21,6 +21,10 @@ export interface ResumeVersion {
   file_size: number | null
   is_favorite: number
   tags: string | null
+  parent_version_id: number | null
+  version_number: string
+  branch_name: string
+  is_active: number
   created_at: string
   updated_at: string
 }
@@ -335,3 +339,150 @@ export async function deleteCoverLetterVersion(userId: number, versionId: number
   return false
 }
 
+/**
+ * Create a new resume version from an existing one (branching)
+ */
+export async function createResumeVersionBranch(
+  userId: number,
+  parentVersionId: number,
+  branchName: string,
+  versionName: string,
+  description?: string
+) {
+  const db = getDatabase()
+
+  // Get parent version
+  const parentVersion = db
+    .prepare('SELECT * FROM resume_versions WHERE id = ? AND user_id = ?')
+    .get(parentVersionId, userId) as ResumeVersion | undefined
+
+  if (!parentVersion) {
+    throw new Error('Parent version not found')
+  }
+
+  // Calculate new version number
+  const parentVersionNum = parentVersion.version_number || 'v1.0'
+  const [major, minor] = parentVersionNum.replace('v', '').split('.').map(Number)
+  const newVersionNumber = `v${major}.${minor + 1}`
+
+  // Create new version
+  const result = db
+    .prepare(
+      `INSERT INTO resume_versions
+       (user_id, version_name, description, data_json, parent_version_id,
+        version_number, branch_name, is_active, is_favorite, tags)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?)`
+    )
+    .run(
+      userId,
+      versionName,
+      description || `Branch from ${parentVersion.version_name}`,
+      parentVersion.data_json,
+      parentVersionId,
+      newVersionNumber,
+      branchName,
+      parentVersion.tags
+    )
+
+  // Log activity
+  logActivity({
+    userId,
+    action: 'create',
+    entityType: 'resume',
+    entityId: result.lastInsertRowid as number,
+    details: {
+      version_name: versionName,
+      branch_name: branchName,
+      parent_version_id: parentVersionId
+    }
+  })
+
+  return result.lastInsertRowid as number
+}
+
+/**
+ * Update resume version with new data (creates new version in lineage)
+ */
+export async function updateResumeVersionWithLineage(
+  userId: number,
+  currentVersionId: number,
+  data: ResumeData,
+  versionName?: string,
+  description?: string
+) {
+  const db = getDatabase()
+
+  // Get current version
+  const currentVersion = db
+    .prepare('SELECT * FROM resume_versions WHERE id = ? AND user_id = ?')
+    .get(currentVersionId, userId) as ResumeVersion | undefined
+
+  if (!currentVersion) {
+    throw new Error('Current version not found')
+  }
+
+  // Calculate new version number
+  const currentVersionNum = currentVersion.version_number || 'v1.0'
+  const [major, minor] = currentVersionNum.replace('v', '').split('.').map(Number)
+  const newVersionNumber = `v${major}.${minor + 1}`
+
+  // Create new version
+  const result = db
+    .prepare(
+      `INSERT INTO resume_versions
+       (user_id, version_name, description, data_json, parent_version_id,
+        version_number, branch_name, is_active, is_favorite, tags)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`
+    )
+    .run(
+      userId,
+      versionName || `${currentVersion.version_name} (Updated)`,
+      description || `Updated from ${currentVersion.version_name}`,
+      JSON.stringify(data),
+      currentVersionId,
+      newVersionNumber,
+      currentVersion.branch_name,
+      currentVersion.is_favorite,
+      currentVersion.tags
+    )
+
+  // Deactivate old version
+  db.prepare('UPDATE resume_versions SET is_active = 0 WHERE id = ?').run(currentVersionId)
+
+  // Log activity
+  logActivity({
+    userId,
+    action: 'update',
+    entityType: 'resume',
+    entityId: result.lastInsertRowid as number,
+    details: {
+      version_name: versionName,
+      parent_version_id: currentVersionId,
+      previous_version: currentVersion.version_name
+    }
+  })
+
+  return result.lastInsertRowid as number
+}
+
+/**
+ * Get next version number for a branch
+ */
+export function getNextVersionNumber(userId: number, branchName: string): string {
+  const db = getDatabase()
+
+  const latestVersion = db
+    .prepare(
+      `SELECT version_number FROM resume_versions
+       WHERE user_id = ? AND branch_name = ?
+       ORDER BY created_at DESC LIMIT 1`
+    )
+    .get(userId, branchName) as { version_number: string } | undefined
+
+  if (!latestVersion) {
+    return 'v1.0'
+  }
+
+  const [major, minor] = latestVersion.version_number.replace('v', '').split('.').map(Number)
+  return `v${major}.${minor + 1}`
+}

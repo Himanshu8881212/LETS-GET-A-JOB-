@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS job_applications (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Resume Versions table
+-- Resume Versions table (with git-like version control)
 CREATE TABLE IF NOT EXISTS resume_versions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -47,9 +47,17 @@ CREATE TABLE IF NOT EXISTS resume_versions (
   file_size INTEGER, -- Size in bytes
   is_favorite BOOLEAN DEFAULT 0,
   tags TEXT, -- Comma-separated tags for categorization
+
+  -- Version Control Fields
+  parent_version_id INTEGER, -- Reference to parent version (for branching)
+  version_number TEXT DEFAULT 'v1.0', -- Semantic version number (v1.0, v1.1, v2.0, etc.)
+  branch_name TEXT DEFAULT 'main', -- Branch name (main, tech-focused, creative, etc.)
+  is_active BOOLEAN DEFAULT 1, -- Whether this version is currently active
+
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (parent_version_id) REFERENCES resume_versions(id) ON DELETE SET NULL
 );
 
 -- Cover Letter Versions table
@@ -115,6 +123,9 @@ CREATE INDEX IF NOT EXISTS idx_jobs_user_applied_date ON job_applications(user_i
 CREATE INDEX IF NOT EXISTS idx_jobs_user_priority ON job_applications(user_id, priority);
 CREATE INDEX IF NOT EXISTS idx_resume_user_created ON resume_versions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_resume_user_favorite ON resume_versions(user_id, is_favorite);
+CREATE INDEX IF NOT EXISTS idx_resume_parent_version ON resume_versions(parent_version_id);
+CREATE INDEX IF NOT EXISTS idx_resume_branch ON resume_versions(user_id, branch_name);
+CREATE INDEX IF NOT EXISTS idx_resume_active ON resume_versions(user_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_cover_user_created ON cover_letter_versions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_cover_user_favorite ON cover_letter_versions(user_id, is_favorite);
 CREATE INDEX IF NOT EXISTS idx_activity_user_timestamp ON activity_logs(user_id, created_at DESC);

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye } from 'lucide-react'
+import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, GitBranch, History } from 'lucide-react'
 import { useAutoSave, loadSavedData, clearSavedData } from '@/hooks/useAutoSave'
 import { useToast } from '@/components/ui/Toast'
 import { Input } from '@/components/ui/Input'
@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { renderSection } from './resume-sections/RenderSections'
 import PDFPreviewModal from './PDFPreviewModal'
+import ResumeVersionHistory from './ResumeVersionHistory'
+import ResumeLineageDiagram from './ResumeLineageDiagram'
 import {
   DndContext,
   closestCenter,
@@ -82,6 +84,9 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'edit' | 'history' | 'lineage'>('edit')
+  const [showBranchModal, setShowBranchModal] = useState(false)
+  const [selectedVersionForBranch, setSelectedVersionForBranch] = useState<number | null>(null)
 
   // Personal Info
   const [personalInfo, setPersonalInfo] = useState(() => {
@@ -502,6 +507,48 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     }
   }
 
+  // Version Control Handlers
+  const handleEditVersion = async (versionId: number) => {
+    try {
+      const response = await fetch(`/api/resumes/${versionId}`)
+      if (response.ok) {
+        const version = await response.json()
+        const data = JSON.parse(version.data_json)
+
+        // Load the version data into the form
+        setPersonalInfo(data.personalInfo || {})
+        setSummary(data.summary || '')
+        setSkillCategories(data.skillCategories || [])
+        setExperiences(data.experiences || [])
+        setProjects(data.projects || [])
+        setEducation(data.education || [])
+        setCertifications(data.certifications || [])
+        setLanguages(data.languages || [])
+        setAwards(data.awards || [])
+        setHobbies(data.hobbies || [])
+        setPublications(data.publications || [])
+        setExtracurricular(data.extracurricular || [])
+        setVolunteer(data.volunteer || [])
+
+        // Switch to edit tab
+        setActiveTab('edit')
+        showToast('success', `Loaded version: ${version.version_name}`)
+      }
+    } catch (error) {
+      console.error('Error loading version:', error)
+      showToast('error', 'Failed to load version')
+    }
+  }
+
+  const handleCreateBranch = (versionId: number) => {
+    setSelectedVersionForBranch(versionId)
+    setShowBranchModal(true)
+  }
+
+  const handleVersionClick = (versionId: number) => {
+    handleEditVersion(versionId)
+  }
+
   // Professional Sortable Section Component
   function SortableSection({ section }: { section: SectionConfig }) {
     const {
@@ -607,184 +654,244 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
             <div className="h-full bg-white animate-pulse"></div>
           </div>
         )}
+
+        {/* Tab Navigation */}
+        <div className="border-t border-gray-800">
+          <div className="max-w-[1600px] mx-auto px-8">
+            <div className="flex gap-1">
+              <button
+                onClick={() => setActiveTab('edit')}
+                className={`px-6 py-3 font-medium transition-all ${activeTab === 'edit'
+                  ? 'bg-white text-black border-t-2 border-white'
+                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`}
+              >
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Edit Resume
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`px-6 py-3 font-medium transition-all ${activeTab === 'history'
+                  ? 'bg-white text-black border-t-2 border-white'
+                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`}
+              >
+                <span className="flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  Version History
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('lineage')}
+                className={`px-6 py-3 font-medium transition-all ${activeTab === 'lineage'
+                  ? 'bg-white text-black border-t-2 border-white'
+                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`}
+              >
+                <span className="flex items-center gap-2">
+                  <GitBranch className="w-4 h-4" />
+                  Version Lineage
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="max-w-[1600px] mx-auto px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left Sidebar - Section Manager - Black/White/Grey Theme */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border-2 border-gray-900 shadow-lg sticky top-28 overflow-hidden">
-              <div className="p-6 border-b-2 border-gray-900 bg-black">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                  <h2 className="text-lg font-bold text-white">Section Manager</h2>
-                </div>
-                <p className="text-xs text-gray-400">
-                  Drag to reorder • Toggle to enable
-                </p>
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                  <div className="text-xs text-gray-400 flex items-center justify-between">
-                    <span>Enabled Sections</span>
-                    <span className="font-bold text-white">{sectionOrder.filter(s => s.enabled).length}/{sectionOrder.length}</span>
+        {/* Edit Tab - Resume Builder */}
+        {activeTab === 'edit' && (
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* Left Sidebar - Section Manager - Black/White/Grey Theme */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl border-2 border-gray-900 shadow-lg sticky top-28 overflow-hidden">
+                <div className="p-6 border-b-2 border-gray-900 bg-black">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    <h2 className="text-lg font-bold text-white">Section Manager</h2>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    Drag to reorder • Toggle to enable
+                  </p>
+                  <div className="mt-3 pt-3 border-t border-gray-700">
+                    <div className="text-xs text-gray-400 flex items-center justify-between">
+                      <span>Enabled Sections</span>
+                      <span className="font-bold text-white">{sectionOrder.filter(s => s.enabled).length}/{sectionOrder.length}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="p-4">
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={sectionOrder.map((s) => s.id)}
-                    strategy={verticalListSortingStrategy}
+                <div className="p-4">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
                   >
-                    <div className="space-y-1.5">
-                      {sectionOrder.map((section) => (
-                        <SortableSection key={section.id} section={section} />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
+                    <SortableContext
+                      items={sectionOrder.map((s) => s.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-1.5">
+                        {sectionOrder.map((section) => (
+                          <SortableSection key={section.id} section={section} />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Main Content - Black/White/Grey Theme */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Quick Tips Banner */}
-            <div className="bg-gray-100 border-2 border-gray-900 rounded-xl p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Resume Best Practices</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
-                      <span><strong>Concise:</strong> Keep it to one page if possible</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
-                      <span><strong>Quantify:</strong> Use numbers and metrics in achievements</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
-                      <span><strong>Keywords:</strong> Match job description terminology</span>
+            {/* Main Content - Black/White/Grey Theme */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Quick Tips Banner */}
+              <div className="bg-gray-100 border-2 border-gray-900 rounded-xl p-6 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Resume Best Practices</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
+                        <span><strong>Concise:</strong> Keep it to one page if possible</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
+                        <span><strong>Quantify:</strong> Use numbers and metrics in achievements</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 bg-black rounded-full mt-1.5 flex-shrink-0"></div>
+                        <span><strong>Keywords:</strong> Match job description terminology</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Personal Information - Always shown */}
-            <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
-              <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <div className="w-1.5 h-6 bg-white rounded-full"></div>
-                  Personal Information
-                </h2>
-                <p className="text-gray-400 text-sm mt-1">Your contact details and professional links</p>
-              </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    label="First Name"
-                    required
-                    value={personalInfo.firstName}
-                    onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
-                    placeholder="John"
-                    maxLength={50}
-                    showCharCount
-                  />
-                  <Input
-                    label="Last Name"
-                    required
-                    value={personalInfo.lastName}
-                    onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
-                    placeholder="Doe"
-                    maxLength={50}
-                    showCharCount
-                  />
-                  <Input
-                    label="Email"
-                    required
-                    value={personalInfo.email}
-                    onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
-                    placeholder="john.doe@email.com"
-                  />
-                  <Input
-                    label="Phone"
-                    required
-                    value={personalInfo.phone}
-                    onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                  <Input
-                    label="LinkedIn"
-                    value={personalInfo.linkedin}
-                    onChange={(e) => setPersonalInfo({ ...personalInfo, linkedin: e.target.value })}
-                    placeholder="linkedin.com/in/johndoe"
-                  />
-                  <Input
-                    label="GitHub"
-                    value={personalInfo.github}
-                    onChange={(e) => setPersonalInfo({ ...personalInfo, github: e.target.value })}
-                    placeholder="github.com/johndoe"
-                  />
+              {/* Personal Information - Always shown */}
+              <section className="bg-white rounded-xl border-2 border-gray-900 shadow-sm overflow-hidden">
+                <div className="px-8 py-5 bg-black border-b-2 border-gray-900">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <div className="w-1.5 h-6 bg-white rounded-full"></div>
+                    Personal Information
+                  </h2>
+                  <p className="text-gray-400 text-sm mt-1">Your contact details and professional links</p>
                 </div>
-              </div>
-            </section>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Input
+                      label="First Name"
+                      required
+                      value={personalInfo.firstName}
+                      onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
+                      placeholder="John"
+                      maxLength={50}
+                      showCharCount
+                    />
+                    <Input
+                      label="Last Name"
+                      required
+                      value={personalInfo.lastName}
+                      onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
+                      placeholder="Doe"
+                      maxLength={50}
+                      showCharCount
+                    />
+                    <Input
+                      label="Email"
+                      required
+                      value={personalInfo.email}
+                      onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
+                      placeholder="john.doe@email.com"
+                    />
+                    <Input
+                      label="Phone"
+                      required
+                      value={personalInfo.phone}
+                      onChange={(e) => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                    <Input
+                      label="LinkedIn"
+                      value={personalInfo.linkedin}
+                      onChange={(e) => setPersonalInfo({ ...personalInfo, linkedin: e.target.value })}
+                      placeholder="linkedin.com/in/johndoe"
+                    />
+                    <Input
+                      label="GitHub"
+                      value={personalInfo.github}
+                      onChange={(e) => setPersonalInfo({ ...personalInfo, github: e.target.value })}
+                      placeholder="github.com/johndoe"
+                    />
+                  </div>
+                </div>
+              </section>
 
-            {/* Render sections based on order and enabled status */}
-            {sectionOrder
-              .filter((section) => section.enabled)
-              .map((section) => {
-                const sectionProps = {
-                  summary,
-                  setSummary,
-                  skillCategories,
-                  addSkillCategory,
-                  removeSkillCategory,
-                  updateSkillCategory,
-                  experiences,
-                  addExperience,
-                  removeExperience,
-                  updateExperience,
-                  addBullet,
-                  removeBullet,
-                  updateBullet,
-                  projects,
-                  addProject,
-                  removeProject,
-                  updateProject,
-                  education,
-                  addEducation,
-                  removeEducation,
-                  updateEducation,
-                  certifications,
-                  languages,
-                  awards,
-                  hobbies,
-                  publications,
-                  extracurricular,
-                  volunteer,
-                  addListItem,
-                  removeListItem,
-                  updateListItem,
-                  addPublication,
-                  removePublication,
-                  updatePublication,
-                  addActivity,
-                  removeActivity,
-                  updateActivity,
-                }
+              {/* Render sections based on order and enabled status */}
+              {sectionOrder
+                .filter((section) => section.enabled)
+                .map((section) => {
+                  const sectionProps = {
+                    summary,
+                    setSummary,
+                    skillCategories,
+                    addSkillCategory,
+                    removeSkillCategory,
+                    updateSkillCategory,
+                    experiences,
+                    addExperience,
+                    removeExperience,
+                    updateExperience,
+                    addBullet,
+                    removeBullet,
+                    updateBullet,
+                    projects,
+                    addProject,
+                    removeProject,
+                    updateProject,
+                    education,
+                    addEducation,
+                    removeEducation,
+                    updateEducation,
+                    certifications,
+                    languages,
+                    awards,
+                    hobbies,
+                    publications,
+                    extracurricular,
+                    volunteer,
+                    addListItem,
+                    removeListItem,
+                    updateListItem,
+                    addPublication,
+                    removePublication,
+                    updatePublication,
+                    addActivity,
+                    removeActivity,
+                    updateActivity,
+                  }
 
-                return renderSection(section.id, sectionProps)
-              })}
+                  return renderSection(section.id, sectionProps)
+                })}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Version History Tab */}
+        {activeTab === 'history' && (
+          <ResumeVersionHistory
+            onEdit={handleEditVersion}
+            onCreateBranch={handleCreateBranch}
+          />
+        )}
+
+        {/* Version Lineage Tab */}
+        {activeTab === 'lineage' && (
+          <ResumeLineageDiagram onVersionClick={handleVersionClick} />
+        )}
       </div>
 
       {/* PDF Preview Modal */}
