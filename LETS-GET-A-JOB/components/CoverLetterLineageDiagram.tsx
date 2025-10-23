@@ -186,14 +186,14 @@ export default function CoverLetterLineageDiagram({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        <div className="animate-spin h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     )
   }
 
   if (lineage.length === 0) {
     return (
-      <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200">
+      <div className="text-center py-16 bg-gray-50 border border-gray-300">
         <GitBranch className="w-16 h-16 text-gray-400 mx-auto mb-4" />
         <p className="text-lg font-semibold text-gray-700">No version history yet</p>
         <p className="text-sm text-gray-500 mt-2">Create your first cover letter to start tracking versions</p>
@@ -206,7 +206,7 @@ export default function CoverLetterLineageDiagram({
       <div className="flex flex-col gap-6">
         <div>
           <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-900 flex items-center justify-center">
               <GitBranch className="w-5 h-5 text-white" />
             </div>
             Version Lineage
@@ -217,7 +217,7 @@ export default function CoverLetterLineageDiagram({
         </div>
 
         {/* Compact Filters Panel */}
-        <div className="bg-white border-2 border-gray-900 rounded-xl p-4">
+        <div className="bg-white border border-gray-300 p-4">
           <div className="flex items-center gap-2 mb-3">
             <Filter className="w-4 h-4 text-gray-900" />
             <h3 className="text-sm font-bold text-gray-900">Filters</h3>
@@ -232,7 +232,7 @@ export default function CoverLetterLineageDiagram({
               <select
                 value={selectedMainCoverLetter || ''}
                 onChange={(e) => setSelectedMainCoverLetter(e.target.value ? Number(e.target.value) : null)}
-                className="w-full px-3 py-2 border-2 border-gray-900 rounded-lg bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 border border-gray-900 bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <option value="">All Cover Letters</option>
                 {mainCoverLetters.map(coverLetter => (
@@ -255,7 +255,7 @@ export default function CoverLetterLineageDiagram({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name..."
-                  className="w-full pl-8 pr-3 py-2 border-2 border-gray-900 rounded-lg bg-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-1"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-900 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-gray-900"
                 />
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function CoverLetterLineageDiagram({
               <select
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-900 rounded-lg bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 border border-gray-900 bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <option value="all">All Branches</option>
                 {branches.map(branch => (
@@ -288,7 +288,7 @@ export default function CoverLetterLineageDiagram({
                     type="checkbox"
                     checked={showOnlyWithData}
                     onChange={(e) => setShowOnlyWithData(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black cursor-pointer"
+                    className="w-3.5 h-3.5 border-gray-300 text-gray-900 focus:ring-gray-900 cursor-pointer"
                   />
                   <span className="text-xs text-gray-700">Only show versions with applications</span>
                 </label>
@@ -297,7 +297,7 @@ export default function CoverLetterLineageDiagram({
                     type="checkbox"
                     checked={showOnlyStarred}
                     onChange={(e) => setShowOnlyStarred(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black cursor-pointer"
+                    className="w-3.5 h-3.5 border-gray-300 text-gray-900 focus:ring-gray-900 cursor-pointer"
                   />
                   <span className="text-xs text-gray-700">Only show starred cover letters</span>
                 </label>
@@ -317,7 +317,7 @@ export default function CoverLetterLineageDiagram({
               step="10"
               value={minSuccessRate}
               onChange={(e) => setMinSuccessRate(Number(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+              className="w-full h-1.5 bg-gray-200 appearance-none cursor-pointer accent-gray-900"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-0.5">
               <span>0%</span>
@@ -328,7 +328,7 @@ export default function CoverLetterLineageDiagram({
         </div>
       </div>
 
-      <div className="bg-white border-2 border-gray-900 rounded-2xl p-8 overflow-x-auto">
+      <div className="bg-white border border-gray-300 p-8 overflow-x-auto">
         <div className="min-w-max">
           {filteredLineage.length === 0 ? (
             <div className="text-center py-12">
@@ -415,24 +415,24 @@ function VersionTree({
       <div className="relative flex-1">
         <div
           className={`
-            flex flex-col gap-4 px-5 py-4 rounded-xl border-2 transition-all w-full
+            flex flex-col gap-4 px-5 py-4 border transition-all w-full
             ${isSelected
-              ? 'border-black bg-gray-50 shadow-xl'
-              : 'border-gray-900 hover:shadow-lg bg-white'
+              ? 'border-gray-900 bg-gray-50'
+              : 'border-gray-300 hover:border-gray-900'
             }
           `}
         >
           {/* Top row: Version info and date */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={`w-4 h-4 rounded-full ${successColor} flex-shrink-0 shadow-md`}></div>
+              <div className={`w-4 h-4 ${successColor} flex-shrink-0`}></div>
               <div className="flex items-center gap-3">
                 <span className="font-bold text-lg text-gray-900">{node.version_number}</span>
-                <span className="px-2.5 py-0.5 bg-gray-900 text-white rounded-lg text-xs font-semibold">
+                <span className="px-2.5 py-0.5 bg-gray-900 text-white text-xs font-semibold">
                   {node.branch_name}
                 </span>
                 {node.stats.successRate >= 70 && hasData && (
-                  <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-lg text-xs font-semibold flex items-center gap-1">
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold flex items-center gap-1">
                     <Award className="w-3 h-3" />
                     Top
                   </span>
@@ -615,9 +615,9 @@ function VersionTree({
                     e.stopPropagation()
                     onToggleStar(node.id, node.is_favorite)
                   }}
-                  className={`p-2 rounded-lg font-semibold transition-colors ${node.is_favorite
+                  className={`p-2 font-semibold transition-colors ${node.is_favorite
                     ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                    : 'bg-white border-2 border-gray-300 text-gray-600 hover:border-yellow-500 hover:text-yellow-600'
+                    : 'bg-white border border-gray-300 text-gray-600 hover:border-yellow-500 hover:text-yellow-600'
                     }`}
                   title={node.is_favorite ? 'Unstar' : 'Star'}
                 >
@@ -630,7 +630,7 @@ function VersionTree({
                     e.stopPropagation()
                     onDownload(node.id)
                   }}
-                  className="px-4 py-2 bg-white border-2 border-gray-900 text-gray-900 rounded-lg font-semibold hover:bg-gray-900 hover:text-white transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-white border border-gray-900 text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-colors flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   Download
@@ -642,7 +642,7 @@ function VersionTree({
                     e.stopPropagation()
                     onCreateBranch(node.id)
                   }}
-                  className="px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-black transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
                 >
                   <GitBranch className="w-4 h-4" />
                   Branch
@@ -656,7 +656,7 @@ function VersionTree({
                       onDelete(node.id)
                     }
                   }}
-                  className="p-2 bg-white border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
+                  className="p-2 bg-white border border-red-300 text-red-600 font-semibold hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors"
                   title="Delete"
                 >
                   <Trash2 className="w-4 h-4" />
