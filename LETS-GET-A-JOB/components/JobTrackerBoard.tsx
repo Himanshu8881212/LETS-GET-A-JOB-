@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import {
   DndContext,
@@ -52,6 +52,7 @@ interface JobTrackerBoardProps {
     coverLetterVersionId?: number | null
   }
   autoOpenModal?: boolean
+  onModalClose?: () => void
 }
 
 const COLUMNS: { id: JobStatus; title: string; color: string; headerColor: string; count: number }[] = [
@@ -68,10 +69,18 @@ export default function JobTrackerBoard({
   onDeleteJob,
   initialJobData,
   autoOpenModal = false,
+  onModalClose,
 }: JobTrackerBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(autoOpenModal)
   const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null)
+
+  // Update modal state when autoOpenModal prop changes
+  useEffect(() => {
+    if (autoOpenModal && initialJobData) {
+      setShowAddModal(true)
+    }
+  }, [autoOpenModal, initialJobData])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -205,7 +214,12 @@ export default function JobTrackerBoard({
       {/* Modals */}
       {showAddModal && (
         <AddJobModal
-          onClose={() => setShowAddModal(false)}
+          onClose={() => {
+            setShowAddModal(false)
+            if (onModalClose) {
+              onModalClose()
+            }
+          }}
           onAdd={onAddJob}
           initialData={initialJobData}
         />

@@ -121,6 +121,9 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
         const createdJob = await response.json()
         const transformedJob = transformJob(createdJob)
         setJobs([...jobs, transformedJob])
+        // Clear prefill data after successful add
+        setInitialJobData(null)
+        setShouldAutoOpen(false)
       } else {
         const error = await response.json()
         console.error('Error adding job:', error)
@@ -267,6 +270,10 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
             onDeleteJob={handleDeleteJob}
             initialJobData={initialJobData}
             autoOpenModal={shouldAutoOpen}
+            onModalClose={() => {
+              setInitialJobData(null)
+              setShouldAutoOpen(false)
+            }}
           />
         ) : (
           <JobAnalytics jobs={jobs} />
