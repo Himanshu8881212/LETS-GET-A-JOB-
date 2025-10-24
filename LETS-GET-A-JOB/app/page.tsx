@@ -119,7 +119,15 @@ export default function Home() {
   if (activeTab === 'ai-evaluator') {
     return (
       <ToastProvider>
-        <AIATSEvaluator onBack={() => setActiveTab('home')} />
+        <AIATSEvaluator
+          onBack={() => setActiveTab('home')}
+          onNavigateToHistory={(evaluationId) => {
+            if (evaluationId) {
+              setAtsHistoryId(String(evaluationId))
+            }
+            setActiveTab('ats-history')
+          }}
+        />
       </ToastProvider>
     )
   }

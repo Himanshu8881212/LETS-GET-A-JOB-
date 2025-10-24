@@ -10,6 +10,7 @@ import ATSResultsView from './ATSResultsView'
 
 interface AIATSEvaluatorProps {
   onBack: () => void
+  onNavigateToHistory?: (evaluationId?: number) => void
 }
 
 interface ResumeVersion {
@@ -194,7 +195,7 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
   )
 }
 
-export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
+export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEvaluatorProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
@@ -465,7 +466,11 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
 
       // Redirect to history page with the new evaluation
       setTimeout(() => {
-        router.push(`/?tab=ats-history&id=${evaluationId}`)
+        if (onNavigateToHistory) {
+          onNavigateToHistory(evaluationId)
+        } else {
+          router.push(`/?tab=ats-history&id=${evaluationId}`)
+        }
       }, 1000)
     } catch (error) {
       console.error('Evaluation error:', error)
@@ -539,7 +544,13 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
             <Button
               variant="outline"
               size="md"
-              onClick={() => router.push('/?tab=ats-history')}
+              onClick={() => {
+                if (onNavigateToHistory) {
+                  onNavigateToHistory()
+                } else {
+                  router.push('/?tab=ats-history')
+                }
+              }}
               icon={<History className="w-4 h-4" />}
             >
               History
