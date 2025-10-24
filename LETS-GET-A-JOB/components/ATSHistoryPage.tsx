@@ -22,9 +22,16 @@ interface EvaluationHistoryItem {
 interface ATSHistoryPageContentProps {
   onBack?: () => void
   evaluationId?: string
+  onNavigateToEvaluator?: () => void
+  onNavigateToTracker?: (prefillData: any) => void
 }
 
-function ATSHistoryPageContent({ onBack, evaluationId: propEvaluationId }: ATSHistoryPageContentProps = {}) {
+function ATSHistoryPageContent({
+  onBack,
+  evaluationId: propEvaluationId,
+  onNavigateToEvaluator,
+  onNavigateToTracker
+}: ATSHistoryPageContentProps = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
@@ -58,8 +65,6 @@ function ATSHistoryPageContent({ onBack, evaluationId: propEvaluationId }: ATSHi
     } else if (evaluationHistory.length > 0 && !selectedEvaluation) {
       // No ID in URL, select the most recent evaluation by default
       setSelectedEvaluation(evaluationHistory[0])
-      // Update URL to reflect selection
-      router.push(`/ats-history?id=${evaluationHistory[0].id}`, { scroll: false })
     }
   }, [searchParams, evaluationHistory, selectedEvaluation, router])
 
@@ -96,16 +101,16 @@ function ATSHistoryPageContent({ onBack, evaluationId: propEvaluationId }: ATSHi
 
     setIsTransitioning(true)
     setSelectedEvaluation(evaluation)
-    // Update URL without page reload
-    router.push(`/ats-history?id=${evaluation.id}`, { scroll: false })
 
     // Remove transition after animation
     setTimeout(() => setIsTransitioning(false), 150)
   }
 
   const handleNewEvaluation = () => {
-    // Navigate to home page with ai-evaluator tab
-    if (onBack) {
+    // Navigate to evaluator
+    if (onNavigateToEvaluator) {
+      onNavigateToEvaluator()
+    } else if (onBack) {
       onBack()
     } else {
       router.push('/?tab=ai-evaluator')
@@ -138,13 +143,16 @@ function ATSHistoryPageContent({ onBack, evaluationId: propEvaluationId }: ATSHi
     }
 
     // Encode job data for URL
-    const jobDataEncoded = encodeURIComponent(JSON.stringify(jobData))
-
     // Open job URL in new tab
     window.open(evaluation.job_url, '_blank')
 
     // Navigate to job tracker with pre-filled data
-    router.push(`/?tab=tracker&prefill=${jobDataEncoded}`)
+    if (onNavigateToTracker) {
+      onNavigateToTracker(jobData)
+    } else {
+      const jobDataEncoded = encodeURIComponent(JSON.stringify(jobData))
+      router.push(`/?tab=tracker&prefill=${jobDataEncoded}`)
+    }
   }
 
   const handleRename = async (id: number, newName: string) => {
@@ -553,12 +561,24 @@ function ATSHistoryPageContent({ onBack, evaluationId: propEvaluationId }: ATSHi
 interface ATSHistoryPageProps {
   onBack?: () => void
   evaluationId?: string
+  onNavigateToEvaluator?: () => void
+  onNavigateToTracker?: (prefillData: any) => void
 }
 
-export default function ATSHistoryPage({ onBack, evaluationId }: ATSHistoryPageProps = {}) {
+export default function ATSHistoryPage({
+  onBack,
+  evaluationId,
+  onNavigateToEvaluator,
+  onNavigateToTracker
+}: ATSHistoryPageProps = {}) {
   return (
     <ToastProvider>
-      <ATSHistoryPageContent onBack={onBack} evaluationId={evaluationId} />
+      <ATSHistoryPageContent
+        onBack={onBack}
+        evaluationId={evaluationId}
+        onNavigateToEvaluator={onNavigateToEvaluator}
+        onNavigateToTracker={onNavigateToTracker}
+      />
     </ToastProvider>
   )
 }

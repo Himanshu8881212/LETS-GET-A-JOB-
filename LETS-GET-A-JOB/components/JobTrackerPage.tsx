@@ -39,32 +39,26 @@ const JobAnalytics = dynamic(
 
 interface JobTrackerPageProps {
   onBack?: () => void
+  prefillData?: any
 }
 
-export default function JobTrackerPage({ onBack }: JobTrackerPageProps = {}) {
-  const searchParams = useSearchParams()
+export default function JobTrackerPage({ onBack, prefillData }: JobTrackerPageProps = {}) {
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')
   const [jobs, setJobs] = useState<JobApplication[]>([])
   const [loading, setLoading] = useState(true)
-  const [initialJobData, setInitialJobData] = useState<any>(null)
+  const [initialJobData, setInitialJobData] = useState<any>(prefillData || null)
 
   // Load jobs from database on mount
   useEffect(() => {
     fetchJobs()
   }, [])
 
-  // Check for pre-filled job data from Apply action
+  // Update initial job data when prefillData prop changes
   useEffect(() => {
-    const prefillData = searchParams.get('prefill')
     if (prefillData) {
-      try {
-        const data = JSON.parse(decodeURIComponent(prefillData))
-        setInitialJobData(data)
-      } catch (error) {
-        console.error('Error parsing prefill data:', error)
-      }
+      setInitialJobData(prefillData)
     }
-  }, [searchParams])
+  }, [prefillData])
 
   // Transform database format to frontend format
   const transformJob = (dbJob: any): JobApplication => {

@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { FileText, Mail, BarChart3, ChevronRight, Sparkles } from 'lucide-react'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -83,22 +82,9 @@ const ATSHistoryPage = dynamic(
 )
 
 export default function Home() {
-  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator' | 'ats-history'>('home')
   const [atsHistoryId, setAtsHistoryId] = useState<string | undefined>(undefined)
-
-  // Check for tab query parameter on mount
-  useEffect(() => {
-    const tab = searchParams.get('tab')
-    const historyId = searchParams.get('id')
-
-    if (tab === 'ai-evaluator' || tab === 'resume' || tab === 'cover' || tab === 'tracker') {
-      setActiveTab(tab)
-    } else if (tab === 'ats-history' || historyId) {
-      setActiveTab('ats-history')
-      setAtsHistoryId(historyId || undefined)
-    }
-  }, [searchParams])
+  const [trackerPrefillData, setTrackerPrefillData] = useState<any>(null)
 
   if (activeTab === 'resume') {
     return (
@@ -135,7 +121,10 @@ export default function Home() {
   if (activeTab === 'tracker') {
     return (
       <ToastProvider>
-        <JobTrackerPage onBack={() => setActiveTab('home')} />
+        <JobTrackerPage
+          onBack={() => setActiveTab('home')}
+          prefillData={trackerPrefillData}
+        />
       </ToastProvider>
     )
   }
@@ -143,7 +132,15 @@ export default function Home() {
   if (activeTab === 'ats-history') {
     return (
       <ToastProvider>
-        <ATSHistoryPage onBack={() => setActiveTab('home')} evaluationId={atsHistoryId} />
+        <ATSHistoryPage
+          onBack={() => setActiveTab('home')}
+          evaluationId={atsHistoryId}
+          onNavigateToEvaluator={() => setActiveTab('ai-evaluator')}
+          onNavigateToTracker={(prefillData) => {
+            setTrackerPrefillData(prefillData)
+            setActiveTab('tracker')
+          }}
+        />
       </ToastProvider>
     )
   }
