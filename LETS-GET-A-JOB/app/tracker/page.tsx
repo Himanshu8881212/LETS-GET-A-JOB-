@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { ArrowLeft, Plus, BarChart3, TrendingUp } from 'lucide-react'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
@@ -37,14 +38,29 @@ const JobAnalytics = dynamic(
 )
 
 export default function JobTrackerPage() {
+  const searchParams = useSearchParams()
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')
   const [jobs, setJobs] = useState<JobApplication[]>([])
   const [loading, setLoading] = useState(true)
+  const [initialJobData, setInitialJobData] = useState<any>(null)
 
   // Load jobs from database on mount
   useEffect(() => {
     fetchJobs()
   }, [])
+
+  // Check for pre-filled job data from Apply action
+  useEffect(() => {
+    const prefillData = searchParams.get('prefill')
+    if (prefillData) {
+      try {
+        const data = JSON.parse(decodeURIComponent(prefillData))
+        setInitialJobData(data)
+      } catch (error) {
+        console.error('Error parsing prefill data:', error)
+      }
+    }
+  }, [searchParams])
 
   // Transform database format to frontend format
   const transformJob = (dbJob: any): JobApplication => {
@@ -217,7 +233,7 @@ export default function JobTrackerPage() {
                 <button
                   onClick={() => setActiveView('board')}
                   className={`px-4 py-2 text-sm font-medium transition-colors ${activeView === 'board'
-                    ? 'bg-white text-black'
+                    ? 'bg-white text-gray-900'
                     : 'text-gray-400 hover:text-white'
                     }`}
                 >
@@ -226,7 +242,7 @@ export default function JobTrackerPage() {
                 <button
                   onClick={() => setActiveView('analytics')}
                   className={`px-4 py-2 text-sm font-medium transition-colors ${activeView === 'analytics'
-                    ? 'bg-white text-black'
+                    ? 'bg-white text-gray-900'
                     : 'text-gray-400 hover:text-white'
                     }`}
                 >
@@ -246,6 +262,7 @@ export default function JobTrackerPage() {
             onAddJob={handleAddJob}
             onUpdateJob={handleUpdateJob}
             onDeleteJob={handleDeleteJob}
+            initialJobData={initialJobData}
           />
         ) : (
           <JobAnalytics jobs={jobs} />

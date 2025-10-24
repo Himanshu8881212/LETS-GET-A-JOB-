@@ -43,6 +43,14 @@ interface JobTrackerBoardProps {
   onAddJob: (job: JobApplication) => void
   onUpdateJob: (job: JobApplication) => void
   onDeleteJob: (jobId: string) => void
+  initialJobData?: {
+    company?: string
+    position?: string
+    jobUrl?: string
+    jobDescription?: string
+    resumeVersionId?: number | null
+    coverLetterVersionId?: number | null
+  }
 }
 
 const COLUMNS: { id: JobStatus; title: string; color: string; headerColor: string; count: number }[] = [
@@ -57,9 +65,10 @@ export default function JobTrackerBoard({
   onAddJob,
   onUpdateJob,
   onDeleteJob,
+  initialJobData,
 }: JobTrackerBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [showAddModal, setShowAddModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(!!initialJobData)
   const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null)
 
   const sensors = useSensors(
@@ -196,6 +205,7 @@ export default function JobTrackerBoard({
         <AddJobModal
           onClose={() => setShowAddModal(false)}
           onAdd={onAddJob}
+          initialData={initialJobData}
         />
       )}
 

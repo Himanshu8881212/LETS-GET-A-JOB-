@@ -99,7 +99,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <div className="bg-black border-b border-gray-800">
+      <div className="bg-gray-900 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <h1 className="text-5xl font-bold text-white tracking-tight">
             LETS GET A JOB!!!

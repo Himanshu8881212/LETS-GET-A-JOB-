@@ -7,6 +7,14 @@ import { JobApplication, JobStatus } from '@/types/job-tracker'
 interface AddJobModalProps {
   onClose: () => void
   onAdd: (job: JobApplication) => void
+  initialData?: {
+    company?: string
+    position?: string
+    jobUrl?: string
+    jobDescription?: string
+    resumeVersionId?: number | null
+    coverLetterVersionId?: number | null
+  }
 }
 
 interface VersionNode {
@@ -18,7 +26,7 @@ interface VersionNode {
   children: VersionNode[]
 }
 
-export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
+export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModalProps) {
   const [resumeVersions, setResumeVersions] = useState<VersionNode[]>([])
   const [coverLetterVersions, setCoverLetterVersions] = useState<VersionNode[]>([])
   const [loadingVersions, setLoadingVersions] = useState(true)
@@ -26,15 +34,15 @@ export default function AddJobModal({ onClose, onAdd }: AddJobModalProps) {
   const [lastUsedCoverLetterId, setLastUsedCoverLetterId] = useState<number | null>(null)
 
   const [formData, setFormData] = useState({
-    company: '',
-    position: '',
+    company: initialData?.company || '',
+    position: initialData?.position || '',
     status: 'applied' as JobStatus,
     applicationDate: new Date().toISOString().split('T')[0],
-    jobUrl: '', // MANDATORY
+    jobUrl: initialData?.jobUrl || '', // MANDATORY
     location: '',
-    notes: '',
-    resumeVersionId: null as number | null,
-    coverLetterVersionId: null as number | null,
+    notes: initialData?.jobDescription || '',
+    resumeVersionId: initialData?.resumeVersionId || null,
+    coverLetterVersionId: initialData?.coverLetterVersionId || null,
   })
 
   // Load versions and last used on mount

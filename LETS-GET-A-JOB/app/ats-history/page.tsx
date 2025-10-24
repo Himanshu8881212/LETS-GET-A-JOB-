@@ -103,7 +103,7 @@ function ATSHistoryPageContent() {
     router.push('/?tab=ai-evaluator')
   }
 
-  const handleApply = async (evaluation: EvaluationHistoryItem) => {
+  const handleApply = (evaluation: EvaluationHistoryItem) => {
     setMenuOpenId(null)
 
     // Extract company and position from custom_name or job description
@@ -118,43 +118,24 @@ function ATSHistoryPageContent() {
       return
     }
 
-    try {
-      // Create job application directly
-      const jobData = {
-        company,
-        position,
-        job_url: evaluation.job_url,
-        job_description: evaluation.job_description_text,
-        status: 'applied',
-        applied_date: new Date().toISOString().split('T')[0],
-        resume_version_id: evaluation.resume_version_id || null,
-        cover_letter_version_id: evaluation.cover_letter_version_id || null
-      }
-
-      const response = await fetch('/api/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(jobData)
-      })
-
-      if (response.ok) {
-        showToast('success', 'Job application created! Opening job URL...')
-
-        // Open job URL in new tab
-        window.open(evaluation.job_url, '_blank')
-
-        // Navigate to job tracker after a short delay
-        setTimeout(() => {
-          router.push('/?tab=tracker')
-        }, 1000)
-      } else {
-        const error = await response.json()
-        showToast('error', `Failed to create application: ${error.error || 'Unknown error'}`)
-      }
-    } catch (error) {
-      console.error('Error creating job application:', error)
-      showToast('error', 'Failed to create job application')
+    // Prepare pre-fill data for the modal
+    const jobData = {
+      company,
+      position,
+      jobUrl: evaluation.job_url,
+      jobDescription: evaluation.job_description_text,
+      resumeVersionId: evaluation.resume_version_id || null,
+      coverLetterVersionId: evaluation.cover_letter_version_id || null
     }
+
+    // Encode job data for URL
+    const jobDataEncoded = encodeURIComponent(JSON.stringify(jobData))
+
+    // Open job URL in new tab
+    window.open(evaluation.job_url, '_blank')
+
+    // Navigate to job tracker with pre-filled data
+    router.push(`/?tab=tracker&prefill=${jobDataEncoded}`)
   }
 
   const handleRename = async (id: number, newName: string) => {
