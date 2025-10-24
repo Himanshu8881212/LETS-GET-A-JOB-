@@ -390,7 +390,7 @@ function ATSHistoryPageContent({
       {/* Main Content with Sidebar */}
       <div className="flex">
         {/* Sidebar - Evaluation History */}
-        <div className="w-80 bg-gray-900 border-r border-gray-800 min-h-screen sticky top-16 overflow-y-auto max-h-[calc(100vh-4rem)]">
+        <div className="w-64 bg-gray-900 border-r border-gray-800 min-h-screen sticky top-16 overflow-y-auto max-h-[calc(100vh-4rem)]">
           <div className="p-4 border-b border-gray-800">
             <h2 className="font-bold text-white text-sm">
               {evaluationHistory.length} Evaluation{evaluationHistory.length !== 1 ? 's' : ''}
@@ -526,7 +526,7 @@ function ATSHistoryPageContent({
         </div>
 
         {/* Main Content Area */}
-        <div className={`flex-1 max-w-6xl mx-auto px-6 py-6 transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+        <div className={`flex-1 w-full px-12 py-6 transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'
           }`}>
           {selectedEvaluation && evaluationResult ? (
             <ATSResultsView
