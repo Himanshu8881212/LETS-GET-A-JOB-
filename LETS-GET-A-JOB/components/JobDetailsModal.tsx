@@ -1,8 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Trash2, ExternalLink, Calendar, MapPin, User, Mail, FileText, Clock, DollarSign, Phone, Tag, AlertCircle, CheckCircle2, XCircle, Briefcase } from 'lucide-react'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
+
+interface VersionNode {
+  id: number
+  version: string
+  name: string
+  created_at: string
+}
 
 interface JobDetailsModalProps {
   job: JobApplication
@@ -13,6 +20,9 @@ interface JobDetailsModalProps {
 
 export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: JobDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [resumeVersions, setResumeVersions] = useState<VersionNode[]>([])
+  const [coverLetterVersions, setCoverLetterVersions] = useState<VersionNode[]>([])
+  const [loadingVersions, setLoadingVersions] = useState(true)
 
   // Format date for input field (YYYY-MM-DD)
   const formatDateForInput = (date: Date) => {
@@ -34,7 +44,37 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
     contactEmail: job.contactEmail || '',
     notes: job.notes,
     resumeVersion: job.resumeVersion || '',
+    resumeVersionId: job.resumeVersionId || null,
+    coverLetterVersionId: job.coverLetterVersionId || null,
   })
+
+  // Load resume and cover letter versions
+  useEffect(() => {
+    const loadVersions = async () => {
+      try {
+        const [resumeRes, coverLetterRes] = await Promise.all([
+          fetch('/api/resume-versions'),
+          fetch('/api/cover-letter-versions')
+        ])
+
+        if (resumeRes.ok) {
+          const resumeData = await resumeRes.json()
+          setResumeVersions(resumeData.versions || [])
+        }
+
+        if (coverLetterRes.ok) {
+          const coverLetterData = await coverLetterRes.json()
+          setCoverLetterVersions(coverLetterData.versions || [])
+        }
+      } catch (error) {
+        console.error('Error loading versions:', error)
+      } finally {
+        setLoadingVersions(false)
+      }
+    }
+
+    loadVersions()
+  }, [])
 
   const handleSave = () => {
     const updatedJob: JobApplication = {
@@ -51,6 +91,8 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
       contactEmail: formData.contactEmail || undefined,
       notes: formData.notes,
       resumeVersion: formData.resumeVersion || undefined,
+      resumeVersionId: formData.resumeVersionId || undefined,
+      coverLetterVersionId: formData.coverLetterVersionId || undefined,
       updatedAt: new Date(),
       statusHistory:
         formData.status !== job.status
@@ -195,13 +237,50 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Resume Version</label>
-                  <input
-                    type="text"
-                    value={formData.resumeVersion}
-                    onChange={e => setFormData({ ...formData, resumeVersion: e.target.value })}
-                    placeholder="e.g., v1.2 - Software Engineer"
+                  <select
+                    value={formData.resumeVersionId || ''}
+                    onChange={e => {
+                      const versionId = e.target.value ? parseInt(e.target.value) : null
+                      const selectedVersion = resumeVersions.find(v => v.id === versionId)
+                      setFormData({
+                        ...formData,
+                        resumeVersionId: versionId,
+                        resumeVersion: selectedVersion ? `${selectedVersion.version} - ${selectedVersion.name}` : ''
+                      })
+                    }}
                     className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
-                  />
+                    disabled={loadingVersions}
+                  >
+                    <option value="">Select resume version</option>
+                    {resumeVersions.map(version => (
+                      <option key={version.id} value={version.id}>
+                        {version.version} - {version.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Cover Letter Version</label>
+                  <select
+                    value={formData.coverLetterVersionId || ''}
+                    onChange={e => {
+                      const versionId = e.target.value ? parseInt(e.target.value) : null
+                      setFormData({
+                        ...formData,
+                        coverLetterVersionId: versionId
+                      })
+                    }}
+                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    disabled={loadingVersions}
+                  >
+                    <option value="">Select cover letter version</option>
+                    {coverLetterVersions.map(version => (
+                      <option key={version.id} value={version.id}>
+                        {version.version} - {version.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
