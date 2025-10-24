@@ -51,6 +51,7 @@ interface JobTrackerBoardProps {
     resumeVersionId?: number | null
     coverLetterVersionId?: number | null
   }
+  autoOpenModal?: boolean
 }
 
 const COLUMNS: { id: JobStatus; title: string; color: string; headerColor: string; count: number }[] = [
@@ -66,9 +67,10 @@ export default function JobTrackerBoard({
   onUpdateJob,
   onDeleteJob,
   initialJobData,
+  autoOpenModal = false,
 }: JobTrackerBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [showAddModal, setShowAddModal] = useState(!!initialJobData)
+  const [showAddModal, setShowAddModal] = useState(autoOpenModal)
   const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null)
 
   const sensors = useSensors(

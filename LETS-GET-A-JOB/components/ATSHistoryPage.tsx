@@ -23,7 +23,7 @@ interface ATSHistoryPageContentProps {
   onBack?: () => void
   evaluationId?: string
   onNavigateToEvaluator?: () => void
-  onNavigateToTracker?: (prefillData: any) => void
+  onNavigateToTracker?: (prefillData: any, autoOpenModal?: boolean) => void
 }
 
 function ATSHistoryPageContent({
@@ -146,12 +146,12 @@ function ATSHistoryPageContent({
     // Open job URL in new tab
     window.open(evaluation.job_url, '_blank')
 
-    // Navigate to job tracker with pre-filled data
+    // Navigate to job tracker with pre-filled data and auto-open modal
     if (onNavigateToTracker) {
-      onNavigateToTracker(jobData)
+      onNavigateToTracker(jobData, true)
     } else {
       const jobDataEncoded = encodeURIComponent(JSON.stringify(jobData))
-      router.push(`/?tab=tracker&prefill=${jobDataEncoded}`)
+      router.push(`/?tab=tracker&prefill=${jobDataEncoded}&autoOpen=true`)
     }
   }
 
@@ -562,7 +562,7 @@ interface ATSHistoryPageProps {
   onBack?: () => void
   evaluationId?: string
   onNavigateToEvaluator?: () => void
-  onNavigateToTracker?: (prefillData: any) => void
+  onNavigateToTracker?: (prefillData: any, autoOpenModal?: boolean) => void
 }
 
 export default function ATSHistoryPage({

@@ -85,6 +85,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator' | 'ats-history'>('home')
   const [atsHistoryId, setAtsHistoryId] = useState<string | undefined>(undefined)
   const [trackerPrefillData, setTrackerPrefillData] = useState<any>(null)
+  const [trackerAutoOpenModal, setTrackerAutoOpenModal] = useState(false)
 
   if (activeTab === 'resume') {
     return (
@@ -124,6 +125,7 @@ export default function Home() {
         <JobTrackerPage
           onBack={() => setActiveTab('home')}
           prefillData={trackerPrefillData}
+          autoOpenModal={trackerAutoOpenModal}
         />
       </ToastProvider>
     )
@@ -136,8 +138,9 @@ export default function Home() {
           onBack={() => setActiveTab('home')}
           evaluationId={atsHistoryId}
           onNavigateToEvaluator={() => setActiveTab('ai-evaluator')}
-          onNavigateToTracker={(prefillData) => {
+          onNavigateToTracker={(prefillData, autoOpenModal = false) => {
             setTrackerPrefillData(prefillData)
+            setTrackerAutoOpenModal(autoOpenModal)
             setActiveTab('tracker')
           }}
         />

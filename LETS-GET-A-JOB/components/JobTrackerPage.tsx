@@ -40,13 +40,15 @@ const JobAnalytics = dynamic(
 interface JobTrackerPageProps {
   onBack?: () => void
   prefillData?: any
+  autoOpenModal?: boolean
 }
 
-export default function JobTrackerPage({ onBack, prefillData }: JobTrackerPageProps = {}) {
+export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = false }: JobTrackerPageProps = {}) {
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')
   const [jobs, setJobs] = useState<JobApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [initialJobData, setInitialJobData] = useState<any>(prefillData || null)
+  const [shouldAutoOpen, setShouldAutoOpen] = useState(autoOpenModal)
 
   // Load jobs from database on mount
   useEffect(() => {
@@ -57,8 +59,9 @@ export default function JobTrackerPage({ onBack, prefillData }: JobTrackerPagePr
   useEffect(() => {
     if (prefillData) {
       setInitialJobData(prefillData)
+      setShouldAutoOpen(autoOpenModal)
     }
-  }, [prefillData])
+  }, [prefillData, autoOpenModal])
 
   // Transform database format to frontend format
   const transformJob = (dbJob: any): JobApplication => {
@@ -263,6 +266,7 @@ export default function JobTrackerPage({ onBack, prefillData }: JobTrackerPagePr
             onUpdateJob={handleUpdateJob}
             onDeleteJob={handleDeleteJob}
             initialJobData={initialJobData}
+            autoOpenModal={shouldAutoOpen}
           />
         ) : (
           <JobAnalytics jobs={jobs} />
