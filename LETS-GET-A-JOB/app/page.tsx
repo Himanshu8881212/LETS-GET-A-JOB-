@@ -97,9 +97,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <div className="bg-black">
+      <div className="bg-black border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <h1 className="text-5xl font-bold text-white tracking-tight">
             LETS GET A JOB!!!
@@ -114,20 +114,20 @@ export default function Home() {
           {/* Resume Card */}
           <div
             onClick={() => setActiveTab('resume')}
-            className="group bg-white border border-gray-300 hover:border-gray-900 p-8 cursor-pointer transition-all"
+            className="group bg-gray-800 border border-gray-700 hover:border-gray-500 p-8 cursor-pointer transition-all hover:bg-gray-750"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
-                <FileText className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-white rounded flex items-center justify-center">
+                <FileText className="w-6 h-6 text-gray-900" />
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
+              <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-white mb-2">
               Resume Builder
             </h3>
 
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               Build ATS-compatible resumes with version control
             </p>
           </div>
@@ -135,20 +135,20 @@ export default function Home() {
           {/* Cover Letter Card */}
           <div
             onClick={() => setActiveTab('cover')}
-            className="group bg-white border border-gray-300 hover:border-gray-900 p-8 cursor-pointer transition-all"
+            className="group bg-gray-800 border border-gray-700 hover:border-gray-500 p-8 cursor-pointer transition-all hover:bg-gray-750"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
-                <Mail className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-white rounded flex items-center justify-center">
+                <Mail className="w-6 h-6 text-gray-900" />
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
+              <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-white mb-2">
               Cover Letter Builder
             </h3>
 
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               Create professional cover letters with version control
             </p>
           </div>
@@ -156,20 +156,20 @@ export default function Home() {
           {/* AI ATS Evaluator Card */}
           <div
             onClick={() => setActiveTab('ai-evaluator')}
-            className="group bg-white border border-gray-300 hover:border-gray-900 p-8 cursor-pointer transition-all"
+            className="group bg-gray-800 border border-gray-700 hover:border-gray-500 p-8 cursor-pointer transition-all hover:bg-gray-750"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-white rounded flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-gray-900" />
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
+              <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-white mb-2">
               AI ATS Evaluator
             </h3>
 
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               Get AI-powered feedback on your resume and cover letter
             </p>
           </div>
@@ -177,20 +177,20 @@ export default function Home() {
           {/* Job Tracker Card */}
           <div
             onClick={() => setActiveTab('tracker')}
-            className="group bg-white border border-gray-300 hover:border-gray-900 p-8 cursor-pointer transition-all"
+            className="group bg-gray-800 border border-gray-700 hover:border-gray-500 p-8 cursor-pointer transition-all hover:bg-gray-750"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-white rounded flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-gray-900" />
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
+              <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-white mb-2">
               Job Tracker
             </h3>
 
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               Track applications with kanban board and analytics
             </p>
           </div>

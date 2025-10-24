@@ -103,12 +103,58 @@ function ATSHistoryPageContent() {
     router.push('/?tab=ai-evaluator')
   }
 
-  const handleApply = (evaluation: EvaluationHistoryItem) => {
-    // Navigate to evaluator with pre-filled job description
-    const jobDescriptionEncoded = encodeURIComponent(evaluation.job_description_text)
-    const jobUrlEncoded = evaluation.job_url ? encodeURIComponent(evaluation.job_url) : ''
-    router.push(`/?tab=ai-evaluator&jobDesc=${jobDescriptionEncoded}&jobUrl=${jobUrlEncoded}`)
+  const handleApply = async (evaluation: EvaluationHistoryItem) => {
     setMenuOpenId(null)
+
+    // Extract company and position from custom_name or job description
+    const defaultName = getDefaultName(evaluation)
+    const parts = defaultName.split(' : ')
+    const position = parts[0] || 'Position'
+    const company = parts[1] || 'Company'
+
+    // Validate job URL is present (required field)
+    if (!evaluation.job_url) {
+      showToast('error', 'Cannot apply: Job URL is missing')
+      return
+    }
+
+    try {
+      // Create job application directly
+      const jobData = {
+        company,
+        position,
+        job_url: evaluation.job_url,
+        job_description: evaluation.job_description_text,
+        status: 'applied',
+        applied_date: new Date().toISOString().split('T')[0],
+        resume_version_id: evaluation.resume_version_id || null,
+        cover_letter_version_id: evaluation.cover_letter_version_id || null
+      }
+
+      const response = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jobData)
+      })
+
+      if (response.ok) {
+        showToast('success', 'Job application created! Opening job URL...')
+
+        // Open job URL in new tab
+        window.open(evaluation.job_url, '_blank')
+
+        // Navigate to job tracker after a short delay
+        setTimeout(() => {
+          router.push('/?tab=tracker')
+        }, 1000)
+      } else {
+        const error = await response.json()
+        showToast('error', `Failed to create application: ${error.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error creating job application:', error)
+      showToast('error', 'Failed to create job application')
+    }
   }
 
   const handleRename = async (id: number, newName: string) => {
