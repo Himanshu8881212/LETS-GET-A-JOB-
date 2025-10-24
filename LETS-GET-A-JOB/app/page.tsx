@@ -53,7 +53,7 @@ const AIATSEvaluator = dynamic(
 )
 
 const JobTrackerPage = dynamic(
-  () => import('@/app/tracker/page'),
+  () => import('@/components/JobTrackerPage'),
   {
     loading: () => (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -68,7 +68,7 @@ const JobTrackerPage = dynamic(
 )
 
 const ATSHistoryPage = dynamic(
-  () => import('@/app/ats-history/page'),
+  () => import('@/components/ATSHistoryPage'),
   {
     loading: () => (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
