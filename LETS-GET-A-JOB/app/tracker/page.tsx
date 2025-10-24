@@ -37,7 +37,11 @@ const JobAnalytics = dynamic(
   }
 )
 
-export default function JobTrackerPage() {
+interface JobTrackerPageProps {
+  onBack?: () => void
+}
+
+export default function JobTrackerPage({ onBack }: JobTrackerPageProps = {}) {
   const searchParams = useSearchParams()
   const [activeView, setActiveView] = useState<'board' | 'analytics'>('board')
   const [jobs, setJobs] = useState<JobApplication[]>([])
@@ -218,12 +222,14 @@ export default function JobTrackerPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => window.location.href = '/'}
-                className="p-2 hover:bg-gray-800 rounded transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="p-2 hover:bg-gray-800 rounded transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+              )}
               <h1 className="text-xl font-bold">Job Tracker</h1>
             </div>
 

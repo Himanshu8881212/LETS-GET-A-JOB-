@@ -52,15 +52,51 @@ const AIATSEvaluator = dynamic(
   }
 )
 
+const JobTrackerPage = dynamic(
+  () => import('@/app/tracker/page'),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Job Tracker...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
+
+const ATSHistoryPage = dynamic(
+  () => import('@/app/ats-history/page'),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading ATS History...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
+
 export default function Home() {
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator'>('home')
+  const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator' | 'ats-history'>('home')
+  const [atsHistoryId, setAtsHistoryId] = useState<string | undefined>(undefined)
 
   // Check for tab query parameter on mount
   useEffect(() => {
     const tab = searchParams.get('tab')
+    const historyId = searchParams.get('id')
+
     if (tab === 'ai-evaluator' || tab === 'resume' || tab === 'cover' || tab === 'tracker') {
       setActiveTab(tab)
+    } else if (tab === 'ats-history' || historyId) {
+      setActiveTab('ats-history')
+      setAtsHistoryId(historyId || undefined)
     }
   }, [searchParams])
 
@@ -89,94 +125,51 @@ export default function Home() {
   }
 
   if (activeTab === 'tracker') {
-    // Redirect to tracker page
-    if (typeof window !== 'undefined') {
-      window.location.href = '/tracker'
-    }
-    return null
+    return (
+      <ToastProvider>
+        <JobTrackerPage onBack={() => setActiveTab('home')} />
+      </ToastProvider>
+    )
+  }
+
+  if (activeTab === 'ats-history') {
+    return (
+      <ToastProvider>
+        <ATSHistoryPage onBack={() => setActiveTab('home')} evaluationId={atsHistoryId} />
+      </ToastProvider>
+    )
   }
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header with Navigation */}
+      {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between py-6">
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              LETS GET A JOB!!!
-            </h1>
-
-            {/* Navigation Tabs */}
-            <nav className="flex gap-1 bg-gray-800 rounded-lg p-1">
-              <button
-                onClick={() => setActiveTab('home')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'home'
-                  ? 'bg-white text-gray-900'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
-              >
-                Home
-              </button>
-              <button
-                onClick={() => setActiveTab('resume')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'resume'
-                  ? 'bg-white text-gray-900'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
-              >
-                Resume Builder
-              </button>
-              <button
-                onClick={() => setActiveTab('cover')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'cover'
-                  ? 'bg-white text-gray-900'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
-              >
-                Cover Letter
-              </button>
-              <button
-                onClick={() => setActiveTab('ai-evaluator')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'ai-evaluator'
-                  ? 'bg-white text-gray-900'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
-              >
-                AI Evaluator
-              </button>
-              <button
-                onClick={() => setActiveTab('tracker')}
-                className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'tracker'
-                  ? 'bg-white text-gray-900'
-                  : 'text-gray-400 hover:text-white'
-                  }`}
-              >
-                Job Tracker
-              </button>
-            </nav>
-          </div>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <h1 className="text-4xl font-bold text-white tracking-tight">
+            LETS GET A JOB!!!
+          </h1>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* Vertical Tiles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Resume Card */}
           <div
             onClick={() => setActiveTab('resume')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 cursor-pointer transition-all hover:shadow-lg"
+            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center">
-                <FileText className="w-8 h-8 text-white" />
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
+                <FileText className="w-12 h-12 text-white" />
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-gray-900">
                 Resume Builder
               </h3>
 
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-base">
                 Build ATS-compatible resumes with version control
               </p>
             </div>
@@ -185,18 +178,18 @@ export default function Home() {
           {/* Cover Letter Card */}
           <div
             onClick={() => setActiveTab('cover')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 cursor-pointer transition-all hover:shadow-lg"
+            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center">
-                <Mail className="w-8 h-8 text-white" />
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
+                <Mail className="w-12 h-12 text-white" />
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-gray-900">
                 Cover Letter Builder
               </h3>
 
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-base">
                 Create professional cover letters with version control
               </p>
             </div>
@@ -205,18 +198,18 @@ export default function Home() {
           {/* AI ATS Evaluator Card */}
           <div
             onClick={() => setActiveTab('ai-evaluator')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 cursor-pointer transition-all hover:shadow-lg"
+            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-white" />
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
+                <Sparkles className="w-12 h-12 text-white" />
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-gray-900">
                 AI ATS Evaluator
               </h3>
 
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-base">
                 Get AI-powered feedback on your resume and cover letter
               </p>
             </div>
@@ -225,18 +218,18 @@ export default function Home() {
           {/* Job Tracker Card */}
           <div
             onClick={() => setActiveTab('tracker')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 cursor-pointer transition-all hover:shadow-lg"
+            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-white" />
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-12 h-12 text-white" />
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-gray-900">
                 Job Tracker
               </h3>
 
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-base">
                 Track applications with kanban board and analytics
               </p>
             </div>

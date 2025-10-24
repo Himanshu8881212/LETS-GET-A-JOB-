@@ -465,7 +465,7 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
 
       // Redirect to history page with the new evaluation
       setTimeout(() => {
-        router.push(`/ats-history?id=${evaluationId}`)
+        router.push(`/?tab=ats-history&id=${evaluationId}`)
       }, 1000)
     } catch (error) {
       console.error('Evaluation error:', error)
@@ -539,7 +539,7 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
             <Button
               variant="outline"
               size="md"
-              onClick={() => router.push('/ats-history')}
+              onClick={() => router.push('/?tab=ats-history')}
               icon={<History className="w-4 h-4" />}
             >
               History

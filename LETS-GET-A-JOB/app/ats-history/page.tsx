@@ -19,7 +19,12 @@ interface EvaluationHistoryItem {
   custom_name?: string
 }
 
-function ATSHistoryPageContent() {
+interface ATSHistoryPageContentProps {
+  onBack?: () => void
+  evaluationId?: string
+}
+
+function ATSHistoryPageContent({ onBack, evaluationId: propEvaluationId }: ATSHistoryPageContentProps = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
@@ -40,8 +45,8 @@ function ATSHistoryPageContent() {
   }, [])
 
   useEffect(() => {
-    // Check if there's an ID in the URL query params
-    const evaluationId = searchParams.get('id')
+    // Check if there's an ID in the URL query params or passed as prop
+    const evaluationId = propEvaluationId || searchParams.get('id')
     if (evaluationId && evaluationHistory.length > 0) {
       const evaluation = evaluationHistory.find(e => e.id === parseInt(evaluationId))
       if (evaluation) {
@@ -100,7 +105,11 @@ function ATSHistoryPageContent() {
 
   const handleNewEvaluation = () => {
     // Navigate to home page with ai-evaluator tab
-    router.push('/?tab=ai-evaluator')
+    if (onBack) {
+      onBack()
+    } else {
+      router.push('/?tab=ai-evaluator')
+    }
   }
 
   const handleApply = (evaluation: EvaluationHistoryItem) => {
@@ -292,12 +301,14 @@ function ATSHistoryPageContent() {
         <div className="bg-gray-900 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/')}
-                className="p-2 hover:bg-gray-800 rounded transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="p-2 hover:bg-gray-800 rounded transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+              )}
               <h1 className="text-xl font-bold text-white">Evaluation History</h1>
             </div>
           </div>
@@ -316,7 +327,7 @@ function ATSHistoryPageContent() {
           <Button
             variant="primary"
             size="lg"
-            onClick={() => router.push('/')}
+            onClick={onBack || (() => router.push('/'))}
           >
             Run Your First Evaluation
           </Button>
@@ -347,12 +358,14 @@ function ATSHistoryPageContent() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/')}
-                className="p-2 hover:bg-gray-800 rounded transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="p-2 hover:bg-gray-800 rounded transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+              )}
               <h1 className="text-xl font-bold text-white">Evaluation History</h1>
             </div>
             <Button
@@ -537,10 +550,15 @@ function ATSHistoryPageContent() {
   )
 }
 
-export default function ATSHistoryPage() {
+interface ATSHistoryPageProps {
+  onBack?: () => void
+  evaluationId?: string
+}
+
+export default function ATSHistoryPage({ onBack, evaluationId }: ATSHistoryPageProps = {}) {
   return (
     <ToastProvider>
-      <ATSHistoryPageContent />
+      <ATSHistoryPageContent onBack={onBack} evaluationId={evaluationId} />
     </ToastProvider>
   )
 }
