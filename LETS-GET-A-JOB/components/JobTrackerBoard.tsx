@@ -74,10 +74,13 @@ export default function JobTrackerBoard({
   const [activeId, setActiveId] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(autoOpenModal)
   const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null)
+  const [modalPrefillData, setModalPrefillData] = useState<any>(null)
 
   // Update modal state when autoOpenModal prop changes
+  // Only auto-open and prefill when explicitly triggered from Apply button
   useEffect(() => {
     if (autoOpenModal && initialJobData) {
+      setModalPrefillData(initialJobData)
       setShowAddModal(true)
     }
   }, [autoOpenModal, initialJobData])
@@ -144,7 +147,10 @@ export default function JobTrackerBoard({
           <p className="text-gray-600 mt-1">Drag and drop to change status</p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setModalPrefillData(null) // Clear any prefill data for manual add
+            setShowAddModal(true)
+          }}
           className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 hover:bg-gray-800 transition-colors font-medium"
         >
           <Plus className="w-5 h-5" />
@@ -216,12 +222,13 @@ export default function JobTrackerBoard({
         <AddJobModal
           onClose={() => {
             setShowAddModal(false)
+            setModalPrefillData(null) // Clear prefill data when modal closes
             if (onModalClose) {
               onModalClose()
             }
           }}
           onAdd={onAddJob}
-          initialData={initialJobData}
+          initialData={modalPrefillData}
         />
       )}
 
