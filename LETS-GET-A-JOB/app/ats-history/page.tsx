@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Calendar, ExternalLink, MoreVertical, Pencil, Trash2, Check, X } from 'lucide-react'
+import { ArrowLeft, Calendar, ExternalLink, MoreVertical, Pencil, Trash2, Check, X, RefreshCw } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { ToastProvider, useToast } from '@/components/ui/Toast'
@@ -101,6 +101,14 @@ function ATSHistoryPageContent() {
   const handleNewEvaluation = () => {
     // Navigate to home page with ai-evaluator tab
     router.push('/?tab=ai-evaluator')
+  }
+
+  const handleApply = (evaluation: EvaluationHistoryItem) => {
+    // Navigate to evaluator with pre-filled job description
+    const jobDescriptionEncoded = encodeURIComponent(evaluation.job_description_text)
+    const jobUrlEncoded = evaluation.job_url ? encodeURIComponent(evaluation.job_url) : ''
+    router.push(`/?tab=ai-evaluator&jobDesc=${jobDescriptionEncoded}&jobUrl=${jobUrlEncoded}`)
+    setMenuOpenId(null)
   }
 
   const handleRename = async (id: number, newName: string) => {
@@ -442,8 +450,14 @@ function ATSHistoryPageContent() {
                       {menuOpenId === evaluation.id && (
                         <div className="absolute right-0 mt-1 w-40 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
                           <button
+                            onClick={() => handleApply(evaluation)}
+                            className="w-full px-4 py-2 text-left text-sm text-green-400 hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                          >
+                            <RefreshCw className="w-4 h-4" /> Apply
+                          </button>
+                          <button
                             onClick={() => startRename(evaluation)}
-                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 flex items-center gap-2"
                           >
                             <Pencil className="w-4 h-4" /> Rename
                           </button>

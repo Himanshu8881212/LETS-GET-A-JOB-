@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { ArrowLeft, Upload, FileText, Mail, Link as LinkIcon, Sparkles, AlertCircle, CheckCircle2, TrendingUp, TrendingDown, Minus, Loader2, History } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
 import { useToast } from './ui/Toast'
@@ -144,18 +144,18 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
               <div
                 key={step.number}
                 className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${currentStep === step.number
-                    ? 'bg-gray-900 text-white shadow-lg scale-105'
-                    : currentStep > step.number
-                      ? 'bg-gray-100 text-gray-600'
-                      : 'bg-white text-gray-400 border border-gray-200'
+                  ? 'bg-gray-900 text-white shadow-lg scale-105'
+                  : currentStep > step.number
+                    ? 'bg-gray-100 text-gray-600'
+                    : 'bg-white text-gray-400 border border-gray-200'
                   }`}
               >
                 <div
                   className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${currentStep === step.number
-                      ? 'bg-white text-gray-900'
-                      : currentStep > step.number
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-200 text-gray-400'
+                    ? 'bg-white text-gray-900'
+                    : currentStep > step.number
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-200 text-gray-400'
                     }`}
                 >
                   {currentStep > step.number ? '✓' : step.number}
@@ -196,6 +196,7 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
 
 export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { showToast } = useToast()
 
   // Input states
@@ -206,6 +207,7 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
   const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null)
   const [jobUrl, setJobUrl] = useState('')
+  const [jobDescription, setJobDescription] = useState('')
 
   // Data states
   const [resumeVersions, setResumeVersions] = useState<ResumeVersion[]>([])
@@ -227,6 +229,19 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
   useEffect(() => {
     loadVersions()
   }, [])
+
+  // Pre-fill job description from URL parameters (when Apply is clicked)
+  useEffect(() => {
+    const jobDescParam = searchParams.get('jobDesc')
+    const jobUrlParam = searchParams.get('jobUrl')
+
+    if (jobDescParam) {
+      setJobDescription(decodeURIComponent(jobDescParam))
+    }
+    if (jobUrlParam) {
+      setJobUrl(decodeURIComponent(jobUrlParam))
+    }
+  }, [searchParams])
 
   const loadVersions = async () => {
     setIsLoading(true)
@@ -288,8 +303,8 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
       showToast('error', 'Please upload a cover letter')
       return
     }
-    if (!jobUrl.trim()) {
-      showToast('error', 'Please enter a job URL')
+    if (!jobUrl.trim() && !jobDescription.trim()) {
+      showToast('error', 'Please enter a job URL or paste the job description')
       return
     }
 
@@ -303,21 +318,31 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
       setCurrentStep(1)
       showToast('info', 'Processing job description...')
 
-      const jdResponse = await fetch('/api/n8n/process-jd', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ jobUrl }),
-      })
+      let summarizedJDText = ''
+      let rawJDText = ''
 
-      if (!jdResponse.ok) {
-        throw new Error('Failed to process job description')
+      // If job description is pre-filled (from Apply), use it directly
+      if (jobDescription.trim()) {
+        summarizedJDText = jobDescription
+        rawJDText = jobDescription
+      } else {
+        // Otherwise, fetch from URL via n8n
+        const jdResponse = await fetch('/api/n8n/process-jd', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ jobUrl }),
+        })
+
+        if (!jdResponse.ok) {
+          throw new Error('Failed to process job description')
+        }
+
+        const jdData = await jdResponse.json()
+        summarizedJDText = jdData.output || jdData.summarizedJD || jdData.summary || jdData.text
+        rawJDText = jdData.rawJD || jdData.raw || ''
       }
-
-      const jdData = await jdResponse.json()
-      const summarizedJDText = jdData.output || jdData.summarizedJD || jdData.summary || jdData.text
-      const rawJDText = jdData.rawJD || jdData.raw || ''
 
       // Store JD results
       setSummarizedJD(summarizedJDText)
@@ -694,25 +719,48 @@ export default function AIATSEvaluator({ onBack }: AIATSEvaluatorProps) {
               </div>
             </div>
 
-            {/* Job URL */}
+            {/* Job URL or Description */}
             <div className="bg-white border border-gray-300">
               <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
                 <div className="flex items-center gap-2">
                   <LinkIcon className="w-5 h-5 text-gray-900" />
-                  <h2 className="text-lg font-bold text-gray-900">Job Posting URL</h2>
+                  <h2 className="text-lg font-bold text-gray-900">Job Posting</h2>
                 </div>
               </div>
-              <div className="p-6">
-                <Input
-                  type="url"
-                  value={jobUrl}
-                  onChange={(e) => setJobUrl(e.target.value)}
-                  placeholder="https://example.com/job-posting"
-                  className="w-full"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  Enter the URL of the job posting you're applying to
-                </p>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Job URL (Optional)
+                  </label>
+                  <Input
+                    type="url"
+                    value={jobUrl}
+                    onChange={(e) => setJobUrl(e.target.value)}
+                    placeholder="https://example.com/job-posting"
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter the URL to automatically fetch the job description
+                  </p>
+                </div>
+
+                <div className="text-center text-sm text-gray-500 font-medium">OR</div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Paste Job Description
+                  </label>
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    placeholder="Paste the full job description here..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                    rows={6}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste the job description directly if you don't have a URL
+                  </p>
+                </div>
               </div>
             </div>
 
