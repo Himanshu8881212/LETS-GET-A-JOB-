@@ -46,15 +46,12 @@ export async function GET(
           }
         })
       } catch (error) {
-        console.log('PDF file not found, regenerating...')
+        // PDF file not found, regenerating...
       }
     }
 
     // Generate PDF from data_json
     const coverLetterData = JSON.parse(version.data_json)
-
-    // DEBUG: Log the opening paragraph to verify correct data
-    console.log(`[DOWNLOAD v${version.version_number}] Opening paragraph:`, coverLetterData.openingParagraph?.substring(0, 100))
 
     // Transform data to match the API schema
     const apiData = {

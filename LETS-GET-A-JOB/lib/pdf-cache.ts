@@ -112,7 +112,6 @@ async function cleanupCache() {
     for (const file of fileStats) {
       if (file.age > MAX_CACHE_AGE_MS) {
         await fs.unlink(file.path).catch(() => { })
-        console.log(`Cache CLEANUP: Deleted expired file ${path.basename(file.path)}`)
       } else {
         totalSize += file.size
       }
@@ -131,7 +130,6 @@ async function cleanupCache() {
 
         await fs.unlink(file.path).catch(() => { })
         currentSize -= file.size
-        console.log(`Cache CLEANUP: Deleted old file ${path.basename(file.path)} to reduce cache size`)
       }
     }
   } catch (error) {
@@ -187,7 +185,6 @@ export async function clearCache() {
       }
     }
 
-    console.log(`Cache CLEAR: Deleted ${files.length} files`)
     return { deleted: files.length }
   } catch (error) {
     console.error('Error clearing cache:', error)

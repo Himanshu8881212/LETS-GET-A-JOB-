@@ -282,7 +282,6 @@ function ATSHistoryPageContent({
         ? JSON.parse(evaluation.evaluation_result)
         : evaluation.evaluation_result
 
-      console.log('Parsed evaluation result for ID', evaluation.id, ':', result)
       return result
     } catch (error) {
       console.error('Error parsing evaluation result for ID', evaluation.id, ':', error)
@@ -346,18 +345,21 @@ function ATSHistoryPageContent({
 
   const evaluationResult = selectedEvaluation ? getParsedEvaluationResult(selectedEvaluation) : null
 
-  console.log('History Page State:', {
-    totalEvaluations: evaluationHistory.length,
-    selectedEvaluationId: selectedEvaluation?.id,
-    hasEvaluationResult: !!evaluationResult,
-    selectedEvaluation: selectedEvaluation ? {
-      id: selectedEvaluation.id,
-      hasResult: !!selectedEvaluation.evaluation_result,
-      hasJobDesc: !!selectedEvaluation.job_description_text,
-      hasResume: !!selectedEvaluation.resume_text,
-      hasCoverLetter: !!selectedEvaluation.cover_letter_text
-    } : null
-  })
+  // Debug state in development only
+  if (process.env.NODE_ENV === 'development') {
+    console.log('History Page State:', {
+      totalEvaluations: evaluationHistory.length,
+      selectedEvaluationId: selectedEvaluation?.id,
+      hasEvaluationResult: !!evaluationResult,
+      selectedEvaluation: selectedEvaluation ? {
+        id: selectedEvaluation.id,
+        hasResult: !!selectedEvaluation.evaluation_result,
+        hasJobDesc: !!selectedEvaluation.job_description_text,
+        hasResume: !!selectedEvaluation.resume_text,
+        hasCoverLetter: !!selectedEvaluation.cover_letter_text
+      } : null
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

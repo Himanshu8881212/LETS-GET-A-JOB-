@@ -19,17 +19,17 @@ export function getDatabase(): Database.Database {
     db = new Database(DB_PATH, {
       verbose: process.env.NODE_ENV === 'development' ? console.log : undefined
     })
-    
+
     // Enable foreign keys
     db.pragma('foreign_keys = ON')
-    
+
     // Enable WAL mode for better concurrency
     db.pragma('journal_mode = WAL')
-    
+
     // Initialize schema if needed
     initializeSchema(db)
   }
-  
+
   return db
 }
 
@@ -38,12 +38,16 @@ function initializeSchema(database: Database.Database) {
   const tables = database.prepare(
     "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
   ).get()
-  
+
   if (!tables) {
-    console.log('Initializing database schema...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Initializing database schema...')
+    }
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8')
     database.exec(schema)
-    console.log('Database schema initialized successfully')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Database schema initialized successfully')
+    }
   }
 }
 

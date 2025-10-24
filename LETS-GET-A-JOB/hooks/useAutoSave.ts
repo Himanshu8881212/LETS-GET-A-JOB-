@@ -19,7 +19,6 @@ export function useAutoSave({ key, data, delay = 1000 }: UseAutoSaveOptions) {
     timeoutRef.current = setTimeout(() => {
       try {
         localStorage.setItem(key, JSON.stringify(data))
-        console.log(`Auto-saved: ${key}`)
       } catch (error) {
         console.error('Failed to auto-save:', error)
       }

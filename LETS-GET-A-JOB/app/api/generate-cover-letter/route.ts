@@ -121,7 +121,6 @@ export async function POST(request: NextRequest) {
     const cachedPDF = !disableCache ? await getCachedPDF(dataHash) : null
 
     if (cachedPDF) {
-      console.log(`Cache HIT: ${dataHash} (age: ${Math.floor((Date.now() - (cachedPDF as any).timestamp) / 60000)} minutes)`)
       return new NextResponse(cachedPDF as any, {
         headers: {
           'Content-Type': 'application/pdf',
@@ -180,9 +179,6 @@ export async function POST(request: NextRequest) {
     // Cache the generated PDF (unless cache is disabled)
     if (!disableCache) {
       await cachePDF(dataHash, pdfBuffer)
-      console.log(`Cache SAVE: ${dataHash} (${Math.round(pdfBuffer.length / 1024)} KB)`)
-    } else {
-      console.log(`Cache SKIP: ${dataHash} (cache disabled for version download)`)
     }
 
     return new NextResponse(pdfBuffer, {

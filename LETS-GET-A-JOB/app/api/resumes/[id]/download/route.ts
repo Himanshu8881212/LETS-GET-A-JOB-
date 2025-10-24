@@ -51,7 +51,7 @@ export async function GET(
           }
         })
       } catch (error) {
-        console.log('PDF file not found, regenerating...')
+        // PDF file not found, regenerating...
       }
     }
 
