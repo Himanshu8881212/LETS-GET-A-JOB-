@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { FileText, Mail, BarChart3, ChevronRight } from 'lucide-react'
+import { FileText, Mail, BarChart3, ChevronRight, Sparkles } from 'lucide-react'
 import { ToastProvider } from '@/components/ui/Toast'
 
 // Lazy load heavy components
@@ -36,8 +37,32 @@ const ImprovedCoverLetterBuilder = dynamic(
   }
 )
 
+const AIATSEvaluator = dynamic(
+  () => import('@/components/AIATSEvaluator'),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading AI ATS Evaluator...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
+
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker'>('home')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator'>('home')
+
+  // Check for tab query parameter on mount
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab === 'ai-evaluator' || tab === 'resume' || tab === 'cover' || tab === 'tracker') {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   if (activeTab === 'resume') {
     return (
@@ -51,6 +76,14 @@ export default function Home() {
     return (
       <ToastProvider>
         <ImprovedCoverLetterBuilder onBack={() => setActiveTab('home')} />
+      </ToastProvider>
+    )
+  }
+
+  if (activeTab === 'ai-evaluator') {
+    return (
+      <ToastProvider>
+        <AIATSEvaluator onBack={() => setActiveTab('home')} />
       </ToastProvider>
     )
   }
@@ -77,7 +110,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* Main Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Resume Card */}
           <div
             onClick={() => setActiveTab('resume')}
@@ -117,6 +150,27 @@ export default function Home() {
 
             <p className="text-gray-600 text-sm">
               Create professional cover letters with version control
+            </p>
+          </div>
+
+          {/* AI ATS Evaluator Card */}
+          <div
+            onClick={() => setActiveTab('ai-evaluator')}
+            className="group bg-white border border-gray-300 hover:border-gray-900 p-8 cursor-pointer transition-all"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              AI ATS Evaluator
+            </h3>
+
+            <p className="text-gray-600 text-sm">
+              Get AI-powered feedback on your resume and cover letter
             </p>
           </div>
 
