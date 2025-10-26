@@ -44,7 +44,7 @@ function generateCoverLetterMainTex(data: any): string {
 \\input{../common/macros.tex}
 
 % Include cover letter data
-\\input{../COVER_LETTER_DATA.tex}
+\\input{../data/COVER_LETTER_DATA.tex}
 
 \\begin{document}
 
@@ -150,8 +150,8 @@ export async function POST(request: NextRequest) {
     // Generate dynamic main.tex
     const mainTex = generateCoverLetterMainTex(data)
 
-    // Write to files in current directory (LETS-GET-A-JOB)
-    const dataFilePath = path.join(resolvedRoot, 'COVER_LETTER_DATA.tex')
+    // Write to files - use data directory for data file (writable in Docker)
+    const dataFilePath = path.join(resolvedRoot, 'data', 'COVER_LETTER_DATA.tex')
     const mainFilePath = path.join(resolvedRoot, 'cover_letter', 'main.tex')
 
     await fs.writeFile(dataFilePath, coverLetterData)

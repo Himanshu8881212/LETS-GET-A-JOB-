@@ -32,10 +32,12 @@ CREATE TABLE IF NOT EXISTS job_applications (
   contact_email TEXT,
   contact_phone TEXT,
   resume_version_id INTEGER,
+  cover_letter_version_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (resume_version_id) REFERENCES resume_versions(id) ON DELETE SET NULL
+  FOREIGN KEY (resume_version_id) REFERENCES resume_versions(id) ON DELETE SET NULL,
+  FOREIGN KEY (cover_letter_version_id) REFERENCES cover_letter_versions(id) ON DELETE SET NULL
 );
 
 -- Resume Versions table (with git-like version control)
@@ -74,10 +76,15 @@ CREATE TABLE IF NOT EXISTS cover_letter_versions (
   is_favorite BOOLEAN DEFAULT 0,
   tags TEXT, -- Comma-separated tags for categorization
   job_application_id INTEGER, -- Link to specific job application
+  parent_version_id INTEGER, -- Git-like parent version tracking
+  version_number TEXT DEFAULT 'v1.0', -- Semantic version number
+  branch_name TEXT DEFAULT 'main', -- Branch name for version control
+  is_active BOOLEAN DEFAULT 1, -- Whether this version is active
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (job_application_id) REFERENCES job_applications(id) ON DELETE SET NULL
+  FOREIGN KEY (job_application_id) REFERENCES job_applications(id) ON DELETE SET NULL,
+  FOREIGN KEY (parent_version_id) REFERENCES cover_letter_versions(id) ON DELETE SET NULL
 );
 
 -- Activity Logs table (audit trail)
@@ -130,10 +137,14 @@ CREATE INDEX IF NOT EXISTS idx_resume_branch ON resume_versions(user_id, branch_
 CREATE INDEX IF NOT EXISTS idx_resume_active ON resume_versions(user_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_cover_user_created ON cover_letter_versions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_cover_user_favorite ON cover_letter_versions(user_id, is_favorite);
+CREATE INDEX IF NOT EXISTS idx_cover_parent_version ON cover_letter_versions(parent_version_id);
+CREATE INDEX IF NOT EXISTS idx_cover_branch ON cover_letter_versions(user_id, branch_name);
+CREATE INDEX IF NOT EXISTS idx_cover_active ON cover_letter_versions(user_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_activity_user_timestamp ON activity_logs(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_activity_entity ON activity_logs(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_status_history_job_created ON job_status_history(job_application_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_job_resume_version ON job_applications(resume_version_id);
+CREATE INDEX IF NOT EXISTS idx_job_cover_version ON job_applications(cover_letter_version_id);
 
 -- Triggers for updated_at timestamps
 CREATE TRIGGER IF NOT EXISTS update_users_timestamp 

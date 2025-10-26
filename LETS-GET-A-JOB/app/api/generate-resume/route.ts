@@ -101,7 +101,7 @@ function generateMainTex(data: any): string {
 \\input{../common/macros.tex}
 
 % Include resume data
-\\input{../RESUME_DATA.tex}
+\\input{../data/RESUME_DATA.tex}
 
 \\begin{document}
 
@@ -234,8 +234,8 @@ export async function POST(request: NextRequest) {
     // Generate dynamic main.tex that only includes sections with data
     const mainTex = generateMainTex(data)
 
-    // Write to files in current directory (LETS-GET-A-JOB)
-    const dataFilePath = path.join(resolvedRoot, 'RESUME_DATA.tex')
+    // Write to files - use data directory for data file (writable in Docker)
+    const dataFilePath = path.join(resolvedRoot, 'data', 'RESUME_DATA.tex')
     const mainFilePath = path.join(resolvedRoot, 'resume', 'main.tex')
 
     await fs.writeFile(dataFilePath, resumeData)
