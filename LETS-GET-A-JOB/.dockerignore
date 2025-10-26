@@ -71,9 +71,6 @@ data/app.db-wal
 data/documents/*
 data/pdf-cache/*
 
-# n8n workflows (will be mounted)
-n8n-workflows/
-
 # Scripts (except essential ones)
 scripts/*
 !scripts/check-data-quality.js

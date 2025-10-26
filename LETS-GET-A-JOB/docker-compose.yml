@@ -1,147 +1,34 @@
 services:
-  # n8n Workflow Automation Service
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: lets-get-a-job-n8n
-    restart: unless-stopped
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_HOST=0.0.0.0
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - WEBHOOK_URL=http://n8n:5678/
-      - N8N_EDITOR_BASE_URL=http://localhost:5678
-      - GENERIC_TIMEZONE=America/New_York
-      - N8N_LOG_LEVEL=info
-      - DB_TYPE=sqlite
-      - DB_SQLITE_VACUUM_ON_STARTUP=true
-      # Disable user management for single-user setup
-      - N8N_USER_MANAGEMENT_DISABLED=true
-      # Enable community nodes
-      - N8N_COMMUNITY_PACKAGES_ENABLED=true
-      # Execution settings
-      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
-      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
-      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
-      # Security settings
-      - N8N_SECURE_COOKIE=false
-    volumes:
-      - n8n_data:/home/node/.n8n
-      - ./n8n-workflows:/workflows:ro
-      - ./docker-entrypoint-n8n.sh:/docker-entrypoint-custom.sh:ro
-    networks:
-      - app-network
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    entrypoint: [ "/bin/sh", "-c" ]
-    command:
-      - |
-        # Wait a bit for n8n to initialize
-        sleep 5
-
-        # Start n8n in background
-        n8n start &
-        N8N_PID=$!
-
-        # Wait for n8n to be ready
-        echo "Waiting for n8n to start..."
-        for i in $(seq 1 60); do
-          if wget --spider -q http://localhost:5678/healthz 2>/dev/null; then
-            echo "n8n is ready!"
-            break
-          fi
-          echo "Waiting for n8n... ($$i/60)"
-          sleep 2
-        done
-
-        # Import and activate workflows using n8n API
-        if [ -d "/workflows" ] && [ "$(ls -A /workflows/*.json 2>/dev/null)" ]; then
-          echo "Importing and activating workflows..."
-
-          # Import each workflow
-          for workflow_file in /workflows/*.json; do
-            if [ -f "$$workflow_file" ]; then
-              WORKFLOW_NAME=$$(basename "$$workflow_file" .json)
-              echo "Processing $$WORKFLOW_NAME..."
-
-              # Check if workflow exists using API
-              EXISTING=$$(wget -q -O- http://localhost:5678/rest/workflows 2>/dev/null | grep -c "\"name\":\"$$WORKFLOW_NAME\"" || echo "0")
-
-              if [ "$$EXISTING" -eq "0" ]; then
-                echo "Importing $$WORKFLOW_NAME..."
-                n8n import:workflow --input="$$workflow_file" --separate 2>/dev/null || echo "Import may have failed"
-              else
-                echo "$$WORKFLOW_NAME already exists"
-              fi
-            fi
-          done
-
-          # Wait a moment for imports to complete
-          sleep 3
-
-          # Activate all workflows using API
-          echo "Activating all workflows..."
-          WORKFLOWS=$$(wget -q -O- http://localhost:5678/rest/workflows 2>/dev/null)
-
-          # Extract workflow IDs and activate each one
-          echo "$$WORKFLOWS" | grep -o '"id":"[^"]*"' | cut -d'"' -f4 | while read -r WF_ID; do
-            if [ -n "$$WF_ID" ]; then
-              echo "Activating workflow $$WF_ID..."
-              wget -q -O- --method=PATCH \
-                --header='Content-Type: application/json' \
-                --body-data='{"active":true}' \
-                "http://localhost:5678/rest/workflows/$$WF_ID" 2>/dev/null || echo "Failed to activate $$WF_ID"
-            fi
-          done
-
-          echo "Workflow setup complete!"
-        fi
-
-        # Keep n8n running
-        wait $$N8N_PID
-
-  # Next.js Application Service
+  # Single container with Next.js + n8n + LaTeX + SQLite
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: lets-get-a-job-app
+    container_name: lets-get-a-job-all-in-one
     restart: unless-stopped
     ports:
       - "3000:3000"
+      - "5678:5678"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://n8n:5678/webhook/process-jd
-      - NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL=http://n8n:5678/webhook/process-resume
-      - NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL=http://n8n:5678/webhook/process-cover-letter
-      - NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL=http://n8n:5678/webhook/evaluate-ats
+      - NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://localhost:5678/webhook/process-jd
+      - NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL=http://localhost:5678/webhook/process-resume
+      - NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL=http://localhost:5678/webhook/process-cover-letter
+      - NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL=http://localhost:5678/webhook/evaluate-ats
       - NEXT_PUBLIC_N8N_TIMEOUT=120000
       - NEXT_PUBLIC_DEBUG_N8N=false
     volumes:
       - app_data:/app/data
-    networks:
-      - app-network
-    depends_on:
-      n8n:
-        condition: service_healthy
+      - n8n_data:/app/n8n-data
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health" ]
+      test: [ "CMD", "sh", "-c", "wget --spider -q http://localhost:3000/api/health && wget --spider -q http://localhost:5678/healthz" ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
-
-networks:
-  app-network:
-    driver: bridge
+      retries: 5
+      start_period: 60s
 
 volumes:
-  n8n_data:
-    driver: local
   app_data:
+    driver: local
+  n8n_data:
     driver: local
