@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # n8n Workflow Automation Service
   n8n:
@@ -35,21 +33,21 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz" ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
         # Wait a bit for n8n to initialize
         sleep 5
-        
+
         # Start n8n in background
         n8n start &
         N8N_PID=$!
-        
+
         # Wait for n8n to be ready
         echo "Waiting for n8n to start..."
         for i in $(seq 1 60); do
@@ -60,7 +58,7 @@ services:
           echo "Waiting for n8n... ($i/60)"
           sleep 2
         done
-        
+
         # Import workflows if they don't exist
         if [ -d "/workflows" ] && [ "$(ls -A /workflows/*.json 2>/dev/null)" ]; then
           echo "Checking for workflows to import..."
@@ -82,7 +80,7 @@ services:
             echo "Workflows already imported (found $WORKFLOW_COUNT workflows)"
           fi
         fi
-        
+
         # Keep n8n running
         wait $N8N_PID
 
@@ -111,7 +109,7 @@ services:
       n8n:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -126,4 +124,3 @@ volumes:
     driver: local
   app_data:
     driver: local
-

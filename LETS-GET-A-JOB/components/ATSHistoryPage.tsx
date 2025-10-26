@@ -17,6 +17,8 @@ interface EvaluationHistoryItem {
   cover_letter_text: string
   evaluation_result: string | object
   custom_name?: string
+  resume_version_id?: number | null
+  cover_letter_version_id?: number | null
 }
 
 interface ATSHistoryPageContentProps {
