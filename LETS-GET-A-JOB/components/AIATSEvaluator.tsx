@@ -237,14 +237,16 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       const resumeRes = await fetch('/api/resumes')
       if (resumeRes.ok) {
         const data = await resumeRes.json()
-        setResumeVersions(data.versions || [])
+        // API returns array directly, not wrapped in { versions: [] }
+        setResumeVersions(Array.isArray(data) ? data : [])
       }
 
       // Load cover letter versions
       const coverRes = await fetch('/api/cover-letters')
       if (coverRes.ok) {
         const data = await coverRes.json()
-        setCoverLetterVersions(data.versions || [])
+        // API returns array directly, not wrapped in { versions: [] }
+        setCoverLetterVersions(Array.isArray(data) ? data : [])
       }
     } catch (error) {
       console.error('Error loading versions:', error)
