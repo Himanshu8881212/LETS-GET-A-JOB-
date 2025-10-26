@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   compress: true, // Enable gzip compression for all responses
   poweredByHeader: false, // Remove X-Powered-By header for security
+  output: 'standalone', // Enable standalone output for Docker deployment
 }
 
 module.exports = nextConfig

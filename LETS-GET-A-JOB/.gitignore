@@ -59,3 +59,7 @@ next-env.d.ts
 !/scripts/test-webhooks.sh
 demo-data.ts
 *example.pdf
+
+# Docker
+backups/
+.env.docker.local
