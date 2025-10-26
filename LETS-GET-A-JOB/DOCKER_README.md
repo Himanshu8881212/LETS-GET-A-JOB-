@@ -13,6 +13,7 @@ This Docker setup packages:
    - Job Application Tracker
    - AI ATS Evaluator
    - SQLite database for data persistence
+   - **LaTeX support for PDF generation** ✨
 
 2. **n8n Workflow Automation** (Port 5678)
    - Pre-configured with 4 AI workflows:

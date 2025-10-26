@@ -3,7 +3,21 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat python3 make g++
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    # LaTeX dependencies for PDF generation
+    texlive \
+    texlive-xetex \
+    texlive-luatex \
+    texmf-dist \
+    fontconfig \
+    # Additional utilities
+    curl \
+    bash
+
 WORKDIR /app
 
 # Copy package files
@@ -29,6 +43,16 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Install LaTeX and runtime dependencies
+RUN apk add --no-cache \
+    texlive \
+    texlive-xetex \
+    texlive-luatex \
+    texmf-dist \
+    fontconfig \
+    bash \
+    curl
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
