@@ -54,6 +54,8 @@ next-env.d.ts
 
 # Test and demo files
 /test-data
-/scripts
+/scripts/*
+!/scripts/check-data-quality.js
+!/scripts/test-webhooks.sh
 demo-data.ts
 *example.pdf
