@@ -55,34 +55,55 @@ services:
             echo "n8n is ready!"
             break
           fi
-          echo "Waiting for n8n... ($i/60)"
+          echo "Waiting for n8n... ($$i/60)"
           sleep 2
         done
 
-        # Import workflows if they don't exist
+        # Import and activate workflows using n8n API
         if [ -d "/workflows" ] && [ "$(ls -A /workflows/*.json 2>/dev/null)" ]; then
-          echo "Checking for workflows to import..."
-          
-          # Check if workflows already exist
-          WORKFLOW_COUNT=$(sqlite3 /home/node/.n8n/database.sqlite "SELECT COUNT(*) FROM workflow_entity WHERE name IN ('Job Desc', 'Resume', 'Cover Letter', 'Eval');" 2>/dev/null || echo "0")
-          
-          if [ "$WORKFLOW_COUNT" -lt "4" ]; then
-            echo "Importing workflows..."
-            for workflow_file in /workflows/*.json; do
-              if [ -f "$workflow_file" ]; then
-                echo "Importing $(basename $workflow_file)..."
-                # Use n8n CLI to import workflows
-                n8n import:workflow --input="$workflow_file" --separate 2>/dev/null || echo "Workflow may already exist"
+          echo "Importing and activating workflows..."
+
+          # Import each workflow
+          for workflow_file in /workflows/*.json; do
+            if [ -f "$$workflow_file" ]; then
+              WORKFLOW_NAME=$$(basename "$$workflow_file" .json)
+              echo "Processing $$WORKFLOW_NAME..."
+
+              # Check if workflow exists using API
+              EXISTING=$$(wget -q -O- http://localhost:5678/rest/workflows 2>/dev/null | grep -c "\"name\":\"$$WORKFLOW_NAME\"" || echo "0")
+
+              if [ "$$EXISTING" -eq "0" ]; then
+                echo "Importing $$WORKFLOW_NAME..."
+                n8n import:workflow --input="$$workflow_file" --separate 2>/dev/null || echo "Import may have failed"
+              else
+                echo "$$WORKFLOW_NAME already exists"
               fi
-            done
-            echo "Workflow import complete!"
-          else
-            echo "Workflows already imported (found $WORKFLOW_COUNT workflows)"
-          fi
+            fi
+          done
+
+          # Wait a moment for imports to complete
+          sleep 3
+
+          # Activate all workflows using API
+          echo "Activating all workflows..."
+          WORKFLOWS=$$(wget -q -O- http://localhost:5678/rest/workflows 2>/dev/null)
+
+          # Extract workflow IDs and activate each one
+          echo "$$WORKFLOWS" | grep -o '"id":"[^"]*"' | cut -d'"' -f4 | while read -r WF_ID; do
+            if [ -n "$$WF_ID" ]; then
+              echo "Activating workflow $$WF_ID..."
+              wget -q -O- --method=PATCH \
+                --header='Content-Type: application/json' \
+                --body-data='{"active":true}' \
+                "http://localhost:5678/rest/workflows/$$WF_ID" 2>/dev/null || echo "Failed to activate $$WF_ID"
+            fi
+          done
+
+          echo "Workflow setup complete!"
         fi
 
         # Keep n8n running
-        wait $N8N_PID
+        wait $$N8N_PID
 
   # Next.js Application Service
   app:
