@@ -237,12 +237,8 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       const resumeRes = await fetch('/api/resumes')
       if (resumeRes.ok) {
         const data = await resumeRes.json()
-        console.log('📄 Resume API Response:', data)
-        console.log('📄 Is Array?', Array.isArray(data))
-        console.log('📄 Length:', data?.length)
         // API returns array directly, not wrapped in { versions: [] }
         const versions = Array.isArray(data) ? data : []
-        console.log('📄 Setting resume versions:', versions)
         setResumeVersions(versions)
       } else {
         console.error('❌ Resume API failed:', resumeRes.status, resumeRes.statusText)
@@ -252,12 +248,8 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       const coverRes = await fetch('/api/cover-letters')
       if (coverRes.ok) {
         const data = await coverRes.json()
-        console.log('✉️  Cover Letter API Response:', data)
-        console.log('✉️  Is Array?', Array.isArray(data))
-        console.log('✉️  Length:', data?.length)
         // API returns array directly, not wrapped in { versions: [] }
         const versions = Array.isArray(data) ? data : []
-        console.log('✉️  Setting cover letter versions:', versions)
         setCoverLetterVersions(versions)
       } else {
         console.error('❌ Cover Letter API failed:', coverRes.status, coverRes.statusText)
@@ -625,24 +617,18 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                 </div>
 
                 {resumeSource === 'lineage' ? (
-                  <>
-                    {console.log('🔍 Rendering resume dropdown, versions:', resumeVersions)}
-                    <select
-                      value={selectedResumeId || ''}
-                      onChange={(e) => setSelectedResumeId(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full px-4 py-3 border border-gray-900 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
-                    >
-                      <option value="">Select a resume version</option>
-                      {resumeVersions.map((version) => {
-                        console.log('📝 Rendering resume option:', version)
-                        return (
-                          <option key={version.id} value={version.id}>
-                            {version.version_name} ({version.version_number} - {version.branch_name})
-                          </option>
-                        )
-                      })}
-                    </select>
-                  </>
+                  <select
+                    value={selectedResumeId || ''}
+                    onChange={(e) => setSelectedResumeId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full px-4 py-3 border border-gray-900 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  >
+                    <option value="">Select a resume version</option>
+                    {resumeVersions.map((version) => (
+                      <option key={version.id} value={version.id}>
+                        {version.version_name} ({version.version_number} - {version.branch_name})
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   <div className="border-2 border-dashed border-gray-300 hover:border-gray-900 transition-colors p-8 text-center">
                     <input
@@ -696,24 +682,18 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                 </div>
 
                 {coverLetterSource === 'lineage' ? (
-                  <>
-                    {console.log('🔍 Rendering cover letter dropdown, versions:', coverLetterVersions)}
-                    <select
-                      value={selectedCoverLetterId || ''}
-                      onChange={(e) => setSelectedCoverLetterId(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full px-4 py-3 border border-gray-900 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
-                    >
-                      <option value="">Select a cover letter version</option>
-                      {coverLetterVersions.map((version) => {
-                        console.log('📝 Rendering cover letter option:', version)
-                        return (
-                          <option key={version.id} value={version.id}>
-                            {version.version_name}
-                          </option>
-                        )
-                      })}
-                    </select>
-                  </>
+                  <select
+                    value={selectedCoverLetterId || ''}
+                    onChange={(e) => setSelectedCoverLetterId(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full px-4 py-3 border border-gray-900 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  >
+                    <option value="">Select a cover letter version</option>
+                    {coverLetterVersions.map((version) => (
+                      <option key={version.id} value={version.id}>
+                        {version.version_name}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   <div className="border-2 border-dashed border-gray-300 hover:border-gray-900 transition-colors p-8 text-center">
                     <input
