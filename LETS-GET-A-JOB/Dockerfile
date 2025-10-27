@@ -46,14 +46,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install ALL dependencies: LaTeX, n8n, SQLite, and runtime tools
 RUN apk add --no-cache \
-    texlive-full \
+    texlive \
+    texmf-dist \
+    texmf-dist-latexextra \
+    texmf-dist-fontsextra \
     fontconfig \
     bash \
     curl \
     make \
     wget \
     sqlite \
-    supervisor \
+    py3-pip \
+    && pip3 install supervisor --break-system-packages \
     && npm install -g n8n
 
 # Create users
