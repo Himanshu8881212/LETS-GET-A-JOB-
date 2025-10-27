@@ -73,8 +73,6 @@ COPY --from=builder /app/resume ./resume
 COPY --from=builder /app/cover_letter ./cover_letter
 COPY --from=builder /app/common ./common
 COPY --from=builder /app/Makefile ./Makefile
-COPY --from=builder /app/RESUME_DATA.tex ./RESUME_DATA.tex
-COPY --from=builder /app/COVER_LETTER_DATA.tex ./COVER_LETTER_DATA.tex
 
 # Copy database schema and migrations directly from source
 COPY lib/db ./lib/db
