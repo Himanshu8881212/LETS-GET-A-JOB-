@@ -64,6 +64,7 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 4. **⚠️ IMPORTANT: Activate n8n Workflows** (Required for AI features):
    - Open http://localhost:5678 in your browser
+   - **No login required** - n8n runs without authentication for local development
    - Click on **Workflows** in the left sidebar
    - For each workflow (job-desc, resume, cover-letter, eval):
      - Click on the workflow name
@@ -72,7 +73,7 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 5. **Access the application:**
    - **Main Application:** http://localhost:3000
-   - **n8n Workflow Editor:** http://localhost:5678
+   - **n8n Workflow Editor:** http://localhost:5678 (no login required)
 
 ---
 
@@ -136,7 +137,13 @@ Once configured:
 
 **⚠️ IMPORTANT:** The AI ATS Evaluator requires manual n8n workflow activation. This is a one-time setup.
 
-### **Why is this needed?**
+### **Authentication**
+
+**No login required!** n8n is configured to run without authentication for local development. Simply open http://localhost:5678 and you'll have immediate access to the workflow editor.
+
+> **Note:** For production deployments, you should enable n8n user management by removing `N8N_USER_MANAGEMENT_DISABLED="true"` from the Dockerfile and setting up proper authentication.
+
+### **Why is manual activation needed?**
 
 n8n workflows need to be manually activated to register their webhooks. This is a limitation of how n8n handles workflow imports.
 
@@ -144,7 +151,7 @@ n8n workflows need to be manually activated to register their webhooks. This is 
 
 1. **Access n8n:**
    - Open http://localhost:5678 in your browser
-   - You'll see the n8n workflow editor
+   - **No login required** - you'll see the n8n workflow editor immediately
 
 2. **View Workflows:**
    - Click on **Workflows** in the left sidebar
@@ -214,12 +221,27 @@ The application uses the following environment variables (pre-configured in `doc
 NODE_ENV=production
 PORT=3000
 
+# n8n Configuration
+N8N_USER_MANAGEMENT_DISABLED=true  # No authentication required (local development)
+N8N_PORT=5678
+N8N_HOST=0.0.0.0
+
 # n8n Webhooks (pre-configured)
 NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://localhost:5678/webhook/process-jd
 NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL=http://localhost:5678/webhook/process-resume
 NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL=http://localhost:5678/webhook/process-cover-letter
 NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL=http://localhost:5678/webhook/evaluate-ats
 ```
+
+### **Security Note**
+
+⚠️ **For Local Development Only:** n8n is configured without authentication (`N8N_USER_MANAGEMENT_DISABLED=true`) for ease of local development.
+
+**For production deployments:**
+1. Remove `N8N_USER_MANAGEMENT_DISABLED="true"` from the Dockerfile (line 115)
+2. Set up n8n user management with proper credentials
+3. Configure firewall rules to restrict access to n8n port (5678)
+4. Use environment variables for sensitive credentials
 
 ### **Data Persistence**
 
