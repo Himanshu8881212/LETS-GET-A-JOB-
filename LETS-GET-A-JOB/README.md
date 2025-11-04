@@ -64,7 +64,9 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 4. **⚠️ IMPORTANT: Activate n8n Workflows** (Required for AI features):
    - Open http://localhost:5678 in your browser
-   - **No login required** - n8n runs without authentication for local development
+   - **Login with default credentials:**
+     - **Email:** `admin@localhost`
+     - **Password:** `admin123`
    - Click on **Workflows** in the left sidebar
    - For each workflow (job-desc, resume, cover-letter, eval):
      - Click on the workflow name
@@ -73,7 +75,9 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 5. **Access the application:**
    - **Main Application:** http://localhost:3000
-   - **n8n Workflow Editor:** http://localhost:5678 (no login required)
+   - **n8n Workflow Editor:** http://localhost:5678
+     - **Email:** `admin@localhost`
+     - **Password:** `admin123`
 
 ---
 
@@ -139,9 +143,12 @@ Once configured:
 
 ### **Authentication**
 
-**No login required!** n8n is configured to run without authentication for local development. Simply open http://localhost:5678 and you'll have immediate access to the workflow editor.
+A default user is automatically created on first startup:
 
-> **Note:** For production deployments, you should enable n8n user management by removing `N8N_USER_MANAGEMENT_DISABLED="true"` from the Dockerfile and setting up proper authentication.
+- **Email:** `admin@localhost`
+- **Password:** `admin123`
+
+> **Note:** For production deployments, you should change these default credentials immediately after first login and configure proper authentication with strong passwords.
 
 ### **Why is manual activation needed?**
 
@@ -151,7 +158,9 @@ n8n workflows need to be manually activated to register their webhooks. This is 
 
 1. **Access n8n:**
    - Open http://localhost:5678 in your browser
-   - **No login required** - you'll see the n8n workflow editor immediately
+   - **Login with:**
+     - Email: `admin@localhost`
+     - Password: `admin123`
 
 2. **View Workflows:**
    - Click on **Workflows** in the left sidebar
