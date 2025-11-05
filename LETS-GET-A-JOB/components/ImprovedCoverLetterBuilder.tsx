@@ -123,12 +123,16 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
 
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(apiData)
       })
 
       if (!response.ok) {
-        throw new Error('Failed to generate cover letter')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Cover letter generation error:', errorData)
+        throw new Error(errorData.error || 'Failed to generate cover letter')
       }
 
       const blob = await response.blob()
@@ -138,7 +142,7 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
       showToast('success', 'Preview generated successfully!')
     } catch (error) {
       console.error('Error generating preview:', error)
-      showToast('error', 'Failed to generate preview. Please try again.')
+      showToast('error', error instanceof Error ? error.message : 'Failed to generate preview. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -210,8 +214,32 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
   const handleClearData = () => {
     if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       clearSavedData(STORAGE_KEY)
+
+      // Reset all form state
+      setPersonalInfo({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        linkedin: '',
+        github: '',
+        address: ''
+      })
+      setRecipientInfo({
+        company: '',
+        role: '',
+        hiringManager: '',
+        address: '',
+        city: ''
+      })
+      setOpeningParagraph('')
+      setBodyParagraphs([''])
+      setClosingParagraph('')
+      setCurrentVersionId(null)
+      setCurrentVersionName('')
+      setCurrentParentVersionId(null)
+
       showToast('info', 'All data cleared')
-      window.location.reload()
     }
   }
 

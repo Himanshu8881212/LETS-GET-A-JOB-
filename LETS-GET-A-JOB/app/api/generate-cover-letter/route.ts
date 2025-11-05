@@ -7,7 +7,6 @@ import { coverLetterApiSchema } from '@/lib/validation/schemas'
 import { ZodError } from 'zod'
 import { getUserSession } from '@/lib/db/session'
 import { pdfRateLimiter, getRateLimitError } from '@/lib/rate-limit'
-import { generateHash, getCachedPDF, cachePDF } from '@/lib/pdf-cache'
 
 const execAsync = promisify(exec)
 
@@ -113,23 +112,6 @@ export async function POST(request: NextRequest) {
       throw validationError
     }
 
-    // Check if cache should be disabled (for version downloads)
-    const disableCache = request.headers.get('X-Disable-Cache') === 'true'
-
-    // Check cache first (unless disabled)
-    const dataHash = generateHash(data)
-    const cachedPDF = !disableCache ? await getCachedPDF(dataHash) : null
-
-    if (cachedPDF) {
-      return new NextResponse(cachedPDF as any, {
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename=cover_letter.pdf',
-          'X-Cache': 'HIT'
-        }
-      })
-    }
-
     // Validate working directory to prevent command injection
     const rootDir = process.cwd()
     const resolvedRoot = path.resolve(rootDir)
@@ -176,16 +158,10 @@ export async function POST(request: NextRequest) {
     const pdfPath = path.join(resolvedRoot, 'cover_letter.pdf')
     const pdfBuffer = await fs.readFile(pdfPath)
 
-    // Cache the generated PDF (unless cache is disabled)
-    if (!disableCache) {
-      await cachePDF(dataHash, pdfBuffer)
-    }
-
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=cover_letter.pdf',
-        'X-Cache': 'MISS'
+        'Content-Disposition': 'inline; filename=cover_letter.pdf'
       }
     })
   } catch (error: any) {

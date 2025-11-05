@@ -427,12 +427,16 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     try {
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(allData)
       })
 
       if (!response.ok) {
-        throw new Error('Failed to generate resume')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Resume generation error:', errorData)
+        throw new Error(errorData.error || 'Failed to generate resume')
       }
 
       const blob = await response.blob()
@@ -442,7 +446,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       showToast('success', 'Preview generated successfully!')
     } catch (error) {
       console.error('Error generating preview:', error)
-      showToast('error', 'Failed to generate preview. Please try again.')
+      showToast('error', error instanceof Error ? error.message : 'Failed to generate preview. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -509,8 +513,35 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   const handleClearData = () => {
     if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       clearSavedData(STORAGE_KEY)
+
+      // Reset all form state
+      setPersonalInfo({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        linkedin: '',
+        github: '',
+        address: ''
+      })
+      setSummary('')
+      setSkillCategories([])
+      setExperiences([])
+      setProjects([])
+      setEducation([])
+      setCertifications([])
+      setLanguages([])
+      setAwards([])
+      setPublications([])
+      setExtracurricular([])
+      setVolunteer([])
+      setHobbies([])
+      setSectionOrder(defaultSectionOrder)
+      setCurrentVersionId(null)
+      setCurrentVersionName('')
+      setCurrentParentVersionId(null)
+
       showToast('info', 'All data cleared')
-      window.location.reload()
     }
   }
 

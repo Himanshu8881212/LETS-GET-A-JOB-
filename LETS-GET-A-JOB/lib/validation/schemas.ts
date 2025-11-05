@@ -28,50 +28,52 @@ export const updateJobApplicationSchema = jobApplicationSchema.partial()
 
 // Resume Data Schemas
 export const personalInfoSchema = z.object({
-  firstName: z.string().max(50).trim(),
-  lastName: z.string().max(50).trim(),
-  email: z.string().email().or(z.literal('')),
-  phone: z.string().max(50).trim(),
-  linkedin: z.string().max(200).trim().optional(),
-  github: z.string().max(200).trim().optional(),
-  address: z.string().max(300).trim().optional()
+  firstName: z.string().max(50).trim().optional().default(''),
+  lastName: z.string().max(50).trim().optional().default(''),
+  email: z.string().trim().optional().default('').refine((val) => !val || val === '' || z.string().email().safeParse(val).success, {
+    message: 'Invalid email address'
+  }),
+  phone: z.string().max(50).trim().optional().default(''),
+  linkedin: z.string().max(200).trim().optional().default(''),
+  github: z.string().max(200).trim().optional().default(''),
+  address: z.string().max(300).trim().optional().default('')
 })
 
 export const skillCategorySchema = z.object({
   id: z.string(),
-  name: z.string().max(100).trim(),
-  skills: z.string().max(500).trim()
+  name: z.string().max(100).trim().optional().default(''),
+  skills: z.string().max(500).trim().optional().default('')
 })
 
 export const experienceSchema = z.object({
-  title: z.string().max(200).trim(),
-  company: z.string().max(200).trim(),
-  location: z.string().max(200).trim(),
-  dates: z.string().max(100).trim(),
-  bullets: z.array(z.string().max(300).trim())
+  title: z.string().max(200).trim().optional().default(''),
+  company: z.string().max(200).trim().optional().default(''),
+  location: z.string().max(200).trim().optional().default(''),
+  dates: z.string().max(100).trim().optional().default(''),
+  bullets: z.array(z.string().max(300).trim()).optional().default([])
 })
 
 export const projectSchema = z.object({
-  title: z.string().max(200).trim(),
-  description: z.string().max(1000).trim()
+  title: z.string().max(200).trim().optional().default(''),
+  description: z.string().max(1000).trim().optional().default('')
 })
 
 export const educationSchema = z.object({
-  degree: z.string().max(200).trim(),
-  institution: z.string().max(200).trim(),
-  location: z.string().max(200).trim().optional(),
-  dates: z.string().max(100).trim().optional(),
-  gpa: z.string().max(20).trim().optional()
+  degree: z.string().max(200).trim().optional().default(''),
+  institution: z.string().max(200).trim().optional().default(''),
+  location: z.string().max(200).trim().optional().default(''),
+  dates: z.string().max(100).trim().optional().default(''),
+  gpa: z.string().max(20).trim().optional().default('')
 })
 
 export const publicationSchema = z.object({
-  title: z.string().max(300).trim(),
-  details: z.string().max(500).trim()
+  title: z.string().max(300).trim().optional().default(''),
+  details: z.string().max(500).trim().optional().default('')
 })
 
 export const activitySchema = z.object({
-  title: z.string().max(200).trim(),
-  details: z.string().max(500).trim()
+  title: z.string().max(200).trim().optional().default(''),
+  details: z.string().max(500).trim().optional().default('')
 })
 
 export const sectionConfigSchema = z.object({
@@ -99,11 +101,11 @@ export const resumeDataSchema = z.object({
 
 // Cover Letter Data Schemas
 export const recipientInfoSchema = z.object({
-  company: z.string().max(200).trim(),
-  role: z.string().max(200).trim(),
-  hiringManager: z.string().max(200).trim().optional(),
-  address: z.string().max(300).trim().optional(),
-  city: z.string().max(100).trim().optional()
+  company: z.string().max(200).trim().optional().default(''),
+  role: z.string().max(200).trim().optional().default(''),
+  hiringManager: z.string().max(200).trim().optional().default(''),
+  address: z.string().max(300).trim().optional().default(''),
+  city: z.string().max(100).trim().optional().default('')
 })
 
 export const coverLetterDataSchema = z.object({

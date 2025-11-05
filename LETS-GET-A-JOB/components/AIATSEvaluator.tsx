@@ -619,7 +619,7 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                   <select
                     value={selectedResumeId || ''}
                     onChange={(e) => setSelectedResumeId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full px-4 py-3 border border-gray-900 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    className="w-full px-4 py-3 border border-gray-900 bg-white text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
                   >
                     <option value="">Select a resume version</option>
                     {resumeVersions.map((version) => (
@@ -684,7 +684,7 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                   <select
                     value={selectedCoverLetterId || ''}
                     onChange={(e) => setSelectedCoverLetterId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full px-4 py-3 border border-gray-900 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    className="w-full px-4 py-3 border border-gray-900 bg-white text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
                   >
                     <option value="">Select a cover letter version</option>
                     {coverLetterVersions.map((version) => (

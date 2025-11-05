@@ -7,7 +7,6 @@ import { resumeDataSchema } from '@/lib/validation/schemas'
 import { ZodError } from 'zod'
 import { getUserSession } from '@/lib/db/session'
 import { pdfRateLimiter, getRateLimitError } from '@/lib/rate-limit'
-import { generateHash, getCachedPDF, cachePDF } from '@/lib/pdf-cache'
 
 const execAsync = promisify(exec)
 
@@ -196,24 +195,6 @@ export async function POST(request: NextRequest) {
       throw validationError
     }
 
-    // Check cache first (unless disabled via header)
-    const disableCache = request.headers.get('X-Disable-Cache') === 'true'
-    const dataHash = generateHash(data)
-
-    if (!disableCache) {
-      const cachedPDF = await getCachedPDF(dataHash)
-
-      if (cachedPDF) {
-        return new NextResponse(cachedPDF as any, {
-          headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=resume.pdf',
-            'X-Cache': 'HIT'
-          }
-        })
-      }
-    }
-
     // Validate working directory to prevent command injection
     const rootDir = process.cwd()
     const resolvedRoot = path.resolve(rootDir)
@@ -260,16 +241,10 @@ export async function POST(request: NextRequest) {
     const pdfPath = path.join(resolvedRoot, 'resume.pdf')
     const pdfBuffer = await fs.readFile(pdfPath)
 
-    // Cache the generated PDF (unless caching is disabled)
-    if (!disableCache) {
-      await cachePDF(dataHash, pdfBuffer)
-    }
-
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=resume.pdf',
-        'X-Cache': disableCache ? 'DISABLED' : 'MISS'
+        'Content-Disposition': 'inline; filename=resume.pdf'
       }
     })
   } catch (error) {
