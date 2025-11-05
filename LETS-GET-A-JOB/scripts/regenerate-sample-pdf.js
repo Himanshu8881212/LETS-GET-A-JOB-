@@ -7,14 +7,14 @@ const fs = require('fs')
 const path = require('path')
 
 async function regenerateSamplePDF() {
-  const baseUrl = 'http://localhost:3001'
-  
+  const baseUrl = 'http://localhost:3000'
+
   // Read the sample resume data
   const sampleDataPath = path.join(__dirname, '../public/samples/sample-resume-data.json')
   const sampleData = JSON.parse(fs.readFileSync(sampleDataPath, 'utf8'))
-  
+
   console.log('Generating sample resume PDF...')
-  
+
   try {
     const response = await fetch(`${baseUrl}/api/generate-resume`, {
       method: 'POST',
@@ -33,7 +33,7 @@ async function regenerateSamplePDF() {
     const pdfBuffer = await response.arrayBuffer()
     const outputPath = path.join(__dirname, '../public/samples/resumes/sample-resume.pdf')
     fs.writeFileSync(outputPath, Buffer.from(pdfBuffer))
-    
+
     console.log('✓ Sample resume PDF generated successfully!')
     console.log(`  Saved to: ${outputPath}`)
   } catch (error) {
