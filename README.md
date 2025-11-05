@@ -6,6 +6,35 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
+## 📋 Table of Contents
+
+- [🐳 Docker Deployment (Recommended)](#-docker-deployment-recommended---two-containers)
+- [💻 Local Development (Without Docker)](#-local-development-without-docker)
+- [Features](#features)
+- [Troubleshooting](#troubleshooting)
+
+---
+
+## ⚡ Choose Your Setup Method
+
+### 🐳 Docker Deployment (Recommended)
+✅ Everything in containers - isolated and portable
+✅ Easy to deploy anywhere
+✅ Automatic workflow setup
+✅ No Node.js required on host machine
+❌ Requires Docker and Docker Compose
+
+### 💻 Local Development
+✅ Faster hot-reload during development
+✅ Direct access to code for debugging
+✅ Familiar npm run dev workflow
+❌ Requires Node.js 18+ installed
+❌ Requires Docker for n8n only
+
+**New users?** Start with **Docker Deployment** for the simplest experience!
+
+---
+
 ## 🐳 Docker Deployment (Recommended - Two Containers)
 
 **Want everything in one package? Use Docker Compose!**
@@ -80,20 +109,22 @@ docker-compose --profile full up -d
 
 ---
 
-## 🚀 Complete Fresh Start (New User)
+## 💻 Local Development (Without Docker)
 
-**Starting completely fresh? Follow these steps:**
+**Prefer to run the app locally without Docker containers?**
+
+This method runs n8n in a separate Docker container, but your application runs directly on your machine using Node.js.
 
 ### Prerequisites
 
 Before you begin, make sure you have:
-1. **Docker** installed and running
+1. **Docker** installed and running (for n8n only)
 2. **Node.js** 18+ installed
 3. **Get your API keys** (both free):
    - **Groq API Key**: https://console.groq.com/keys
    - **Tavily API Key**: https://tavily.com
 
-### Setup Commands
+### Complete Setup (Detailed Steps)
 
 ```bash
 # 1. Clone the repository (if you haven't already)
@@ -128,9 +159,7 @@ npm run dev
 
 **Done!** Open http://localhost:3000 in your browser.
 
----
-
-## From Scratch Setup (TL;DR)
+### Quick Setup (TL;DR)
 
 **Prerequisites:** Get your API keys first:
 - Groq: https://console.groq.com/keys
@@ -149,73 +178,19 @@ npm install
 npm run dev
 ```
 
-Done! Open http://localhost:3000
+**Access:**
+- Application: http://localhost:3000
+- n8n: http://localhost:5678
 
----
-
-## Quick Start Guide
-
-Follow these steps to set up and run the application:
-
-### 1. Install n8n in Docker (No Authentication Required)
-
-Install n8n with authentication disabled for easy local development:
+### Stopping the Application
 
 ```bash
-docker run -d --name n8n \
-  -p 5678:5678 \
-  -e N8N_USER_MANAGEMENT_DISABLED=true \
-  -v n8n_data:/home/node/.n8n \
-  --restart unless-stopped \
-  n8nio/n8n:latest
+# Stop dev server (Ctrl+C in the terminal)
+
+# Stop n8n container
+docker stop n8n
+docker rm n8n
 ```
-
-Wait for n8n to start (about 30 seconds). That's it! No manual setup needed.
-
-**Note:** If you already have n8n running with authentication enabled, you can restart it with:
-```bash
-docker stop n8n && docker rm n8n
-docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8n_data:/home/node/.n8n n8nio/n8n:latest
-```
-
-### 2. Setup n8n Workflows (Automated)
-
-**Get your API keys first:**
-- **Groq API Key**: https://console.groq.com/keys
-- **Tavily API Key**: https://tavily.com
-
-Run the automated setup script:
-
-```bash
-node setup-n8n-workflows.js
-```
-
-The script will prompt you for both API keys, then automatically:
-- Create Groq credentials in n8n
-- Import all 4 workflows
-- Configure Groq credentials and Tavily API key in workflows
-- Activate workflows in **production mode** (this fixes the 404/500 errors!)
-- Configure webhooks to work with your .env.local
-
-### 3. Install Dependencies and Run the Application
-
-```bash
-npm install
-npm run dev
-```
-
-The application will start at http://localhost:3000
-
----
-
-## That's It!
-
-Everything should work fine now. You can:
-
-- Create resumes and cover letters
-- Evaluate them with AI
-- Track your job applications
-- Generate professional PDFs
 
 ---
 
