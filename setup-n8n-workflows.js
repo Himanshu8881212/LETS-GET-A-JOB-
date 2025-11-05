@@ -209,8 +209,23 @@ async function updateWorkflowCredentials(workflowId, groqCredId) {
     });
 
     if (updated) {
+      // Clean workflow for PUT - only include accepted properties
+      const cleanWorkflow = {
+        name: workflow.name,
+        nodes: workflow.nodes,
+        connections: workflow.connections,
+        settings: workflow.settings,
+        active: workflow.active,
+      };
+      if (workflow.staticData) {
+        cleanWorkflow.staticData = workflow.staticData;
+      }
+      if (workflow.tags && workflow.tags.length > 0) {
+        cleanWorkflow.tags = workflow.tags;
+      }
+
       // Update the workflow using PUT
-      await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, workflow);
+      await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, cleanWorkflow);
       console.log(`  ${colors.green}✓ Credentials configured${colors.reset}`);
     } else {
       console.log(`  ${colors.blue}• No credentials to update${colors.reset}`);
@@ -276,9 +291,23 @@ async function importWorkflow(workflowPath) {
 async function activateWorkflow(workflowId) {
   try {
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
-    workflow.active = true;
 
-    await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, workflow);
+    // Clean workflow for PUT - only include accepted properties
+    const cleanWorkflow = {
+      name: workflow.name,
+      nodes: workflow.nodes,
+      connections: workflow.connections,
+      settings: workflow.settings,
+      active: true,  // Set to active
+    };
+    if (workflow.staticData) {
+      cleanWorkflow.staticData = workflow.staticData;
+    }
+    if (workflow.tags && workflow.tags.length > 0) {
+      cleanWorkflow.tags = workflow.tags;
+    }
+
+    await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, cleanWorkflow);
     console.log(`  ${colors.green}✓ Activated (production mode)${colors.reset}`);
     return true;
   } catch (error) {
