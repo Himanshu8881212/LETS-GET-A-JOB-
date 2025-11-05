@@ -104,7 +104,7 @@ autorestart=false
 startsecs=0
 stdout_logfile=/app/logs/workflow-setup.log
 stderr_logfile=/app/logs/workflow-setup-error.log
-environment=N8N_USER_FOLDER="/app/n8n-data",GROQ_API_KEY="%(ENV_GROQ_API_KEY)s"
+environment=N8N_USER_FOLDER="/app/n8n-data"
 priority=200
 
 [program:nextjs]

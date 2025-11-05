@@ -16,64 +16,23 @@ rm -f /app/n8n-data/.n8n/config
 # Wait for n8n to recreate config
 sleep 5
 
-# Check if Groq credentials exist
-CRED_ID=$(sqlite3 /app/n8n-data/.n8n/database.sqlite "SELECT id FROM credentials_entity WHERE type='groqApi' LIMIT 1;" 2>/dev/null || echo "")
-
-if [ -z "$CRED_ID" ]; then
-    echo "No Groq credentials found."
-
-    # Check if GROQ_API_KEY environment variable is set
-    if [ -n "$GROQ_API_KEY" ]; then
-        echo "Creating Groq credentials from GROQ_API_KEY environment variable..."
-
-        # Generate a random credential ID
-        CRED_ID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
-
-        # Encrypt the API key (n8n uses encryption, but for simplicity we'll store it directly)
-        # In production, this should use n8n's encryption key
-        ENCRYPTED_KEY="$GROQ_API_KEY"
-
-        # Insert credential into database
-        sqlite3 /app/n8n-data/.n8n/database.sqlite <<SQL
-INSERT INTO credentials_entity (id, name, type, data, createdAt, updatedAt)
-VALUES (
-    '$CRED_ID',
-    'Groq account',
-    'groqApi',
-    '{"apiKey":"$ENCRYPTED_KEY"}',
-    datetime('now'),
-    datetime('now')
-);
-SQL
-
-        echo "Groq credentials created with ID: $CRED_ID"
-    else
-        echo "WARNING: No GROQ_API_KEY environment variable set!"
-        echo "Please either:"
-        echo "  1. Set GROQ_API_KEY environment variable, OR"
-        echo "  2. Manually add Groq credentials via n8n UI at http://localhost:5678"
-        echo ""
-        echo "Workflows will not activate without valid credentials."
-    fi
-else
-    echo "Found existing Groq credentials with ID: $CRED_ID"
-fi
-
-# Update workflow files with credential ID if we have one
-if [ -n "$CRED_ID" ]; then
-    echo "Updating workflow files with credential ID: $CRED_ID..."
-
-    for workflow_file in /app/n8n-workflows/*.json; do
-        if [ -f "$workflow_file" ]; then
-            # Replace any existing Groq credential ID with the correct one
-            sed -i "s/\"id\": \"[a-zA-Z0-9]*\",$/\"id\": \"$CRED_ID\",/g" "$workflow_file"
-            # More specific pattern for credentials section
-            sed -i "/\"groqApi\"/,/}/ s/\"id\": \"[^\"]*\"/\"id\": \"$CRED_ID\"/g" "$workflow_file"
-        fi
-    done
-
-    echo "Workflow files updated successfully."
-fi
+echo "Checking for Groq credentials..."
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 MANUAL SETUP REQUIRED"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "To use the AI workflows, you must:"
+echo ""
+echo "1. Open n8n UI: http://localhost:5678"
+echo "2. Go to: Credentials > Add Credential > Groq"
+echo "3. Name it: 'Groq account' (exactly as shown)"
+echo "4. Add your Groq API key from: https://console.groq.com/keys"
+echo "5. Save the credential"
+echo "6. The workflows will automatically use this credential"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
 
 # Check if workflows already exist
 WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/.n8n/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
