@@ -251,15 +251,12 @@ async function importWorkflow(workflowPath) {
       delete workflowData.tags;
     }
 
-    // Ensure workflow is set to inactive initially
-    workflowData.active = false;
-
     // Create clean workflow object with only accepted properties
+    // NOTE: 'active' is read-only during creation, we'll activate it separately
     const cleanWorkflow = {
       name: workflowData.name,
       nodes: workflowData.nodes,
       connections: workflowData.connections,
-      active: false,
       settings: workflowData.settings || {},
     };
 
