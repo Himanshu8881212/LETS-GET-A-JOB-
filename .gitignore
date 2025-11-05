@@ -8,4 +8,37 @@
 *.swo
 *~
 
+# Dependencies
 node_modules
+
+# Next.js build output
+.next/
+out/
+
+# Database files
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Test files
+test-*.txt
+test-*.pdf
+
+# Generated PDFs
+*.pdf
+!public/**/*.pdf
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Misc
+.DS_Store
+*.pem
