@@ -110,10 +110,14 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
   // Check if cover letter has any data
   const hasCoverLetterData = () => {
     // Check personal info
-    const hasPersonalInfo = Object.values(personalInfo).some(value => value.trim() !== '')
+    const hasPersonalInfo = Object.values(personalInfo).some((value: unknown) =>
+      typeof value === 'string' && value.trim() !== ''
+    )
 
     // Check recipient info
-    const hasRecipientInfo = Object.values(recipientInfo).some(value => value.trim() !== '')
+    const hasRecipientInfo = Object.values(recipientInfo).some((value: unknown) =>
+      typeof value === 'string' && value.trim() !== ''
+    )
 
     // Check content
     const hasOpening = openingParagraph.trim() !== ''

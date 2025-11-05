@@ -415,7 +415,9 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   // Check if resume has any data
   const hasResumeData = () => {
     // Check personal info
-    const hasPersonalInfo = Object.values(personalInfo).some(value => value.trim() !== '')
+    const hasPersonalInfo = Object.values(personalInfo).some((value: unknown) =>
+      typeof value === 'string' && value.trim() !== ''
+    )
 
     // Check other fields
     const hasSummary = summary.trim() !== ''

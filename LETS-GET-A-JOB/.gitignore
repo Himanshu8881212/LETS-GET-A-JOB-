@@ -76,3 +76,32 @@ Thumbs.db
 /data/documents/
 /n8n-data/
 
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Generated PDFs (except samples)
+/*.pdf
+/resume.pdf
+/cover_letter.pdf
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Security
+.env.production
+.env.development
+secrets/
+*.key
+*.pem
+*.cert
+
+# Test files
+test-output/
+coverage/
+

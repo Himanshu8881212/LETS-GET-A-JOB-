@@ -83,7 +83,7 @@ export const sectionConfigSchema = z.object({
 })
 
 export const resumeDataSchema = z.object({
-  personalInfo: personalInfoSchema.optional().default({}),
+  personalInfo: personalInfoSchema.optional(),
   summary: z.string().max(500).trim().optional(),
   skillCategories: z.array(skillCategorySchema).optional(),
   experiences: z.array(experienceSchema).optional(),
@@ -109,8 +109,8 @@ export const recipientInfoSchema = z.object({
 })
 
 export const coverLetterDataSchema = z.object({
-  personalInfo: personalInfoSchema.optional().default({}),
-  recipientInfo: recipientInfoSchema.optional().default({}),
+  personalInfo: personalInfoSchema.optional(),
+  recipientInfo: recipientInfoSchema.optional(),
   openingParagraph: z.string().max(1000).trim().optional(),
   bodyParagraphs: z.array(z.string().max(1000).trim()).optional(),
   closingParagraph: z.string().max(1000).trim().optional()
@@ -118,13 +118,13 @@ export const coverLetterDataSchema = z.object({
 
 // Cover Letter API Schema (for generate-cover-letter endpoint)
 export const coverLetterApiSchema = z.object({
-  personalInfo: personalInfoSchema.optional().default({}),
-  recipient: recipientInfoSchema.optional().default({}),
+  personalInfo: personalInfoSchema.optional(),
+  recipient: recipientInfoSchema.optional(),
   content: z.object({
     opening: z.string().max(1000).trim().optional(),
     bodyParagraphs: z.array(z.string().max(1000).trim()).optional(),
     closing: z.string().max(1000).trim().optional()
-  }).optional().default({})
+  }).optional()
 })
 
 // Resume Version Schemas
