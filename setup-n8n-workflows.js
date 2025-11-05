@@ -186,8 +186,8 @@ async function createGroqCredential(apiKey) {
   }
 }
 
-// Update workflow to use credentials and ensure production mode
-async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey = null) {
+// Update workflow to use credentials
+async function updateWorkflowCredentials(workflowId, groqCredId) {
   try {
     // Get the workflow
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
@@ -205,14 +205,6 @@ async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey = 
           name: 'Groq account',
         };
         updated = true;
-      }
-
-      // Update Tavily MCP Client if present and key provided
-      if (tavilyApiKey && node.type === '@n8n/n8n-nodes-langchain.mcpClientTool') {
-        if (node.parameters && node.parameters.endpointUrl) {
-          node.parameters.endpointUrl = `https://mcp.tavily.com/mcp/?tavilyApiKey=${tavilyApiKey}`;
-          updated = true;
-        }
       }
     });
 
@@ -330,15 +322,13 @@ async function main() {
 
   // Prompt for workflow API keys
   console.log(`${colors.bright}Workflow API Keys Setup${colors.reset}`);
-  console.log(`${colors.yellow}You'll need API keys for the workflows to function.${colors.reset}\n`);
+  console.log(`${colors.yellow}You'll need a Groq API key for the workflows to function.${colors.reset}\n`);
 
   const groqApiKey = await prompt('Enter your Groq API key (get from https://console.groq.com/keys): ');
   if (!groqApiKey) {
     console.log(`${colors.red}✗ Groq API key is required${colors.reset}`);
     process.exit(1);
   }
-
-  const tavilyApiKey = await prompt('Enter your Tavily API key (optional, press Enter to skip): ');
 
   console.log('');
 
@@ -392,7 +382,7 @@ async function main() {
   let credentialsUpdated = 0;
   for (const { filename, id } of importedWorkflows) {
     console.log(`${colors.cyan}${filename}${colors.reset}`);
-    const success = await updateWorkflowCredentials(id, groqCredId, tavilyApiKey);
+    const success = await updateWorkflowCredentials(id, groqCredId);
     if (success) {
       credentialsUpdated++;
     }

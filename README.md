@@ -41,7 +41,6 @@ node setup-n8n-workflows.js
 
 The script will prompt you for:
 1. **Groq API Key** (required) - Get from https://console.groq.com/keys
-2. **Tavily API Key** (optional) - Get from https://tavily.com (only needed for Job Description workflow)
 
 The script will automatically:
 - Create credentials in n8n
