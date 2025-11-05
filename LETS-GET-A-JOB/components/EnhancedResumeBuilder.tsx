@@ -167,13 +167,13 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     loadSavedData(STORAGE_KEY, { hobbies: [] }).hobbies || []
   )
 
-  // Default section order
+  // Default section order - all sections disabled by default
   const defaultSectionOrder: SectionConfig[] = [
-    { id: 'summary', name: 'Professional Summary', enabled: true },
-    { id: 'skills', name: 'Technical Skills', enabled: true },
-    { id: 'experience', name: 'Work Experience', enabled: true },
-    { id: 'projects', name: 'Projects', enabled: true },
-    { id: 'education', name: 'Education', enabled: true },
+    { id: 'summary', name: 'Professional Summary', enabled: false },
+    { id: 'skills', name: 'Technical Skills', enabled: false },
+    { id: 'experience', name: 'Work Experience', enabled: false },
+    { id: 'projects', name: 'Projects', enabled: false },
+    { id: 'education', name: 'Education', enabled: false },
     { id: 'certifications', name: 'Certifications', enabled: false },
     { id: 'languages', name: 'Languages', enabled: false },
     { id: 'awards', name: 'Awards & Honors', enabled: false },
@@ -410,6 +410,30 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     const newList = [...current]
     newList[index] = value
     setters[type](newList)
+  }
+
+  // Check if resume has any data
+  const hasResumeData = () => {
+    // Check personal info
+    const hasPersonalInfo = Object.values(personalInfo).some(value => value.trim() !== '')
+
+    // Check other fields
+    const hasSummary = summary.trim() !== ''
+    const hasSkills = skillCategories.length > 0 && skillCategories.some(cat => cat.skills.length > 0)
+    const hasExperience = experiences.length > 0
+    const hasProjects = projects.length > 0
+    const hasEducation = education.length > 0
+    const hasCertifications = certifications.length > 0
+    const hasLanguages = languages.length > 0
+    const hasAwards = awards.length > 0
+    const hasPublications = publications.length > 0
+    const hasExtracurricular = extracurricular.length > 0
+    const hasVolunteer = volunteer.length > 0
+    const hasHobbies = hobbies.length > 0
+
+    return hasPersonalInfo || hasSummary || hasSkills || hasExperience || hasProjects ||
+      hasEducation || hasCertifications || hasLanguages || hasAwards || hasPublications ||
+      hasExtracurricular || hasVolunteer || hasHobbies
   }
 
   const handlePreview = async () => {
@@ -766,6 +790,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
                     variant="outline"
                     size="md"
                     loading={isGenerating}
+                    disabled={!hasResumeData()}
                     icon={<Eye className="w-4 h-4" />}
                     onClick={handlePreview}
                   >

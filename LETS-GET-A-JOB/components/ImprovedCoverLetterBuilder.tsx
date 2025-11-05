@@ -107,6 +107,22 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
     setBodyParagraphs(newParagraphs)
   }
 
+  // Check if cover letter has any data
+  const hasCoverLetterData = () => {
+    // Check personal info
+    const hasPersonalInfo = Object.values(personalInfo).some(value => value.trim() !== '')
+
+    // Check recipient info
+    const hasRecipientInfo = Object.values(recipientInfo).some(value => value.trim() !== '')
+
+    // Check content
+    const hasOpening = openingParagraph.trim() !== ''
+    const hasBody = bodyParagraphs.some(para => para.trim() !== '')
+    const hasClosing = closingParagraph.trim() !== ''
+
+    return hasPersonalInfo || hasRecipientInfo || hasOpening || hasBody || hasClosing
+  }
+
   const handlePreview = async () => {
     setIsGenerating(true)
     try {
@@ -467,6 +483,7 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
                     variant="outline"
                     size="md"
                     loading={isGenerating}
+                    disabled={!hasCoverLetterData()}
                     icon={<Eye className="w-4 h-4" />}
                     onClick={handlePreview}
                   >
