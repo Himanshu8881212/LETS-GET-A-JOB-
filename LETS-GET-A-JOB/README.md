@@ -1,4 +1,4 @@
-# LETS GET A JOB! ��
+# LETS GET A JOB!
 
 **AI-Powered Resume & Cover Letter Builder with ATS Evaluation and Job Tracking**
 
@@ -6,28 +6,28 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
-## 🌟 Features
+## Features
 
-### ✅ **Resume Builder**
+### Resume Builder
 - **Professional LaTeX Templates** - Generate beautiful, ATS-compatible PDFs
 - **Version Control** - Semantic versioning with branching (v1.0, v1.1, v2.0, etc.)
 - **Live Preview** - See your resume before downloading
 - **Dynamic Sections** - Enable/disable sections as needed
 - **Demo Data** - Pre-filled examples to get started quickly
 
-### ✅ **Cover Letter Builder**
+### Cover Letter Builder
 - **Customizable Templates** - Professional LaTeX-generated PDFs
 - **Version Control** - Track different versions for different applications
 - **Live Preview** - Preview before saving
 - **Company-Specific** - Tailor each letter to the job
 
-### 🔧 **AI ATS Evaluator** (Requires Setup)
+### AI ATS Evaluator (Requires Setup)
 - **AI-Powered Analysis** - Evaluate resume against job descriptions
 - **ATS Compatibility Score** - Check how well your resume passes ATS systems
 - **Improvement Suggestions** - Get actionable feedback
 - **Job Description Parsing** - Extract requirements from job URLs
 
-### 📊 **Job Tracker** (Requires Setup)
+### Job Tracker (Requires Setup)
 - **Kanban Board** - Visual pipeline (Applied → Interview → Offer → Rejected)
 - **Application History** - Track all your applications
 - **Document Linking** - Link resumes and cover letters to applications
@@ -35,7 +35,7 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -81,9 +81,9 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
-### **Resume Builder** ✅ Works Out of the Box
+### Resume Builder - Works Out of the Box
 
 1. Navigate to **Resume Builder** from the home page
 2. Fill in your information (or use the pre-filled demo data)
@@ -97,7 +97,7 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 - Branch from existing versions to create variations
 - Download PDFs directly from the Versions page
 
-### **Cover Letter Builder** ✅ Works Out of the Box
+### Cover Letter Builder - Works Out of the Box
 
 1. Navigate to **Cover Letter Builder** from the home page
 2. Fill in your information and the recipient's details
@@ -111,7 +111,7 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 - Use the same branching strategy as resumes
 - Link cover letters to specific job applications
 
-### **AI ATS Evaluator** ⚠️ Requires n8n Workflow Activation
+### AI ATS Evaluator - Requires n8n Workflow Activation
 
 **Before using:** Make sure you've activated the n8n workflows (see Step 4 in Installation above)
 
@@ -137,7 +137,7 @@ Once configured:
 
 ---
 
-## 🔧 n8n Workflow Setup (Required for AI Features)
+## n8n Workflow Setup (Required for AI Features)
 
 **⚠️ IMPORTANT:** The AI ATS Evaluator requires manual n8n workflow activation. This is a one-time setup.
 
@@ -219,7 +219,7 @@ The workflows use OpenRouter for AI. To use your own API key:
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### **Environment Variables**
 
@@ -278,7 +278,7 @@ docker run --rm -v lets-get-a-job_n8n_data:/data -v $(pwd):/backup alpine sh -c 
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### **Services Not Starting**
 
@@ -344,7 +344,7 @@ If the first preview attempt fails with "Failed to generate preview", click **Pr
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### **Technology Stack**
 
@@ -376,7 +376,7 @@ User → Next.js UI → API Routes → SQLite Database
 
 ---
 
-## 📝 Common Commands
+## Common Commands
 
 ```bash
 # Start the application
@@ -409,7 +409,7 @@ docker-compose up -d --build
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -421,13 +421,13 @@ Contributions are welcome! Please:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **LaTeX** for beautiful PDF generation
 - **n8n** for workflow automation
@@ -436,7 +436,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 📞 Support
+## Support
 
 For issues, questions, or suggestions:
 - **GitHub Issues:** https://github.com/Himanshu8881212/LETS-GET-A-JOB-/issues
@@ -444,4 +444,4 @@ For issues, questions, or suggestions:
 
 ---
 
-**Made with ❤️ by Himanshu**
+**Made by Himanshu**

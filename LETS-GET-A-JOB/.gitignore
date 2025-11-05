@@ -1,5 +1,5 @@
 # Dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 
@@ -24,6 +24,7 @@ yarn-error.log*
 
 # Local env files
 .env*.local
+.env
 
 # Vercel
 .vercel
@@ -32,34 +33,46 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Database
-/data
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# Database files
 *.db
 *.db-shm
 *.db-wal
 
-# LaTeX build files
-*.aux
+# PDF cache
+/data/pdf-cache/
+
+# Logs
+logs/
 *.log
-*.out
-*.pdf
-*.tex
-!common/*.tex
-!resume/sections/*.tex
-!cover_letter/sections/*.tex
-!resume/main.tex
-!cover_letter/main.tex
-!RESUME_DATA.tex
-!COVER_LETTER_DATA.tex
 
-# Test and demo files
-/test-data
-/scripts/*
-!/scripts/check-data-quality.js
-!/scripts/test-webhooks.sh
-demo-data.ts
-*example.pdf
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Docker
-backups/
-.env.docker.local
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes (data persisted in volumes)
+/data/app.db
+/data/app.db-shm
+/data/app.db-wal
+/data/documents/
+/n8n-data/
+

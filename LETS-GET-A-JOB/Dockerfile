@@ -1,0 +1,180 @@
+# Multi-stage Dockerfile for LETS-GET-A-JOB
+# Runs both Next.js app and n8n in a single container with supervisor
+
+FROM node:20-bullseye AS base
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    texlive-latex-base \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    texlive-xetex \
+    latexmk \
+    make \
+    sqlite3 \
+    supervisor \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install Node.js dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+
+# Build Next.js application
+RUN npm run build
+
+# Install n8n globally
+RUN npm install -g n8n@latest
+
+# Create necessary directories
+RUN mkdir -p /app/data \
+    /app/n8n-data \
+    /app/logs \
+    /root/.n8n
+
+# Copy n8n workflows
+COPY n8n-workflows/*.json /app/n8n-workflows/
+
+# Create workflow import script
+RUN cat > /app/import-workflows.sh << 'EOF'
+#!/bin/bash
+set -e
+
+echo "Waiting for n8n to start..."
+sleep 10
+
+# Check if workflows already exist
+WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
+
+if [ "$WORKFLOW_COUNT" -eq "0" ]; then
+    echo "Importing n8n workflows..."
+    
+    # Import each workflow
+    for workflow in /app/n8n-workflows/*.json; do
+        if [ -f "$workflow" ]; then
+            echo "Importing $(basename $workflow)..."
+            n8n import:workflow --input="$workflow" || echo "Warning: Failed to import $(basename $workflow)"
+        fi
+    done
+    
+    echo "Activating workflows..."
+    # Activate all workflows
+    sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET active = 1;" || echo "Warning: Failed to activate workflows"
+    
+    echo "Workflows imported and activated successfully!"
+else
+    echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
+fi
+EOF
+
+RUN chmod +x /app/import-workflows.sh
+
+# Create n8n user creation script
+RUN cat > /app/create-n8n-user.sh << 'EOF'
+#!/bin/bash
+set -e
+
+echo "Waiting for n8n database to be created..."
+sleep 15
+
+# Check if user already exists
+USER_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM user;" 2>/dev/null || echo "0")
+
+if [ "$USER_COUNT" -eq "0" ]; then
+    echo "Creating default n8n user..."
+    
+    # Create user using n8n CLI
+    N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key" \
+    n8n user-management:reset \
+        --email=admin@localhost \
+        --password=admin123 || echo "Warning: Failed to create user"
+    
+    echo "Default user created: admin@localhost / admin123"
+else
+    echo "User already exists, skipping creation."
+fi
+EOF
+
+RUN chmod +x /app/create-n8n-user.sh
+
+# Create supervisord configuration
+RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
+[supervisord]
+nodaemon=true
+logfile=/app/logs/supervisord.log
+pidfile=/var/run/supervisord.pid
+user=root
+
+[program:n8n]
+command=n8n start
+directory=/app
+autostart=true
+autorestart=true
+stdout_logfile=/app/logs/n8n.log
+stderr_logfile=/app/logs/n8n-error.log
+environment=N8N_PORT="5678",N8N_HOST="0.0.0.0",N8N_PROTOCOL="http",N8N_PATH="/",N8N_PUSH_BACKEND="websocket",N8N_USER_FOLDER="/app/n8n-data",N8N_ENCRYPTION_KEY="random-encryption-key",N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key",EXECUTIONS_DATA_SAVE_ON_ERROR="all",EXECUTIONS_DATA_SAVE_ON_SUCCESS="all",EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS="true",WEBHOOK_URL="http://localhost:5678"
+priority=100
+
+[program:workflow-import]
+command=/app/import-workflows.sh
+directory=/app
+autostart=true
+autorestart=false
+startsecs=0
+stdout_logfile=/app/logs/workflow-import.log
+stderr_logfile=/app/logs/workflow-import-error.log
+environment=N8N_USER_FOLDER="/app/n8n-data"
+priority=200
+
+[program:user-creation]
+command=/app/create-n8n-user.sh
+directory=/app
+autostart=true
+autorestart=false
+startsecs=0
+stdout_logfile=/app/logs/user-creation.log
+stderr_logfile=/app/logs/user-creation-error.log
+environment=N8N_USER_FOLDER="/app/n8n-data",N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key"
+priority=300
+
+[program:nextjs]
+command=npm start
+directory=/app
+autostart=true
+autorestart=true
+stdout_logfile=/app/logs/nextjs.log
+stderr_logfile=/app/logs/nextjs-error.log
+environment=NODE_ENV="production",PORT="3000",NEXT_PUBLIC_N8N_JD_WEBHOOK_URL="http://localhost:5678/webhook/process-jd",NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL="http://localhost:5678/webhook/process-resume",NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL="http://localhost:5678/webhook/process-cover-letter",NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL="http://localhost:5678/webhook/evaluate-ats"
+priority=400
+EOF
+
+# Expose ports
+EXPOSE 3000 5678
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Set environment variables
+ENV NODE_ENV=production \
+    PORT=3000 \
+    N8N_PORT=5678 \
+    N8N_HOST=0.0.0.0 \
+    N8N_USER_FOLDER=/app/n8n-data \
+    NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://localhost:5678/webhook/process-jd \
+    NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL=http://localhost:5678/webhook/process-resume \
+    NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL=http://localhost:5678/webhook/process-cover-letter \
+    NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL=http://localhost:5678/webhook/evaluate-ats
+
+# Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+

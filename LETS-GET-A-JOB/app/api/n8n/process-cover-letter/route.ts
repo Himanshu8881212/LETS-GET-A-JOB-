@@ -58,3 +58,5 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Set maximum execution time for this route to 5 minutes (300 seconds)
+export const maxDuration = 300

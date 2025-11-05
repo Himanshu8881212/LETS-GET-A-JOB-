@@ -118,10 +118,10 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
   }, [])
 
   const steps = [
-    { number: 1, label: 'Processing Job Description', icon: '📄' },
-    { number: 2, label: 'Analyzing Resume', icon: '📝' },
-    { number: 3, label: 'Reviewing Cover Letter', icon: '✉️' },
-    { number: 4, label: 'Running AI Evaluation', icon: '🤖' }
+    { number: 1, label: 'Processing Job Description' },
+    { number: 2, label: 'Analyzing Resume' },
+    { number: 3, label: 'Reviewing Cover Letter' },
+    { number: 4, label: 'Running AI Evaluation' }
   ]
 
   return (
@@ -164,7 +164,6 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
                 <div className="flex-1">
                   <div className="font-semibold">{step.label}</div>
                 </div>
-                <div className="text-2xl">{step.icon}</div>
               </div>
             ))}
           </div>
