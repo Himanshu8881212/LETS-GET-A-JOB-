@@ -1,0 +1,198 @@
+{
+  "personalInfo": {
+    "firstName": "Alexander",
+    "lastName": "Thompson",
+    "email": "alexander.thompson@email.com",
+    "phone": "+1 (555) 987-6543",
+    "linkedin": "linkedin.com/in/alexanderthompson",
+    "github": "github.com/alexthompson",
+    "address": "San Francisco, CA"
+  },
+  "summary": "Results-driven Senior Software Engineer with 8+ years of experience in full-stack development, cloud architecture, and team leadership. Proven track record of delivering scalable solutions that improve system performance by 40% and reduce operational costs by 30%. Passionate about mentoring junior developers and implementing best practices in agile environments.",
+  "skillCategories": [
+    {
+      "id": "1",
+      "name": "Programming Languages",
+      "skills": "JavaScript, TypeScript, Python, Java, Go, SQL"
+    },
+    {
+      "id": "2",
+      "name": "Frontend Technologies",
+      "skills": "React, Next.js, Vue.js, HTML5, CSS3, Tailwind CSS, Redux"
+    },
+    {
+      "id": "3",
+      "name": "Backend & Cloud",
+      "skills": "Node.js, Express, Django, AWS, Docker, Kubernetes, PostgreSQL, MongoDB"
+    },
+    {
+      "id": "4",
+      "name": "Tools & Practices",
+      "skills": "Git, CI/CD, Agile/Scrum, TDD, REST APIs, GraphQL, Microservices"
+    }
+  ],
+  "experiences": [
+    {
+      "id": "1",
+      "company": "TechCorp Solutions",
+      "position": "Senior Software Engineer",
+      "location": "San Francisco, CA",
+      "startDate": "2020-03",
+      "endDate": "",
+      "current": true,
+      "responsibilities": [
+        "Led a team of 5 engineers in developing a cloud-native microservices platform, reducing deployment time by 60%",
+        "Architected and implemented a real-time analytics dashboard using React and WebSocket, serving 100K+ daily active users",
+        "Optimized database queries and implemented caching strategies, improving API response time by 45%",
+        "Mentored 3 junior developers, conducting code reviews and pair programming sessions",
+        "Collaborated with product managers to define technical requirements and project roadmaps"
+      ]
+    },
+    {
+      "id": "2",
+      "company": "InnovateTech Inc",
+      "position": "Full Stack Developer",
+      "location": "Seattle, WA",
+      "startDate": "2017-06",
+      "endDate": "2020-02",
+      "current": false,
+      "responsibilities": [
+        "Developed and maintained 15+ RESTful APIs using Node.js and Express, handling 1M+ requests daily",
+        "Built responsive web applications using React and Redux, improving user engagement by 35%",
+        "Implemented automated testing with Jest and Cypress, achieving 85% code coverage",
+        "Migrated legacy monolithic application to microservices architecture on AWS",
+        "Participated in agile ceremonies and contributed to sprint planning and retrospectives"
+      ]
+    },
+    {
+      "id": "3",
+      "company": "StartupXYZ",
+      "position": "Software Developer",
+      "location": "Austin, TX",
+      "startDate": "2015-08",
+      "endDate": "2017-05",
+      "current": false,
+      "responsibilities": [
+        "Developed full-stack features for a SaaS platform using Django and Vue.js",
+        "Designed and implemented PostgreSQL database schemas for multi-tenant architecture",
+        "Created automated deployment pipelines using Jenkins and Docker",
+        "Collaborated with UX designers to implement pixel-perfect responsive designs",
+        "Reduced application load time by 50% through code optimization and lazy loading"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "name": "E-Commerce Platform Redesign",
+      "description": "Led the complete redesign of a high-traffic e-commerce platform",
+      "technologies": "Next.js, TypeScript, Stripe API, PostgreSQL, Redis",
+      "achievements": [
+        "Increased conversion rate by 28% through improved UX and performance optimization",
+        "Implemented server-side rendering for better SEO, resulting in 40% increase in organic traffic",
+        "Integrated payment processing with Stripe, handling $2M+ in monthly transactions"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Real-Time Collaboration Tool",
+      "description": "Built a real-time document collaboration platform similar to Google Docs",
+      "technologies": "React, WebSocket, Operational Transform, MongoDB",
+      "achievements": [
+        "Supported 50+ concurrent users editing the same document with sub-100ms latency",
+        "Implemented conflict resolution using Operational Transform algorithm",
+        "Achieved 99.9% uptime with auto-scaling infrastructure on AWS"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "1",
+      "institution": "University of California, Berkeley",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Berkeley, CA",
+      "startDate": "2011-09",
+      "endDate": "2015-05",
+      "gpa": "3.8",
+      "achievements": [
+        "Dean's List all semesters",
+        "President of Computer Science Club",
+        "Published research paper on distributed systems"
+      ]
+    }
+  ],
+  "certifications": [
+    "AWS Certified Solutions Architect - Professional (2022)",
+    "Certified Kubernetes Administrator (CKA) (2021)",
+    "Google Cloud Professional Cloud Architect (2021)"
+  ],
+  "languages": [],
+  "awards": [],
+  "publications": [],
+  "extracurricular": [],
+  "volunteer": [],
+  "hobbies": [],
+  "sectionOrder": [
+    {
+      "id": "summary",
+      "name": "Professional Summary",
+      "enabled": true
+    },
+    {
+      "id": "skills",
+      "name": "Technical Skills",
+      "enabled": true
+    },
+    {
+      "id": "experience",
+      "name": "Work Experience",
+      "enabled": true
+    },
+    {
+      "id": "projects",
+      "name": "Projects",
+      "enabled": true
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "enabled": true
+    },
+    {
+      "id": "certifications",
+      "name": "Certifications",
+      "enabled": true
+    },
+    {
+      "id": "languages",
+      "name": "Languages",
+      "enabled": false
+    },
+    {
+      "id": "awards",
+      "name": "Awards & Honors",
+      "enabled": false
+    },
+    {
+      "id": "publications",
+      "name": "Publications",
+      "enabled": false
+    },
+    {
+      "id": "extracurricular",
+      "name": "Extracurricular Activities",
+      "enabled": false
+    },
+    {
+      "id": "volunteer",
+      "name": "Volunteer Experience",
+      "enabled": false
+    },
+    {
+      "id": "hobbies",
+      "name": "Hobbies & Interests",
+      "enabled": false
+    }
+  ]
+}

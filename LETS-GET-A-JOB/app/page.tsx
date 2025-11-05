@@ -281,38 +281,14 @@ export default function Home() {
     }
   }
 
-  const handleViewSampleResume = async () => {
-    try {
-      // Fetch the first resume sample from the API
-      const response = await fetch('/api/samples/resume')
-      if (response.ok) {
-        const sampleResume = await response.json()
-        // Generate and preview the PDF
-        await handlePreviewResume(sampleResume)
-      } else {
-        alert('No sample resume available. Please create a resume first.')
-      }
-    } catch (error) {
-      console.error('Error loading sample resume:', error)
-      alert('Failed to load sample resume.')
-    }
+  const handleViewSampleResume = () => {
+    // Open the static sample resume PDF in a new tab
+    window.open('/samples/resumes/sample-resume.pdf', '_blank')
   }
 
-  const handleViewSampleCoverLetter = async () => {
-    try {
-      // Fetch the first cover letter sample from the API
-      const response = await fetch('/api/samples/cover-letter')
-      if (response.ok) {
-        const sampleCoverLetter = await response.json()
-        // Generate and preview the PDF
-        await handlePreviewCoverLetter(sampleCoverLetter)
-      } else {
-        alert('No sample cover letter available. Please create a cover letter first.')
-      }
-    } catch (error) {
-      console.error('Error loading sample cover letter:', error)
-      alert('Failed to load sample cover letter.')
-    }
+  const handleViewSampleCoverLetter = () => {
+    // Open the static sample cover letter PDF in a new tab
+    window.open('/samples/cover-letters/sample-cover-letter.pdf', '_blank')
   }
 
   const formatDate = (dateString: string) => {
