@@ -10,25 +10,26 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 Follow these steps to set up and run the application:
 
-### 1. Install n8n in Docker
+### 1. Install n8n in Docker (No Authentication Required)
 
-First, install n8n using Docker on port 5678:
+Install n8n with authentication disabled for easy local development:
 
 ```bash
 docker run -d --name n8n \
   -p 5678:5678 \
+  -e N8N_USER_MANAGEMENT_DISABLED=true \
   -v n8n_data:/home/node/.n8n \
   --restart unless-stopped \
   n8nio/n8n:latest
 ```
 
-Wait for n8n to start (about 30 seconds), then:
+Wait for n8n to start (about 30 seconds). That's it! No manual setup needed.
 
-1. Open n8n at http://localhost:5678
-2. Complete the initial setup (create an owner account with email and password)
-3. Go to **Settings → API** (in the left sidebar)
-4. Click **"Create an API key"**
-5. Copy the generated API key (you'll need this in the next step)
+**Note:** If you already have n8n running with authentication enabled, you can restart it with:
+```bash
+docker stop n8n && docker rm n8n
+docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8n_data:/home/node/.n8n n8nio/n8n:latest
+```
 
 ### 2. Setup n8n Workflows (Automated)
 
@@ -39,9 +40,8 @@ node setup-n8n-workflows.js
 ```
 
 The script will prompt you for:
-1. **n8n API Key** (from step 1 above)
-2. **Groq API Key** (required) - Get from https://console.groq.com/keys
-3. **Tavily API Key** (optional) - Get from https://tavily.com (only needed for Job Description workflow)
+1. **Groq API Key** (required) - Get from https://console.groq.com/keys
+2. **Tavily API Key** (optional) - Get from https://tavily.com (only needed for Job Description workflow)
 
 The script will automatically:
 - Create credentials in n8n
@@ -131,6 +131,18 @@ node setup-n8n-workflows.js
 5. Ensure it shows "Active" with a green badge
 
 **Important:** Workflows must be in **production mode** (not test mode) for the webhooks to work with the URLs in `.env.local`
+
+### Script asks for n8n API key
+
+If the script prompts for an n8n API key, it means your n8n instance has authentication enabled.
+
+**Quick fix:** Restart n8n without authentication:
+```bash
+docker stop n8n && docker rm n8n
+docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8n_data:/home/node/.n8n n8nio/n8n:latest
+```
+
+Then run the setup script again.
 
 ### PDF Generation Fails
 

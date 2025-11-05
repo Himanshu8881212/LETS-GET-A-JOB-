@@ -139,13 +139,17 @@ async function checkN8nAccess() {
 // Print instructions for getting n8n API key
 function printApiKeyInstructions() {
   console.log(`${colors.bright}${colors.yellow}n8n API Key Required${colors.reset}\n`);
-  console.log(`To get your n8n API key:`);
+  console.log(`${colors.bright}Option 1: Restart n8n without authentication (Recommended)${colors.reset}`);
+  console.log(`Stop and restart n8n with authentication disabled:\n`);
+  console.log(`${colors.cyan}docker stop n8n && docker rm n8n${colors.reset}`);
+  console.log(`${colors.cyan}docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8n_data:/home/node/.n8n n8nio/n8n:latest${colors.reset}`);
+  console.log(`\nThen run this script again.\n`);
+  console.log(`${colors.bright}Option 2: Use API key${colors.reset}`);
   console.log(`1. Open n8n at ${colors.cyan}${N8N_BASE_URL}${colors.reset}`);
-  console.log(`2. Complete initial setup if not done (create owner account)`);
+  console.log(`2. Complete initial setup (create owner account)`);
   console.log(`3. Go to: ${colors.cyan}Settings → API${colors.reset}`);
   console.log(`4. Click ${colors.cyan}"Create an API key"${colors.reset}`);
-  console.log(`5. Copy the generated API key`);
-  console.log(`6. Paste it below\n`);
+  console.log(`5. Copy and paste it below\n`);
 }
 
 // Create Groq credential
