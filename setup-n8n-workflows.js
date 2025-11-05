@@ -259,12 +259,13 @@ async function importWorkflow(workflowPath) {
     }
 
     // Create clean workflow object with only accepted properties
-    // NOTE: 'active' is read-only during creation, we'll activate it separately
+    // Set active: true during creation (works in POST, not in PUT/PATCH)
     const cleanWorkflow = {
       name: workflowData.name,
       nodes: workflowData.nodes,
       connections: workflowData.connections,
       settings: workflowData.settings || {},
+      active: true,  // Import as active - this works on creation
     };
 
     // Add optional properties if they exist
@@ -289,25 +290,22 @@ async function importWorkflow(workflowPath) {
 // Activate workflow
 async function activateWorkflow(workflowId) {
   try {
-    // Try to activate using PATCH with only the active field
+    // Check if workflow is already active
+    const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
+
+    if (workflow.active) {
+      console.log(`  ${colors.green}✓ Already active (production mode)${colors.reset}`);
+      return true;
+    }
+
+    // If not active, try to activate using PATCH
     await makeRequest('PATCH', `/api/v1/workflows/${workflowId}`, { active: true });
     console.log(`  ${colors.green}✓ Activated (production mode)${colors.reset}`);
     return true;
-  } catch (patchError) {
-    // If PATCH fails, try alternative: GET full workflow, clean it, and PUT back with modifications
-    try {
-      const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
-
-      // Manually toggle via web interface or use settings
-      // Since active is read-only, we can't set it via API
-      // Workflows imported should already be inactive by default
-      console.log(`  ${colors.yellow}⚠ Cannot activate via API (active field is read-only)${colors.reset}`);
-      console.log(`  ${colors.yellow}  Please activate manually at http://localhost:5678${colors.reset}`);
-      return false;
-    } catch (error) {
-      console.log(`  ${colors.red}✗ Failed: ${error.message}${colors.reset}`);
-      return false;
-    }
+  } catch (error) {
+    console.log(`  ${colors.yellow}⚠ Cannot activate via API: ${error.message}${colors.reset}`);
+    console.log(`  ${colors.yellow}  Please activate manually at http://localhost:5678${colors.reset}`);
+    return false;
   }
 }
 
