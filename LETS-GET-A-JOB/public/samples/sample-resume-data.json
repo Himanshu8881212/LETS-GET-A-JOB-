@@ -8,7 +8,7 @@
     "github": "github.com/alexthompson",
     "address": "San Francisco, CA"
   },
-  "summary": "Senior Software Engineer with 8+ years architecting enterprise-scale applications across fintech and e-commerce. Expert in full-stack development, cloud infrastructure, and team leadership. Proven track record: 60% performance improvement, 35% cost reduction, 99.95% uptime. Passionate about leveraging cutting-edge technologies to solve complex challenges.",
+  "summary": "Senior Software Engineer with 8+ years architecting enterprise-scale applications. Expert in full-stack development, cloud infrastructure, and team leadership. Proven track record: 60% performance improvement, 35% cost reduction, 99.95% uptime.",
   "skillCategories": [
     {
       "id": "1",
@@ -40,8 +40,7 @@
       "bullets": [
         "Architected and led development of a cloud-native microservices platform serving 500K+ users, reducing deployment time by 60% and improving system reliability to 99.95% uptime",
         "Designed and implemented real-time analytics dashboard using React, WebSocket, and Redis, processing 10M+ events daily with sub-100ms latency",
-        "Spearheaded migration from monolithic architecture to Kubernetes-based microservices on AWS, reducing infrastructure costs by 35% while improving scalability",
-        "Mentored team of 5 engineers through code reviews, pair programming, and technical workshops, resulting in 40% improvement in code quality metrics"
+        "Spearheaded migration from monolithic architecture to Kubernetes-based microservices on AWS, reducing infrastructure costs by 35% while improving scalability"
       ]
     },
     {
@@ -52,19 +51,18 @@
       "bullets": [
         "Developed secure payment processing system handling $50M+ in monthly transactions using Node.js, PostgreSQL, and Stripe API with zero security incidents",
         "Built responsive trading dashboard with React and Redux, improving user engagement by 45% and reducing page load time from 3.2s to 0.8s",
-        "Implemented comprehensive test automation suite with Jest and Cypress, achieving 92% code coverage and reducing production bugs by 65%",
-        "Collaborated with cross-functional teams in Agile environment to deliver 15+ major features, consistently meeting sprint commitments and quality standards"
+        "Implemented comprehensive test automation suite with Jest and Cypress, achieving 92% code coverage and reducing production bugs by 65%"
       ]
     }
   ],
   "projects": [
     {
       "title": "Enterprise E-Commerce Platform",
-      "description": "Architected scalable e-commerce platform for Fortune 500 client. Increased conversion rate by 32% through ML-based recommendations. Processed $5M+ monthly transactions with 99.99% uptime."
+      "description": "Scalable platform for Fortune 500 client. Increased conversion by 32% through ML recommendations."
     },
     {
       "title": "Real-Time Collaboration Platform",
-      "description": "Built collaborative document editing system supporting 100+ concurrent users with sub-50ms latency. Implemented auto-scaling on AWS EKS, reducing infrastructure costs by 40%."
+      "description": "Document editing system supporting 100+ concurrent users with sub-50ms latency."
     }
   ],
   "education": [
@@ -84,13 +82,9 @@
     }
   ],
   "certifications": [
-    "AWS Certified Solutions Architect - Professional (2023)",
-    "Certified Kubernetes Administrator (CKA) - Cloud Native Computing Foundation (2022)"
+    "AWS Certified Solutions Architect - Professional (2023)"
   ],
-  "languages": [
-    "English - Native (C2)",
-    "German - Professional Working Proficiency (C1)"
-  ],
+  "languages": [],
   "awards": [],
   "publications": [],
   "extracurricular": [],
