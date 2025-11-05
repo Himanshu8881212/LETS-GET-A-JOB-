@@ -218,8 +218,8 @@ async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey = 
     });
 
     if (updated) {
-      // Update the workflow
-      await makeRequest('PATCH', `/api/v1/workflows/${workflowId}`, workflow);
+      // Update the workflow using PUT
+      await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, workflow);
       console.log(`${colors.green}✓ Workflow credentials updated${colors.reset}`);
     }
 
@@ -287,7 +287,7 @@ async function activateWorkflow(workflowId) {
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
     workflow.active = true;
 
-    await makeRequest('PATCH', `/api/v1/workflows/${workflowId}`, workflow);
+    await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, workflow);
     console.log(`${colors.green}✓ Workflow activated${colors.reset}`);
     return true;
   } catch (error) {
