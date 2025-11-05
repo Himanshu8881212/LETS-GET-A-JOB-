@@ -506,7 +506,7 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
                 icon={<GitBranch className="w-4 h-4" />}
                 onClick={() => setShowLineage(!showLineage)}
               >
-                {showLineage ? 'Editor' : 'Versions'}
+                Versions
               </Button>
             </div>
           </div>
