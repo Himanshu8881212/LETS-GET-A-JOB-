@@ -63,56 +63,9 @@ RUN mkdir -p /app/data \
 # Copy n8n workflows
 COPY n8n-workflows/*.json /app/n8n-workflows/
 
-# Create workflow import and activation script
-RUN cat > /app/import-workflows.sh << 'EOF'
-#!/bin/bash
-set -e
-
-echo "Waiting for n8n to start and create database..."
-sleep 25
-
-# Delete n8n config file to force it to use ENV var encryption key
-echo "Removing n8n config file to ensure encryption key consistency..."
-rm -f /app/n8n-data/.n8n/config
-
-# Wait a bit more for n8n to recreate config with ENV var key
-sleep 5
-
-# Check if workflows already exist (use correct database path)
-WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/.n8n/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
-
-if [ "$WORKFLOW_COUNT" -eq "0" ]; then
-echo "Importing n8n workflows..."
-
-# Set the encryption key environment variable explicitly
-export N8N_ENCRYPTION_KEY="random-encryption-key"
-export N8N_USER_FOLDER="/app/n8n-data"
-
-# Import each workflow using CLI
-for workflow_file in /app/n8n-workflows/*.json; do
-if [ -f "$workflow_file" ]; then
-workflow_name=$(basename "$workflow_file" .json)
-echo "Importing $workflow_name..."
-N8N_ENCRYPTION_KEY="random-encryption-key" N8N_USER_FOLDER="/app/n8n-data" n8n import:workflow --input="$workflow_file" 2>&1 || echo "Warning: Failed to import $workflow_name"
-fi
-done
-
-echo "Waiting 5 seconds for workflows to be saved..."
-sleep 5
-
-echo "Activating all workflows..."
-# Activate all workflows directly in database (use correct database path)
-sqlite3 /app/n8n-data/.n8n/database.sqlite "UPDATE workflow_entity SET active = 1;" 2>&1 || echo "Warning: Failed to activate workflows"
-
-echo "All workflows imported and activated successfully!"
-else
-echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
-fi
-
-echo "Workflow import complete. Exiting."
-EOF
-
-RUN chmod +x /app/import-workflows.sh
+# Copy setup script
+COPY setup-n8n.sh /app/setup-n8n.sh
+RUN chmod +x /app/setup-n8n.sh
 
 # Create supervisord configuration without authentication
 RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
@@ -132,15 +85,15 @@ stderr_logfile=/app/logs/n8n-error.log
 environment=N8N_PORT="5678",N8N_HOST="0.0.0.0",N8N_PROTOCOL="http",N8N_PATH="/",N8N_PUSH_BACKEND="websocket",N8N_USER_FOLDER="/app/n8n-data",N8N_ENCRYPTION_KEY="random-encryption-key",N8N_USER_MANAGEMENT_DISABLED="true",N8N_DIAGNOSTICS_ENABLED="false",N8N_PERSONALIZATION_ENABLED="false",N8N_HIRING_BANNER_ENABLED="false",EXECUTIONS_DATA_SAVE_ON_ERROR="all",EXECUTIONS_DATA_SAVE_ON_SUCCESS="all",EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS="true",WEBHOOK_URL="http://localhost:5678"
 priority=100
 
-[program:workflow-import]
-command=/app/import-workflows.sh
+[program:workflow-setup]
+command=/app/setup-n8n.sh
 directory=/app
 autostart=true
 autorestart=false
 startsecs=0
-stdout_logfile=/app/logs/workflow-import.log
-stderr_logfile=/app/logs/workflow-import-error.log
-environment=N8N_USER_FOLDER="/app/n8n-data"
+stdout_logfile=/app/logs/workflow-setup.log
+stderr_logfile=/app/logs/workflow-setup-error.log
+environment=N8N_USER_FOLDER="/app/n8n-data",GROQ_API_KEY="%(ENV_GROQ_API_KEY)s"
 priority=200
 
 [program:nextjs]

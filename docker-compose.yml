@@ -17,7 +17,11 @@ services:
       # Application
       - NODE_ENV=production
       - PORT=3000
-      
+
+      # Groq API Key (REQUIRED - set this to your Groq API key)
+      # Get your API key from: https://console.groq.com/keys
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+
       # n8n Configuration
       - N8N_PORT=5678
       - N8N_HOST=0.0.0.0
@@ -27,15 +31,15 @@ services:
       - N8N_USER_FOLDER=/app/n8n-data
       - N8N_ENCRYPTION_KEY=random-encryption-key-change-in-production
       - N8N_USER_MANAGEMENT_JWT_SECRET=random-jwt-secret-change-in-production
-      
+
       # n8n Execution Settings
       - EXECUTIONS_DATA_SAVE_ON_ERROR=all
       - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
       - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
-      
+
       # n8n Webhook URL
       - WEBHOOK_URL=http://localhost:5678
-      
+
       # Next.js Public Environment Variables (for client-side)
       - NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://localhost:5678/webhook/process-jd
       - NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL=http://localhost:5678/webhook/process-resume
