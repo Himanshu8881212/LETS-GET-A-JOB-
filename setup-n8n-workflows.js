@@ -4,7 +4,7 @@
  * n8n Workflow Setup Script
  *
  * This script:
- * 1. Prompts for API keys (Groq and Tavily)
+ * 1. Prompts for n8n API key and workflow API keys (Groq and Tavily)
  * 2. Creates credentials in n8n
  * 3. Imports workflows from n8n-workflows folder
  * 4. Updates workflows to use the created credentials
@@ -21,6 +21,8 @@ const N8N_HOST = 'localhost';
 const N8N_PORT = 5678;
 const N8N_BASE_URL = `http://${N8N_HOST}:${N8N_PORT}`;
 const WORKFLOWS_DIR = path.join(__dirname, 'n8n-workflows');
+
+let N8N_API_KEY = null;
 
 // ANSI color codes for terminal output
 const colors = {
@@ -45,6 +47,11 @@ function makeRequest(method, endpoint, data = null) {
         'Content-Type': 'application/json',
       },
     };
+
+    // Add API key if available
+    if (N8N_API_KEY) {
+      options.headers['X-N8N-API-KEY'] = N8N_API_KEY;
+    }
 
     if (data) {
       const jsonData = JSON.stringify(data);
@@ -103,18 +110,42 @@ function prompt(question) {
   });
 }
 
-// Check if n8n is running
-async function checkN8nRunning() {
-  console.log(`${colors.blue}Checking if n8n is running...${colors.reset}`);
+// Check if n8n is running and test API access
+async function checkN8nAccess() {
+  console.log(`${colors.blue}Checking n8n connection...${colors.reset}`);
   try {
     await makeRequest('GET', '/healthz');
-    console.log(`${colors.green}✓ n8n is running${colors.reset}\n`);
-    return true;
+    console.log(`${colors.green}✓ n8n is running${colors.reset}`);
+
+    // Test API access
+    try {
+      await makeRequest('GET', '/api/v1/workflows');
+      console.log(`${colors.green}✓ API access working${colors.reset}\n`);
+      return true;
+    } catch (error) {
+      if (error.message.includes('401') || error.message.includes('API-KEY')) {
+        console.log(`${colors.yellow}⚠ API authentication required${colors.reset}\n`);
+        return false;
+      }
+      throw error;
+    }
   } catch (error) {
     console.log(`${colors.red}✗ n8n is not running at ${N8N_BASE_URL}${colors.reset}`);
     console.log(`${colors.yellow}Please start n8n first with: docker run -d --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n n8nio/n8n:latest${colors.reset}\n`);
-    return false;
+    return null;
   }
+}
+
+// Print instructions for getting n8n API key
+function printApiKeyInstructions() {
+  console.log(`${colors.bright}${colors.yellow}n8n API Key Required${colors.reset}\n`);
+  console.log(`To get your n8n API key:`);
+  console.log(`1. Open n8n at ${colors.cyan}${N8N_BASE_URL}${colors.reset}`);
+  console.log(`2. Complete initial setup if not done (create owner account)`);
+  console.log(`3. Go to: ${colors.cyan}Settings → API${colors.reset}`);
+  console.log(`4. Click ${colors.cyan}"Create an API key"${colors.reset}`);
+  console.log(`5. Copy the generated API key`);
+  console.log(`6. Paste it below\n`);
 }
 
 // Create Groq credential
@@ -207,8 +238,8 @@ async function importWorkflow(workflowPath) {
     // Remove id if present (n8n will generate a new one)
     delete workflowData.id;
 
-    // Ensure workflow is set to active
-    workflowData.active = false; // We'll activate it separately
+    // Ensure workflow is set to inactive initially
+    workflowData.active = false;
 
     // Import the workflow
     const result = await makeRequest('POST', '/api/v1/workflows', workflowData);
@@ -223,7 +254,7 @@ async function importWorkflow(workflowPath) {
 
 // Activate workflow
 async function activateWorkflow(workflowId) {
-  console.log(`${colors.blue}Activating workflow...${colors.reset}`);
+  console.log(`${colors.blue}Activating workflow in production mode...${colors.reset}`);
 
   try {
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
@@ -244,14 +275,35 @@ async function main() {
   console.log(`${colors.bright}${colors.cyan}   n8n Workflow Setup Script${colors.reset}`);
   console.log(`${colors.bright}${colors.cyan}========================================${colors.reset}\n`);
 
-  // Check if n8n is running
-  const isRunning = await checkN8nRunning();
-  if (!isRunning) {
+  // Check if n8n is running and test API access
+  const accessStatus = await checkN8nAccess();
+  if (accessStatus === null) {
     process.exit(1);
   }
 
-  // Prompt for API keys
-  console.log(`${colors.bright}API Keys Setup${colors.reset}`);
+  // If API access requires authentication, prompt for API key
+  if (accessStatus === false) {
+    printApiKeyInstructions();
+    N8N_API_KEY = await prompt('Enter your n8n API key: ');
+
+    if (!N8N_API_KEY) {
+      console.log(`${colors.red}✗ n8n API key is required${colors.reset}`);
+      process.exit(1);
+    }
+
+    // Test the API key
+    console.log(`${colors.blue}Testing API key...${colors.reset}`);
+    try {
+      await makeRequest('GET', '/api/v1/workflows');
+      console.log(`${colors.green}✓ API key is valid${colors.reset}\n`);
+    } catch (error) {
+      console.log(`${colors.red}✗ Invalid API key: ${error.message}${colors.reset}`);
+      process.exit(1);
+    }
+  }
+
+  // Prompt for workflow API keys
+  console.log(`${colors.bright}Workflow API Keys Setup${colors.reset}`);
   console.log(`${colors.yellow}You'll need API keys for the workflows to function.${colors.reset}\n`);
 
   const groqApiKey = await prompt('Enter your Groq API key (get from https://console.groq.com/keys): ');
@@ -260,7 +312,7 @@ async function main() {
     process.exit(1);
   }
 
-  const tavilyApiKey = await prompt('Enter your Tavily API key (get from https://tavily.com - optional, press Enter to skip): ');
+  const tavilyApiKey = await prompt('Enter your Tavily API key (optional, press Enter to skip): ');
 
   console.log('');
 
@@ -321,10 +373,11 @@ async function main() {
 
   console.log(`\n${colors.bright}Next Steps:${colors.reset}`);
   console.log(`1. Verify workflows at: ${colors.cyan}${N8N_BASE_URL}${colors.reset}`);
-  console.log(`2. Start your application: ${colors.cyan}npm run dev${colors.reset}`);
-  console.log(`3. Test the webhooks to ensure they're working\n`);
+  console.log(`2. Copy .env.example to .env.local if not done`);
+  console.log(`3. Start your application: ${colors.cyan}npm run dev${colors.reset}`);
+  console.log(`4. Test the webhooks to ensure they're working\n`);
 
-  console.log(`${colors.bright}Webhook URLs (should work with your .env.local):${colors.reset}`);
+  console.log(`${colors.bright}Webhook URLs (configured in .env.local):${colors.reset}`);
   console.log(`  - Job Description:   ${N8N_BASE_URL}/webhook/process-jd`);
   console.log(`  - Resume:            ${N8N_BASE_URL}/webhook/process-resume`);
   console.log(`  - Cover Letter:      ${N8N_BASE_URL}/webhook/process-cover-letter`);

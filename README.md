@@ -22,29 +22,33 @@ docker run -d --name n8n \
   n8nio/n8n:latest
 ```
 
-Wait for n8n to start (about 30 seconds), then access it at http://localhost:5678
+Wait for n8n to start (about 30 seconds), then:
+
+1. Open n8n at http://localhost:5678
+2. Complete the initial setup (create an owner account with email and password)
+3. Go to **Settings → API** (in the left sidebar)
+4. Click **"Create an API key"**
+5. Copy the generated API key (you'll need this in the next step)
 
 ### 2. Setup n8n Workflows (Automated)
 
-Run the automated setup script that will:
-- Import all 4 workflows
-- Configure credentials (Groq API, Tavily API)
-- Activate workflows in production mode
+Run the automated setup script:
 
 ```bash
 node setup-n8n-workflows.js
 ```
 
 The script will prompt you for:
-- **Groq API Key** (required) - Get from https://console.groq.com/keys
-- **Tavily API Key** (optional) - Get from https://tavily.com (only needed for Job Description workflow)
+1. **n8n API Key** (from step 1 above)
+2. **Groq API Key** (required) - Get from https://console.groq.com/keys
+3. **Tavily API Key** (optional) - Get from https://tavily.com (only needed for Job Description workflow)
 
 The script will automatically:
 - Create credentials in n8n
-- Import all workflows
+- Import all 4 workflows
 - Link credentials to workflows
-- Activate workflows in production mode
-- Set up webhooks correctly
+- Activate workflows in **production mode** (this fixes the 404/500 errors!)
+- Configure webhooks to work with your .env.local
 
 ### 3. Install Dependencies and Run the Application
 
