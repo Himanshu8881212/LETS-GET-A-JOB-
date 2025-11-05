@@ -63,9 +63,10 @@ RUN mkdir -p /app/data \
 # Copy n8n workflows
 COPY n8n-workflows/*.json /app/n8n-workflows/
 
-# Copy setup script
+# Copy initialization scripts
+COPY init-database.sh /app/init-database.sh
 COPY setup-n8n.sh /app/setup-n8n.sh
-RUN chmod +x /app/setup-n8n.sh
+RUN chmod +x /app/init-database.sh /app/setup-n8n.sh
 
 # Create supervisord configuration without authentication
 RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
@@ -74,6 +75,16 @@ nodaemon=true
 logfile=/app/logs/supervisord.log
 pidfile=/var/run/supervisord.pid
 user=root
+
+[program:database-init]
+command=/app/init-database.sh
+directory=/app
+autostart=true
+autorestart=false
+startsecs=0
+stdout_logfile=/app/logs/database-init.log
+stderr_logfile=/app/logs/database-init-error.log
+priority=10
 
 [program:n8n]
 command=n8n start
