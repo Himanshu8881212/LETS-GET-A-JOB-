@@ -283,22 +283,14 @@ export default function Home() {
 
   const handleViewSampleResume = async () => {
     try {
-      // Fetch the Alexander Thompson resume from the database
-      const response = await fetch('/api/resumes')
+      // Fetch the first resume sample from the API
+      const response = await fetch('/api/samples/resume')
       if (response.ok) {
-        const allResumes = await response.json()
-        // Find the Alexander Thompson resume
-        const sampleResume = allResumes.find((r: RecentDocument) =>
-          r.version_name.includes('Senior Software Engineer Resume') ||
-          r.version_name.includes('Alexander')
-        )
-
-        if (sampleResume) {
-          // Generate and preview the PDF
-          await handlePreviewResume(sampleResume)
-        } else {
-          alert('Sample resume not found. Please create a resume first.')
-        }
+        const sampleResume = await response.json()
+        // Generate and preview the PDF
+        await handlePreviewResume(sampleResume)
+      } else {
+        alert('No sample resume available. Please create a resume first.')
       }
     } catch (error) {
       console.error('Error loading sample resume:', error)
@@ -308,22 +300,14 @@ export default function Home() {
 
   const handleViewSampleCoverLetter = async () => {
     try {
-      // Fetch the TechCorp cover letter from the database
-      const response = await fetch('/api/cover-letters')
+      // Fetch the first cover letter sample from the API
+      const response = await fetch('/api/samples/cover-letter')
       if (response.ok) {
-        const allCoverLetters = await response.json()
-        // Find the TechCorp cover letter
-        const sampleCoverLetter = allCoverLetters.find((c: RecentDocument) =>
-          c.version_name.includes('TechCorp') ||
-          c.version_name.includes('Alexander')
-        )
-
-        if (sampleCoverLetter) {
-          // Generate and preview the PDF
-          await handlePreviewCoverLetter(sampleCoverLetter)
-        } else {
-          alert('Sample cover letter not found. Please create a cover letter first.')
-        }
+        const sampleCoverLetter = await response.json()
+        // Generate and preview the PDF
+        await handlePreviewCoverLetter(sampleCoverLetter)
+      } else {
+        alert('No sample cover letter available. Please create a cover letter first.')
       }
     } catch (error) {
       console.error('Error loading sample cover letter:', error)
