@@ -58,11 +58,11 @@
   "projects": [
     {
       "title": "Enterprise E-Commerce Platform",
-      "description": "Scalable platform for Fortune 500 client. Increased conversion by 32% through ML recommendations."
+      "description": "Architected scalable e-commerce platform for Fortune 500 client. Increased conversion rate by 32% through ML-based personalized recommendations. Processed $5M+ in monthly transactions."
     },
     {
       "title": "Real-Time Collaboration Platform",
-      "description": "Document editing system supporting 100+ concurrent users with sub-50ms latency."
+      "description": "Built collaborative document editing system supporting 100+ concurrent users with sub-50ms latency. Implemented auto-scaling infrastructure on AWS EKS."
     }
   ],
   "education": [
@@ -82,9 +82,13 @@
     }
   ],
   "certifications": [
-    "AWS Certified Solutions Architect - Professional (2023)"
+    "AWS Certified Solutions Architect - Professional (2023)",
+    "Certified Kubernetes Administrator (CKA) - Cloud Native Computing Foundation (2022)"
   ],
-  "languages": [],
+  "languages": [
+    "English - Native (C2)",
+    "German - Professional Working Proficiency (C1)"
+  ],
   "awards": [],
   "publications": [],
   "extracurricular": [],
