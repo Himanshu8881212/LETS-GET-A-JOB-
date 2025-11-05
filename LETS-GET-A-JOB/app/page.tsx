@@ -145,10 +145,13 @@ export default function Home() {
 
   const handlePreviewResume = async (resume: RecentDocument) => {
     try {
+      // Parse the data_json field which contains the resume data
+      const resumeData = resume.data_json ? JSON.parse(resume.data_json) : {}
+
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resume.data_json ? JSON.parse(resume.data_json) : {})
+        body: JSON.stringify(resumeData)
       })
 
       if (response.ok) {
@@ -158,15 +161,19 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error previewing resume:', error)
+      alert('Failed to preview resume. Please try again.')
     }
   }
 
   const handleDownloadResume = async (resume: RecentDocument) => {
     try {
+      // Parse the data_json field which contains the resume data
+      const resumeData = resume.data_json ? JSON.parse(resume.data_json) : {}
+
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resume.data_json ? JSON.parse(resume.data_json) : {})
+        body: JSON.stringify(resumeData)
       })
 
       if (response.ok) {
@@ -182,15 +189,19 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error downloading resume:', error)
+      alert('Failed to download resume. Please try again.')
     }
   }
 
   const handlePreviewCoverLetter = async (coverLetter: RecentDocument) => {
     try {
+      // Parse the data_json field which contains the cover letter data
+      const coverLetterData = coverLetter.data_json ? JSON.parse(coverLetter.data_json) : {}
+
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(coverLetter.data_json ? JSON.parse(coverLetter.data_json) : {})
+        body: JSON.stringify(coverLetterData)
       })
 
       if (response.ok) {
@@ -200,15 +211,19 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error previewing cover letter:', error)
+      alert('Failed to preview cover letter. Please try again.')
     }
   }
 
   const handleDownloadCoverLetter = async (coverLetter: RecentDocument) => {
     try {
+      // Parse the data_json field which contains the cover letter data
+      const coverLetterData = coverLetter.data_json ? JSON.parse(coverLetter.data_json) : {}
+
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(coverLetter.data_json ? JSON.parse(coverLetter.data_json) : {})
+        body: JSON.stringify(coverLetterData)
       })
 
       if (response.ok) {
@@ -224,14 +239,17 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error downloading cover letter:', error)
+      alert('Failed to download cover letter. Please try again.')
     }
   }
 
   const handleViewSampleResume = () => {
+    // Only preview, don't download
     window.open('/samples/sample-resume.pdf', '_blank')
   }
 
   const handleViewSampleCoverLetter = () => {
+    // Only preview, don't download
     window.open('/samples/sample-cover-letter.pdf', '_blank')
   }
 
@@ -416,11 +434,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             <button
               onClick={handleViewSampleResume}
-              className="group bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 hover:border-blue-400 p-8 rounded-lg transition-all hover:shadow-lg"
+              className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 rounded-lg transition-all hover:shadow-xl"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <div className="w-14 h-14 bg-gray-900 rounded-lg flex items-center justify-center">
                     <FileText className="w-7 h-7 text-white" />
                   </div>
                   <div className="text-left">
@@ -428,17 +446,17 @@ export default function Home() {
                     <p className="text-sm text-gray-600">See a professional resume example</p>
                   </div>
                 </div>
-                <ChevronRight className="w-6 h-6 text-blue-500 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-6 h-6 text-gray-900 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
 
             <button
               onClick={handleViewSampleCoverLetter}
-              className="group bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 hover:border-purple-400 p-8 rounded-lg transition-all hover:shadow-lg"
+              className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 rounded-lg transition-all hover:shadow-xl"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-purple-500 rounded-lg flex items-center justify-center">
+                  <div className="w-14 h-14 bg-gray-900 rounded-lg flex items-center justify-center">
                     <Mail className="w-7 h-7 text-white" />
                   </div>
                   <div className="text-left">
@@ -446,7 +464,7 @@ export default function Home() {
                     <p className="text-sm text-gray-600">See a professional cover letter example</p>
                   </div>
                 </div>
-                <ChevronRight className="w-6 h-6 text-purple-500 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-6 h-6 text-gray-900 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
           </div>
@@ -464,7 +482,7 @@ export default function Home() {
               {recentResumes.length > 0 && (
                 <button
                   onClick={() => setActiveTab('resume')}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                  className="text-sm text-gray-900 hover:text-gray-700 font-medium flex items-center gap-1"
                 >
                   View all
                   <ChevronRight className="w-4 h-4" />
@@ -483,7 +501,7 @@ export default function Home() {
                 <p className="text-gray-600 mb-4">No resumes yet</p>
                 <button
                   onClick={() => setActiveTab('resume')}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-gray-900 hover:text-gray-700 font-medium"
                 >
                   Create your first resume →
                 </button>
@@ -517,7 +535,7 @@ export default function Home() {
                           <div className="text-sm font-medium text-gray-900">{resume.version_name}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-900 text-white">
                             {resume.version_number}
                           </span>
                         </td>
@@ -533,14 +551,14 @@ export default function Home() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handlePreviewResume(resume)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                               Preview
                             </button>
                             <button
                               onClick={() => handleDownloadResume(resume)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-50 transition-colors"
                             >
                               <Download className="w-4 h-4" />
                               Download
@@ -565,7 +583,7 @@ export default function Home() {
               {recentCoverLetters.length > 0 && (
                 <button
                   onClick={() => setActiveTab('cover')}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                  className="text-sm text-gray-900 hover:text-gray-700 font-medium flex items-center gap-1"
                 >
                   View all
                   <ChevronRight className="w-4 h-4" />
@@ -584,7 +602,7 @@ export default function Home() {
                 <p className="text-gray-600 mb-4">No cover letters yet</p>
                 <button
                   onClick={() => setActiveTab('cover')}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-gray-900 hover:text-gray-700 font-medium"
                 >
                   Create your first cover letter →
                 </button>
@@ -618,7 +636,7 @@ export default function Home() {
                           <div className="text-sm font-medium text-gray-900">{coverLetter.version_name}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-900 text-white">
                             {coverLetter.version_number}
                           </span>
                         </td>
@@ -634,14 +652,14 @@ export default function Home() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handlePreviewCoverLetter(coverLetter)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                               Preview
                             </button>
                             <button
                               onClick={() => handleDownloadCoverLetter(coverLetter)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-50 transition-colors"
                             >
                               <Download className="w-4 h-4" />
                               Download
