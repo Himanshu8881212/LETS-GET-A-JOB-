@@ -63,45 +63,74 @@ RUN mkdir -p /app/data \
 # Copy n8n workflows
 COPY n8n-workflows/*.json /app/n8n-workflows/
 
-# Create workflow import script with folder organization
+# Create workflow import and activation script
 RUN cat > /app/import-workflows.sh << 'EOF'
 #!/bin/bash
 set -e
 
 echo "Waiting for n8n to start..."
-sleep 10
+sleep 15
 
-# Check if workflows already exist
-WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
+# Wait for n8n API to be ready
+for i in {1..30}; do
+if curl -s http://localhost:5678/healthz > /dev/null 2>&1; then
+echo "n8n API is ready!"
+break
+fi
+echo "Waiting for n8n API... ($i/30)"
+sleep 2
+done
+
+# Check if workflows already exist via API
+WORKFLOW_COUNT=$(curl -s http://localhost:5678/rest/workflows 2>/dev/null | grep -o '"data":\[' | wc -l || echo "0")
 
 if [ "$WORKFLOW_COUNT" -eq "0" ]; then
-echo "Importing n8n workflows into LETS-GET-A-JOB folder..."
+echo "Importing n8n workflows..."
 
-# Import each workflow and tag with folder name
-for workflow in /app/n8n-workflows/*.json; do
-if [ -f "$workflow" ]; then
-echo "Importing $(basename $workflow)..."
-n8n import:workflow --input="$workflow" || echo "Warning: Failed to import $(basename $workflow)"
+# Import each workflow via API
+for workflow_file in /app/n8n-workflows/*.json; do
+if [ -f "$workflow_file" ]; then
+workflow_name=$(basename "$workflow_file" .json)
+echo "Importing $workflow_name..."
+
+# Read workflow JSON and import via API
+workflow_data=$(cat "$workflow_file")
+
+# Import workflow via REST API
+response=$(curl -s -X POST http://localhost:5678/rest/workflows \
+    -H "Content-Type: application/json" \
+    -d "$workflow_data" 2>&1)
+
+echo "Import response for $workflow_name: $response"
 fi
 done
 
-echo "Organizing workflows with LETS-GET-A-JOB tag..."
-# Tag all workflows with "LETS-GET-A-JOB" for organization
-sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET tags = json_array('LETS-GET-A-JOB');" || echo "Warning: Failed to tag workflows"
+echo "Waiting 3 seconds for workflows to be saved..."
+sleep 3
 
-echo "Activating workflows..."
-# Activate all workflows
-sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET active = 1;" || echo "Warning: Failed to activate workflows"
+echo "Activating all workflows via API..."
+# Get all workflow IDs and activate them
+workflow_ids=$(curl -s http://localhost:5678/rest/workflows 2>/dev/null | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
 
-echo "Workflows imported, organized, and activated successfully!"
+for wf_id in $workflow_ids; do
+echo "Activating workflow ID: $wf_id"
+curl -s -X PATCH "http://localhost:5678/rest/workflows/$wf_id" \
+    -H "Content-Type: application/json" \
+    -d '{"active":true}' 2>&1
+done
+
+echo "All workflows imported and activated successfully!"
 else
-echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
+echo "Workflows already exist, skipping import."
 fi
+
+# Keep script running to prevent supervisor from restarting it
+tail -f /dev/null
 EOF
 
 RUN chmod +x /app/import-workflows.sh
 
-# Create supervisord configuration with basic auth for n8n
+# Create supervisord configuration without authentication
 RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
 [supervisord]
 nodaemon=true
@@ -116,7 +145,7 @@ autostart=true
 autorestart=true
 stdout_logfile=/app/logs/n8n.log
 stderr_logfile=/app/logs/n8n-error.log
-environment=N8N_PORT="5678",N8N_HOST="0.0.0.0",N8N_PROTOCOL="http",N8N_PATH="/",N8N_PUSH_BACKEND="websocket",N8N_USER_FOLDER="/app/n8n-data",N8N_ENCRYPTION_KEY="random-encryption-key",N8N_BASIC_AUTH_ACTIVE="true",N8N_BASIC_AUTH_USER="admin",N8N_BASIC_AUTH_PASSWORD="admin123",EXECUTIONS_DATA_SAVE_ON_ERROR="all",EXECUTIONS_DATA_SAVE_ON_SUCCESS="all",EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS="true",WEBHOOK_URL="http://localhost:5678"
+environment=N8N_PORT="5678",N8N_HOST="0.0.0.0",N8N_PROTOCOL="http",N8N_PATH="/",N8N_PUSH_BACKEND="websocket",N8N_USER_FOLDER="/app/n8n-data",N8N_ENCRYPTION_KEY="random-encryption-key",N8N_BASIC_AUTH_ACTIVE="false",EXECUTIONS_DATA_SAVE_ON_ERROR="all",EXECUTIONS_DATA_SAVE_ON_SUCCESS="all",EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS="true",WEBHOOK_URL="http://localhost:5678"
 priority=100
 
 [program:workflow-import]

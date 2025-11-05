@@ -70,23 +70,14 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
    # You should see messages indicating n8n and Next.js are running
    ```
 
-5. **⚠️ IMPORTANT: Activate n8n Workflows** (Required for AI features):
-   - Open http://localhost:5678 in your browser
-   - **Login with Basic Auth credentials:**
-     - **Username:** `admin`
-     - **Password:** `admin123`
-   - Click on **Workflows** in the left sidebar
-   - You should see 4 workflows: **Cover Letter**, **Eval**, **Job Desc**, **Resume**
-   - For each workflow:
-     - Click on the workflow name
-     - Click the **Inactive** toggle in the top-right corner to activate it (it will turn green)
-   - See detailed instructions in the **n8n Workflow Setup** section below
+5. **✅ Workflows Auto-Activated** (AI features ready to use):
+   - Workflows are automatically imported and activated during startup
+   - No manual activation needed!
+   - You can verify at http://localhost:5678 (no login required)
 
 6. **Access the application:**
    - **Main Application:** http://localhost:3000
-   - **n8n Workflow Editor:** http://localhost:5678
-     - **Username:** `admin`
-     - **Password:** `admin123`
+   - **n8n Workflow Editor:** http://localhost:5678 (no authentication)
 
 ---
 
@@ -146,73 +137,48 @@ Once configured:
 
 ---
 
-## n8n Workflow Setup (Required for AI Features)
+## n8n Workflow Setup
 
-**⚠️ IMPORTANT:** The AI ATS Evaluator requires manual n8n workflow activation. This is a one-time setup.
+**✅ AUTOMATIC:** Workflows are automatically imported and activated during container startup. No manual setup required!
 
-### **Authentication**
+### **How It Works**
 
-n8n is configured with Basic Authentication for security:
+1. **Container Startup:** When the Docker container starts, a background script automatically:
+   - Waits for n8n to be ready
+   - Imports all 4 workflows via the n8n REST API
+   - Activates all workflows automatically
+   - Registers all webhooks
 
-- **Username:** `admin`
-- **Password:** `admin123`
+2. **Workflows Included:**
+   - **Cover Letter** - Cover letter analyzer
+   - **Eval** - ATS evaluation
+   - **Job Desc** - Job description parser
+   - **Resume** - Resume analyzer
 
-> **Note:** For production deployments, change these credentials immediately by modifying the Dockerfile (line 119) and rebuilding the container.
+3. **No Authentication:** n8n runs without authentication for local development. Simply open http://localhost:5678 to view workflows.
 
-### **Why is manual activation needed?**
+### **Verification (Optional)**
 
-n8n workflows are automatically imported during container startup, but they are **deactivated by default**. You need to manually activate them in the n8n UI to register their webhooks.
-
-### **Step-by-Step Activation:**
+If you want to verify workflows are active:
 
 1. **Access n8n:**
    - Open http://localhost:5678 in your browser
-   - **Login with:**
-     - Username: `admin`
-     - Password: `admin123`
+   - No login required
 
 2. **View Workflows:**
    - Click on **Workflows** in the left sidebar
-   - You should see 4 workflows:
-     - **Cover Letter** - Cover letter analyzer
-     - **Eval** - ATS evaluation
-     - **Job Desc** - Job description parser
-     - **Resume** - Resume analyzer
+   - You should see 4 workflows with green "Active" badges
 
-3. **Activate Each Workflow:**
+3. **Test Webhooks (Optional):**
 
-   For **each of the 4 workflows**:
-   - Click on the workflow name
-   - Look for the toggle switch in the top-right corner (it will say "Inactive")
-   - Click the toggle to activate it
-   - It should turn green and say "Active"
-   - Repeat for all 4 workflows
-
-4. **Verify Activation:**
-
-   Run this command to verify all workflows are active:
-   ```bash
-   docker exec lets-get-a-job sqlite3 /app/n8n-data/database.sqlite "SELECT name, active FROM workflow_entity;"
-   ```
-
-   You should see:
-   ```
-   cover-letter|1
-   eval|1
-   job-desc|1
-   resume|1
-   ```
-
-5. **Test Webhooks:**
-
-   Test that webhooks are working:
+   Verify webhooks are working:
    ```bash
    curl -X POST http://localhost:5678/webhook/process-jd \
      -H "Content-Type: application/json" \
      -d '{"jobUrl":"https://example.com/job"}'
    ```
 
-   Should return JSON (not a 404 error)
+   Should return JSON response (not a 404 error)
 
 ### **Configure AI Provider (Optional)**
 
