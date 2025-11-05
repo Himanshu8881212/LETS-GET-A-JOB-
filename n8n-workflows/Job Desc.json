@@ -21,7 +21,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "https://mcp.tavily.com/mcp/?tavilyApiKey=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",
+        "endpointUrl": "https://mcp.tavily.com/mcp/?tavilyApiKey=YOUR_TAVILY_API_KEY_HERE",
         "include": "selected",
         "includeTools": [
           "tavily_extract"
