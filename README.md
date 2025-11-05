@@ -8,8 +8,9 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ## 📋 Table of Contents
 
-- [🐳 Docker Deployment (Recommended)](#-docker-deployment-recommended---two-containers)
-- [💻 Local Development (Without Docker)](#-local-development-without-docker)
+- [⚡ Choose Your Setup Method](#-choose-your-setup-method)
+- [🐳 Full Docker Setup](#-docker-deployment-recommended---two-containers)
+- [💻 Hybrid Setup (Docker + Local)](#-local-development-without-docker)
 - [Features](#features)
 - [Troubleshooting](#troubleshooting)
 
@@ -17,29 +18,38 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ## ⚡ Choose Your Setup Method
 
-### 🐳 Docker Deployment (Recommended)
-✅ Everything in containers - isolated and portable
-✅ Easy to deploy anywhere
-✅ Automatic workflow setup
-✅ No Node.js required on host machine
-❌ Requires Docker and Docker Compose
+**Both methods require Docker** - the difference is where your application code runs:
 
-### 💻 Local Development
-✅ Faster hot-reload during development
-✅ Direct access to code for debugging
-✅ Familiar npm run dev workflow
-❌ Requires Node.js 18+ installed
-❌ Requires Docker for n8n only
+### 🐳 Full Docker (Recommended for Production)
+- **What runs in Docker:** n8n + Application (both containerized)
+- **What you need:** Docker & Docker Compose
+- **Best for:** Deployment, production, sharing with others
+- ✅ Everything packaged together
+- ✅ Works the same on any machine
+- ✅ No Node.js installation needed
+- ❌ Slower rebuild when changing code
 
-**New users?** Start with **Docker Deployment** for the simplest experience!
+### 💻 Hybrid Setup (Recommended for Development)
+- **What runs in Docker:** n8n only
+- **What runs locally:** Application with `npm run dev`
+- **What you need:** Docker + Node.js 18+
+- **Best for:** Active development, debugging, testing
+- ✅ Instant hot-reload on code changes
+- ✅ Direct access to logs and debugger
+- ✅ Familiar development workflow
+- ❌ Requires Node.js installed
+
+**Choose:**
+- 👨‍💻 **Developing/Coding?** → Use **Hybrid Setup**
+- 🚀 **Deploying/Sharing?** → Use **Full Docker**
 
 ---
 
-## 🐳 Docker Deployment (Recommended - Two Containers)
+## 🐳 Full Docker Setup (Production Deployment)
 
-**Want everything in one package? Use Docker Compose!**
+**Everything in containers - n8n and your application!**
 
-This setup uses **two containers**:
+This setup uses **two Docker containers**:
 1. **n8n container** - Runs first so you can get your n8n API key
 2. **Application container** - Runs after n8n is ready
 
@@ -109,11 +119,13 @@ docker-compose --profile full up -d
 
 ---
 
-## 💻 Local Development (Without Docker)
+## 💻 Hybrid Setup (Docker + Local Development)
 
-**Prefer to run the app locally without Docker containers?**
+**Best for active development - fast hot-reload!**
 
-This method runs n8n in a separate Docker container, but your application runs directly on your machine using Node.js.
+This method runs:
+- **n8n** in a Docker container (no installation needed)
+- **Your application** locally with `npm run dev` (instant hot-reload)
 
 ### Prerequisites
 
