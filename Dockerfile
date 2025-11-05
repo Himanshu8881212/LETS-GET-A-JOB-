@@ -2,6 +2,13 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
+# Install build dependencies for native modules
+# - python3, make, g++: Required to compile better-sqlite3 (includes SQLite)
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++
+
 # Copy package files
 COPY package.json package-lock.json* ./
 
@@ -24,6 +31,10 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 # Install required system dependencies
+# - curl: for healthchecks
+# - bash: for entrypoint script
+# - texlive: LaTeX base for PDF generation (includes pdflatex)
+# - texlive-latex-extra: Additional LaTeX packages for resume templates
 RUN apk add --no-cache \
     curl \
     bash \
