@@ -8,7 +8,6 @@ services:
     ports:
       - "5678:5678"
     environment:
-      - N8N_USER_MANAGEMENT_DISABLED=true
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
@@ -21,6 +20,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    profiles:
+      - n8n
+      - full
 
   # Main application
   app:
@@ -34,6 +36,7 @@ services:
       - NODE_ENV=production
       - N8N_HOST=n8n
       - N8N_PORT=5678
+      - N8N_API_KEY=${N8N_API_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - TAVILY_API_KEY=${TAVILY_API_KEY}
       # Webhook URLs (internal network)
@@ -47,6 +50,9 @@ services:
       n8n:
         condition: service_healthy
     restart: unless-stopped
+    profiles:
+      - app
+      - full
 
 volumes:
   n8n_data:

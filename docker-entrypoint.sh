@@ -28,38 +28,29 @@ fi
 sleep 5
 
 # Setup n8n workflows if API keys are provided
-if [ -n "$GROQ_API_KEY" ] && [ -n "$TAVILY_API_KEY" ]; then
+if [ -n "$N8N_API_KEY" ] && [ -n "$GROQ_API_KEY" ] && [ -n "$TAVILY_API_KEY" ]; then
   echo "🔧 Setting up n8n workflows..."
+  echo "   Using n8n at: http://$N8N_HOST:$N8N_PORT"
 
-  # Create a temporary setup script that uses environment variables
-  node << 'EOF'
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+  # Export N8N_API_KEY for the setup script
+  export N8N_API_KEY="$N8N_API_KEY"
 
-// Read the setup script
-const setupScript = fs.readFileSync('./setup-n8n-workflows.js', 'utf8');
-
-// Modify to use environment variables instead of prompts
-const modifiedScript = setupScript
-  .replace('N8N_HOST = \'localhost\'', 'N8N_HOST = process.env.N8N_HOST || \'n8n\'')
-  .replace('await prompt(\'Enter your Groq API key', '// await prompt(\'Enter your Groq API key')
-  .replace('await prompt(\'Enter your Tavily API key', '// await prompt(\'Enter your Tavily API key')
-  .replace('const groqApiKey =', 'const groqApiKey = process.env.GROQ_API_KEY || ')
-  .replace('const tavilyApiKey =', 'const tavilyApiKey = process.env.TAVILY_API_KEY || ');
-
-// Run the modified setup
-eval(modifiedScript.replace('main().catch', 'main().then(() => console.log("Setup complete!")).catch'));
+  # Run setup script with environment variables
+  node setup-n8n-workflows.js << EOF
+$GROQ_API_KEY
+$TAVILY_API_KEY
 EOF
 
   if [ $? -eq 0 ]; then
     echo "✅ n8n workflows setup complete!"
   else
     echo "⚠️  n8n workflow setup failed, but continuing..."
+    echo "   You can run 'docker exec -it lets-get-a-job-app node setup-n8n-workflows.js' manually"
   fi
 else
-  echo "⚠️  GROQ_API_KEY or TAVILY_API_KEY not set - skipping workflow setup"
-  echo "   You'll need to run 'node setup-n8n-workflows.js' manually"
+  echo "⚠️  Missing API keys - skipping workflow setup"
+  echo "   Required: N8N_API_KEY, GROQ_API_KEY, TAVILY_API_KEY"
+  echo "   You can run 'docker exec -it lets-get-a-job-app node setup-n8n-workflows.js' manually"
 fi
 
 # Copy .env.example to .env.local if it doesn't exist

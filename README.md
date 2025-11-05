@@ -6,47 +6,76 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
-## 🐳 Docker Deployment (Easiest - One Command!)
+## 🐳 Docker Deployment (Recommended - Two Containers)
 
 **Want everything in one package? Use Docker Compose!**
 
-This runs both n8n and the application together as a single unified system.
+This setup uses **two containers**:
+1. **n8n container** - Runs first so you can get your n8n API key
+2. **Application container** - Runs after n8n is ready
 
 ### Prerequisites
 1. **Docker** and **Docker Compose** installed
-2. **Get your API keys** (both free):
+2. **API Keys** needed (get these first):
    - **Groq API Key**: https://console.groq.com/keys
    - **Tavily API Key**: https://tavily.com
 
-### Quick Start
+### Step-by-Step Setup
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Himanshu8881212/LETS-GET-A-JOB-.git
 cd LETS-GET-A-JOB-
 
-# 2. Create .env file with your API keys
+# 2. Start n8n container FIRST
+docker-compose --profile n8n up -d
+
+# 3. Wait 30 seconds, then open n8n
+echo "Waiting for n8n to start..."
+sleep 30
+echo "n8n ready! Open http://localhost:5678"
+
+# 4. Get your n8n API key:
+#    a. Go to http://localhost:5678
+#    b. Create an account (first time only)
+#    c. Go to Settings → API
+#    d. Click "Create an API key"
+#    e. Copy the API key
+
+# 5. Create .env file with ALL THREE API keys
 cp .env.docker .env
-# Edit .env and add your GROQ_API_KEY and TAVILY_API_KEY
+# Edit .env and add:
+#   - N8N_API_KEY (from step 4)
+#   - GROQ_API_KEY
+#   - TAVILY_API_KEY
 
-# 3. Start everything with one command!
-docker-compose up -d
+# 6. Start the application container
+docker-compose --profile app up -d
 
-# That's it! Wait 30-60 seconds for everything to start
+# That's it! Wait 30 seconds for workflows to setup
 ```
 
 **Done!**
 - Application: http://localhost:3000
 - n8n: http://localhost:5678
 
-**To stop:**
+**To stop everything:**
 ```bash
-docker-compose down
+docker-compose --profile full down
 ```
 
 **To view logs:**
 ```bash
-docker-compose logs -f
+# n8n logs
+docker-compose logs -f n8n
+
+# Application logs
+docker-compose logs -f app
+```
+
+**To start everything together (if already configured):**
+```bash
+docker-compose --profile full up -d
 ```
 
 ---
