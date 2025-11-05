@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { FileText, Mail, BarChart3, ChevronRight, Sparkles, Eye, Download, Clock } from 'lucide-react'
+import { FileText, Mail, BarChart3, ChevronRight, Sparkles, Eye, Download, Clock, Trash2 } from 'lucide-react'
 import { ToastProvider } from '@/components/ui/Toast'
 
 // Lazy load heavy components
@@ -278,6 +278,56 @@ export default function Home() {
     } catch (error) {
       console.error('Error downloading cover letter:', error)
       alert('Failed to download cover letter. Please try again.')
+    }
+  }
+
+  const handleDeleteResume = async (resume: RecentDocument) => {
+    if (!confirm(`Are you sure you want to delete "${resume.version_name}" (${resume.version_number})? This cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/resumes/${resume.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // Refresh the list
+        setRecentResumes(recentResumes.filter(r => r.id !== resume.id))
+        alert('Resume deleted successfully')
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert('Failed to delete resume. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting resume:', error)
+      alert('Failed to delete resume. Please try again.')
+    }
+  }
+
+  const handleDeleteCoverLetter = async (coverLetter: RecentDocument) => {
+    if (!confirm(`Are you sure you want to delete "${coverLetter.version_name}" (${coverLetter.version_number})? This cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/cover-letters/${coverLetter.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // Refresh the list
+        setRecentCoverLetters(recentCoverLetters.filter(c => c.id !== coverLetter.id))
+        alert('Cover letter deleted successfully')
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert('Failed to delete cover letter. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting cover letter:', error)
+      alert('Failed to delete cover letter. Please try again.')
     }
   }
 
@@ -601,6 +651,13 @@ export default function Home() {
                               <Download className="w-4 h-4" />
                               Download
                             </button>
+                            <button
+                              onClick={() => handleDeleteResume(resume)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                              title="Delete resume"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -701,6 +758,13 @@ export default function Home() {
                             >
                               <Download className="w-4 h-4" />
                               Download
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCoverLetter(coverLetter)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                              title="Delete cover letter"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </td>

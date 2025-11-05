@@ -431,12 +431,13 @@ function generateResumeDataTex(data: any): string {
 
       tex += `  \\noindent\n`
       tex += `  \\textbf{${escapeLatex(proj.title || '')}}\n`
+      tex += `  \\par\n`
       tex += `  \\vspace{1pt}\n`
 
       if (proj.description) {
-        tex += `  \n`
         tex += `  \\noindent\n`
-        tex += `  \\textit{${escapeLatex(proj.description)}}\n`
+        tex += `  ${escapeLatex(proj.description)}\n`
+        tex += `  \\par\n`
         tex += `  \\vspace{1pt}\n`
       }
 
