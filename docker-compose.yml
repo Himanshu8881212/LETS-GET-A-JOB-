@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # n8n workflow automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_USER_MANAGEMENT_DISABLED=true
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lets-get-a-job-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - N8N_HOST=n8n
+      - N8N_PORT=5678
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      # Webhook URLs (internal network)
+      - NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://localhost:5678/webhook/process-jd
+      - NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL=http://localhost:5678/webhook/process-resume
+      - NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL=http://localhost:5678/webhook/process-cover-letter
+      - NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL=http://localhost:5678/webhook/evaluate-ats
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      n8n:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
+    driver: local

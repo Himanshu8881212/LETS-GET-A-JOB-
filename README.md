@@ -6,6 +6,51 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
+## 🐳 Docker Deployment (Easiest - One Command!)
+
+**Want everything in one package? Use Docker Compose!**
+
+This runs both n8n and the application together as a single unified system.
+
+### Prerequisites
+1. **Docker** and **Docker Compose** installed
+2. **Get your API keys** (both free):
+   - **Groq API Key**: https://console.groq.com/keys
+   - **Tavily API Key**: https://tavily.com
+
+### Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Himanshu8881212/LETS-GET-A-JOB-.git
+cd LETS-GET-A-JOB-
+
+# 2. Create .env file with your API keys
+cp .env.docker .env
+# Edit .env and add your GROQ_API_KEY and TAVILY_API_KEY
+
+# 3. Start everything with one command!
+docker-compose up -d
+
+# That's it! Wait 30-60 seconds for everything to start
+```
+
+**Done!**
+- Application: http://localhost:3000
+- n8n: http://localhost:5678
+
+**To stop:**
+```bash
+docker-compose down
+```
+
+**To view logs:**
+```bash
+docker-compose logs -f
+```
+
+---
+
 ## 🚀 Complete Fresh Start (New User)
 
 **Starting completely fresh? Follow these steps:**
