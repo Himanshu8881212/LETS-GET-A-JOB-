@@ -33,14 +33,11 @@
   ],
   "experiences": [
     {
-      "id": "1",
+      "title": "Senior Software Engineer",
       "company": "TechCorp Solutions",
-      "position": "Senior Software Engineer",
       "location": "San Francisco, CA",
-      "startDate": "2020-03",
-      "endDate": "",
-      "current": true,
-      "responsibilities": [
+      "dates": "March 2020 - Present",
+      "bullets": [
         "Architected and led development of a cloud-native microservices platform serving 500K+ users, reducing deployment time by 60% and improving system reliability to 99.95% uptime",
         "Designed and implemented real-time analytics dashboard using React, WebSocket, and Redis, processing 10M+ events daily with sub-100ms latency",
         "Spearheaded migration from monolithic architecture to Kubernetes-based microservices on AWS, reducing infrastructure costs by 35% while improving scalability",
@@ -48,14 +45,11 @@
       ]
     },
     {
-      "id": "2",
+      "title": "Full Stack Developer",
       "company": "FinanceHub Technologies",
-      "position": "Full Stack Developer",
       "location": "New York, NY",
-      "startDate": "2016-08",
-      "endDate": "2020-02",
-      "current": false,
-      "responsibilities": [
+      "dates": "August 2016 - February 2020",
+      "bullets": [
         "Developed secure payment processing system handling $50M+ in monthly transactions using Node.js, PostgreSQL, and Stripe API with zero security incidents",
         "Built responsive trading dashboard with React and Redux, improving user engagement by 45% and reducing page load time from 3.2s to 0.8s",
         "Implemented comprehensive test automation suite with Jest and Cypress, achieving 92% code coverage and reducing production bugs by 65%",
@@ -65,22 +59,18 @@
   ],
   "projects": [
     {
-      "id": "1",
-      "name": "Enterprise E-Commerce Platform",
+      "title": "Enterprise E-Commerce Platform",
       "description": "Architected and developed a scalable e-commerce platform for Fortune 500 client",
-      "technologies": "Next.js, TypeScript, Stripe API, PostgreSQL, Redis, AWS Lambda",
-      "achievements": [
+      "bullets": [
         "Increased conversion rate by 32% and average order value by 28% through personalized recommendations using machine learning",
         "Implemented server-side rendering and edge caching, reducing page load time by 65% and improving SEO rankings by 40%",
         "Processed $5M+ in monthly transactions with 99.99% uptime and PCI DSS compliance"
       ]
     },
     {
-      "id": "2",
-      "name": "Real-Time Collaboration Platform",
+      "title": "Real-Time Collaboration Platform",
       "description": "Built collaborative document editing system supporting simultaneous multi-user editing",
-      "technologies": "React, WebSocket, Operational Transform, MongoDB, Docker, Kubernetes",
-      "achievements": [
+      "bullets": [
         "Enabled 100+ concurrent users to edit documents simultaneously with conflict-free synchronization and sub-50ms latency",
         "Implemented auto-scaling infrastructure on AWS EKS, handling 10x traffic spikes while maintaining 99.95% uptime",
         "Reduced infrastructure costs by 40% through optimized resource allocation and serverless architecture"
@@ -89,34 +79,18 @@
   ],
   "education": [
     {
-      "id": "1",
       "institution": "Stanford University",
       "degree": "Master of Science",
-      "field": "Computer Science",
       "location": "Stanford, CA",
-      "startDate": "2015-09",
-      "endDate": "2017-06",
-      "gpa": "3.9",
-      "achievements": [
-        "Specialized in Distributed Systems and Machine Learning",
-        "Teaching Assistant for Advanced Algorithms course",
-        "Published research on scalable microservices architecture in ACM conference"
-      ]
+      "dates": "September 2015 - June 2017",
+      "gpa": "3.9"
     },
     {
-      "id": "2",
       "institution": "University of California, Berkeley",
       "degree": "Bachelor of Science",
-      "field": "Computer Science",
       "location": "Berkeley, CA",
-      "startDate": "2011-09",
-      "endDate": "2015-05",
-      "gpa": "3.85",
-      "achievements": [
-        "Graduated Magna Cum Laude, Dean's List all semesters",
-        "President of Computer Science Club, organized 10+ technical workshops",
-        "Winner of UC Berkeley Hackathon 2014 for innovative mobile application"
-      ]
+      "dates": "September 2011 - May 2015",
+      "gpa": "3.85"
     }
   ],
   "certifications": [
