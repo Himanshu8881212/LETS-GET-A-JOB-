@@ -187,6 +187,24 @@ These are pre-configured to work with n8n running on port 5678.
 
 ## Troubleshooting
 
+### Webpack Chunk Loading Errors / Evaluation Workflow Issues
+
+If you see errors like `ChunkLoadError` or evaluation workflows fail in the browser:
+
+**Problem:** The `.next` folder (Next.js build cache) has stale files.
+
+**Solution:**
+```bash
+# Stop the dev server (Ctrl+C), then:
+rm -rf .next
+npm run dev
+```
+
+**Note:** The `.next` folder is automatically recreated by Next.js - this is normal! Always delete it when:
+- Pulling new code from git
+- Switching branches
+- After seeing webpack/chunk errors
+
 ### n8n Webhooks Return 404 or 500
 
 This usually means workflows are not activated or are in test mode:
