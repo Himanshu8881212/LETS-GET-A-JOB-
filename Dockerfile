@@ -68,8 +68,15 @@ RUN cat > /app/import-workflows.sh << 'EOF'
 #!/bin/bash
 set -e
 
-echo "Waiting for n8n to start..."
-sleep 20
+echo "Waiting for n8n to start and create database..."
+sleep 25
+
+# Delete n8n config file to force it to use ENV var encryption key
+echo "Removing n8n config file to ensure encryption key consistency..."
+rm -f /app/n8n-data/.n8n/config
+
+# Wait a bit more for n8n to recreate config with ENV var key
+sleep 5
 
 # Check if workflows already exist
 WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
@@ -77,12 +84,16 @@ WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM wor
 if [ "$WORKFLOW_COUNT" -eq "0" ]; then
 echo "Importing n8n workflows..."
 
-# Import each workflow using CLI (no auth required)
+# Set the encryption key environment variable explicitly
+export N8N_ENCRYPTION_KEY="random-encryption-key"
+export N8N_USER_FOLDER="/app/n8n-data"
+
+# Import each workflow using CLI
 for workflow_file in /app/n8n-workflows/*.json; do
 if [ -f "$workflow_file" ]; then
 workflow_name=$(basename "$workflow_file" .json)
 echo "Importing $workflow_name..."
-n8n import:workflow --input="$workflow_file" 2>&1 || echo "Warning: Failed to import $workflow_name"
+N8N_ENCRYPTION_KEY="random-encryption-key" N8N_USER_FOLDER="/app/n8n-data" n8n import:workflow --input="$workflow_file" 2>&1 || echo "Warning: Failed to import $workflow_name"
 fi
 done
 
