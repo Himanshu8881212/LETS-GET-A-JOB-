@@ -206,10 +206,21 @@ export default function Home() {
       // Use the already-parsed data field from the API
       const coverLetterData = coverLetter.data || {}
 
+      // Transform data from database format to API format
+      const apiData = {
+        personalInfo: coverLetterData.personalInfo || {},
+        recipient: coverLetterData.recipientInfo || {}, // recipientInfo -> recipient
+        content: {
+          opening: coverLetterData.openingParagraph || '',
+          bodyParagraphs: coverLetterData.bodyParagraphs || [],
+          closing: coverLetterData.closingParagraph || ''
+        }
+      }
+
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(coverLetterData)
+        body: JSON.stringify(apiData)
       })
 
       if (response.ok) {
@@ -232,10 +243,21 @@ export default function Home() {
       // Use the already-parsed data field from the API
       const coverLetterData = coverLetter.data || {}
 
+      // Transform data from database format to API format
+      const apiData = {
+        personalInfo: coverLetterData.personalInfo || {},
+        recipient: coverLetterData.recipientInfo || {}, // recipientInfo -> recipient
+        content: {
+          opening: coverLetterData.openingParagraph || '',
+          bodyParagraphs: coverLetterData.bodyParagraphs || [],
+          closing: coverLetterData.closingParagraph || ''
+        }
+      }
+
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(coverLetterData)
+        body: JSON.stringify(apiData)
       })
 
       if (response.ok) {
@@ -259,14 +281,54 @@ export default function Home() {
     }
   }
 
-  const handleViewSampleResume = () => {
-    // Only preview, don't download
-    window.open('/samples/sample-resume.pdf', '_blank')
+  const handleViewSampleResume = async () => {
+    try {
+      // Fetch the Alexander Thompson resume from the database
+      const response = await fetch('/api/resumes')
+      if (response.ok) {
+        const allResumes = await response.json()
+        // Find the Alexander Thompson resume
+        const sampleResume = allResumes.find((r: RecentDocument) =>
+          r.version_name.includes('Senior Software Engineer Resume') ||
+          r.version_name.includes('Alexander')
+        )
+
+        if (sampleResume) {
+          // Generate and preview the PDF
+          await handlePreviewResume(sampleResume)
+        } else {
+          alert('Sample resume not found. Please create a resume first.')
+        }
+      }
+    } catch (error) {
+      console.error('Error loading sample resume:', error)
+      alert('Failed to load sample resume.')
+    }
   }
 
-  const handleViewSampleCoverLetter = () => {
-    // Only preview, don't download
-    window.open('/samples/sample-cover-letter.pdf', '_blank')
+  const handleViewSampleCoverLetter = async () => {
+    try {
+      // Fetch the TechCorp cover letter from the database
+      const response = await fetch('/api/cover-letters')
+      if (response.ok) {
+        const allCoverLetters = await response.json()
+        // Find the TechCorp cover letter
+        const sampleCoverLetter = allCoverLetters.find((c: RecentDocument) =>
+          c.version_name.includes('TechCorp') ||
+          c.version_name.includes('Alexander')
+        )
+
+        if (sampleCoverLetter) {
+          // Generate and preview the PDF
+          await handlePreviewCoverLetter(sampleCoverLetter)
+        } else {
+          alert('Sample cover letter not found. Please create a cover letter first.')
+        }
+      }
+    } catch (error) {
+      console.error('Error loading sample cover letter:', error)
+      alert('Failed to load sample cover letter.')
+    }
   }
 
   const formatDate = (dateString: string) => {
