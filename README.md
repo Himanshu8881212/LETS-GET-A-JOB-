@@ -6,6 +6,48 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 ---
 
+## 🚀 Complete Fresh Start (New User)
+
+**Starting completely fresh? Follow these steps:**
+
+```bash
+# 1. Clone the repository (if you haven't already)
+git clone https://github.com/Himanshu8881212/LETS-GET-A-JOB-.git
+cd LETS-GET-A-JOB-
+
+# 2. Clean up any existing setup (optional, if you had issues before)
+docker stop n8n 2>/dev/null || true
+docker rm n8n 2>/dev/null || true
+rm -rf data/app.db* 2>/dev/null || true
+
+# 3. Copy environment file
+cp .env.example .env.local
+
+# 4. Install dependencies
+npm install
+
+# 5. Start n8n in Docker (no authentication, port 5678)
+docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8n_data:/home/node/.n8n n8nio/n8n:latest
+
+# Wait 30 seconds for n8n to fully start
+sleep 30
+
+# 6. Setup n8n workflows (you'll need a Groq API key)
+node setup-n8n-workflows.js
+
+# 7. Start the application
+npm run dev
+```
+
+**Done!** Open http://localhost:3000 in your browser.
+
+### What You'll Need:
+- **Docker** installed and running
+- **Node.js** 18+ installed
+- **Groq API Key** - Get free from https://console.groq.com/keys
+
+---
+
 ## From Scratch Setup (TL;DR)
 
 ```bash
