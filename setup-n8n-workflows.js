@@ -259,13 +259,12 @@ async function importWorkflow(workflowPath) {
     }
 
     // Create clean workflow object with only accepted properties
-    // Set active: true during creation (works in POST, not in PUT/PATCH)
+    // NOTE: Do NOT include 'active' field - it's read-only. We'll activate via separate endpoint.
     const cleanWorkflow = {
       name: workflowData.name,
       nodes: workflowData.nodes,
       connections: workflowData.connections,
       settings: workflowData.settings || {},
-      active: true,  // Import as active - this works on creation
     };
 
     // Add optional properties if they exist
@@ -287,7 +286,7 @@ async function importWorkflow(workflowPath) {
   }
 }
 
-// Activate workflow
+// Activate workflow using dedicated activation endpoint
 async function activateWorkflow(workflowId) {
   try {
     // Check if workflow is already active
@@ -298,12 +297,12 @@ async function activateWorkflow(workflowId) {
       return true;
     }
 
-    // If not active, try to activate using PATCH
-    await makeRequest('PATCH', `/api/v1/workflows/${workflowId}`, { active: true });
+    // Activate using the dedicated endpoint: POST /api/v1/workflows/{id}/activate
+    await makeRequest('POST', `/api/v1/workflows/${workflowId}/activate`, {});
     console.log(`  ${colors.green}✓ Activated (production mode)${colors.reset}`);
     return true;
   } catch (error) {
-    console.log(`  ${colors.yellow}⚠ Cannot activate via API: ${error.message}${colors.reset}`);
+    console.log(`  ${colors.red}✗ Failed to activate: ${error.message}${colors.reset}`);
     console.log(`  ${colors.yellow}  Please activate manually at http://localhost:5678${colors.reset}`);
     return false;
   }
