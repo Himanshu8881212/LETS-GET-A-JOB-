@@ -60,11 +60,11 @@
   "projects": [
     {
       "title": "Enterprise E-Commerce Platform",
-      "description": "Architected and developed a scalable e-commerce platform for Fortune 500 client. Increased conversion rate by 32% and average order value by 28% through personalized recommendations using machine learning. Implemented server-side rendering and edge caching, reducing page load time by 65% and improving SEO rankings by 40%. Processed $5M+ in monthly transactions with 99.99% uptime and PCI DSS compliance."
+      "description": "Architected scalable e-commerce platform for Fortune 500 client. Increased conversion rate by 32% through ML-based recommendations. Processed $5M+ monthly transactions with 99.99% uptime."
     },
     {
       "title": "Real-Time Collaboration Platform",
-      "description": "Built collaborative document editing system supporting simultaneous multi-user editing. Enabled 100+ concurrent users to edit documents simultaneously with conflict-free synchronization and sub-50ms latency. Implemented auto-scaling infrastructure on AWS EKS, handling 10x traffic spikes while maintaining 99.95% uptime. Reduced infrastructure costs by 40% through optimized resource allocation and serverless architecture."
+      "description": "Built collaborative document editing system supporting 100+ concurrent users with sub-50ms latency. Implemented auto-scaling on AWS EKS, reducing infrastructure costs by 40%."
     }
   ],
   "education": [

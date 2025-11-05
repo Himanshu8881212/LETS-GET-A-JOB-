@@ -63,7 +63,7 @@ RUN mkdir -p /app/data \
 # Copy n8n workflows
 COPY n8n-workflows/*.json /app/n8n-workflows/
 
-# Create workflow import script
+# Create workflow import script with folder organization
 RUN cat > /app/import-workflows.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -75,9 +75,9 @@ sleep 10
 WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
 
 if [ "$WORKFLOW_COUNT" -eq "0" ]; then
-echo "Importing n8n workflows..."
+echo "Importing n8n workflows into LETS-GET-A-JOB folder..."
 
-# Import each workflow
+# Import each workflow and tag with folder name
 for workflow in /app/n8n-workflows/*.json; do
 if [ -f "$workflow" ]; then
 echo "Importing $(basename $workflow)..."
@@ -85,11 +85,15 @@ n8n import:workflow --input="$workflow" || echo "Warning: Failed to import $(bas
 fi
 done
 
+echo "Organizing workflows with LETS-GET-A-JOB tag..."
+# Tag all workflows with "LETS-GET-A-JOB" for organization
+sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET tags = json_array('LETS-GET-A-JOB');" || echo "Warning: Failed to tag workflows"
+
 echo "Activating workflows..."
 # Activate all workflows
 sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET active = 1;" || echo "Warning: Failed to activate workflows"
 
-echo "Workflows imported and activated successfully!"
+echo "Workflows imported, organized, and activated successfully!"
 else
 echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
 fi
@@ -97,35 +101,7 @@ EOF
 
 RUN chmod +x /app/import-workflows.sh
 
-# Create n8n user creation script
-RUN cat > /app/create-n8n-user.sh << 'EOF'
-#!/bin/bash
-set -e
-
-echo "Waiting for n8n database to be created..."
-sleep 15
-
-# Check if user already exists
-USER_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM user;" 2>/dev/null || echo "0")
-
-if [ "$USER_COUNT" -eq "0" ]; then
-echo "Creating default n8n user..."
-
-# Create user using n8n CLI
-N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key" \
-    n8n user-management:reset \
-    --email=admin@localhost \
-    --password=admin123 || echo "Warning: Failed to create user"
-
-echo "Default user created: admin@localhost / admin123"
-else
-echo "User already exists, skipping creation."
-fi
-EOF
-
-RUN chmod +x /app/create-n8n-user.sh
-
-# Create supervisord configuration
+# Create supervisord configuration with basic auth for n8n
 RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
 [supervisord]
 nodaemon=true
@@ -140,7 +116,7 @@ autostart=true
 autorestart=true
 stdout_logfile=/app/logs/n8n.log
 stderr_logfile=/app/logs/n8n-error.log
-environment=N8N_PORT="5678",N8N_HOST="0.0.0.0",N8N_PROTOCOL="http",N8N_PATH="/",N8N_PUSH_BACKEND="websocket",N8N_USER_FOLDER="/app/n8n-data",N8N_ENCRYPTION_KEY="random-encryption-key",N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key",EXECUTIONS_DATA_SAVE_ON_ERROR="all",EXECUTIONS_DATA_SAVE_ON_SUCCESS="all",EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS="true",WEBHOOK_URL="http://localhost:5678"
+environment=N8N_PORT="5678",N8N_HOST="0.0.0.0",N8N_PROTOCOL="http",N8N_PATH="/",N8N_PUSH_BACKEND="websocket",N8N_USER_FOLDER="/app/n8n-data",N8N_ENCRYPTION_KEY="random-encryption-key",N8N_BASIC_AUTH_ACTIVE="true",N8N_BASIC_AUTH_USER="admin",N8N_BASIC_AUTH_PASSWORD="admin123",EXECUTIONS_DATA_SAVE_ON_ERROR="all",EXECUTIONS_DATA_SAVE_ON_SUCCESS="all",EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS="true",WEBHOOK_URL="http://localhost:5678"
 priority=100
 
 [program:workflow-import]
@@ -154,17 +130,6 @@ stderr_logfile=/app/logs/workflow-import-error.log
 environment=N8N_USER_FOLDER="/app/n8n-data"
 priority=200
 
-[program:user-creation]
-command=/app/create-n8n-user.sh
-directory=/app
-autostart=true
-autorestart=false
-startsecs=0
-stdout_logfile=/app/logs/user-creation.log
-stderr_logfile=/app/logs/user-creation-error.log
-environment=N8N_USER_FOLDER="/app/n8n-data",N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key"
-priority=300
-
 [program:nextjs]
 command=npm start
 directory=/app
@@ -173,7 +138,7 @@ autorestart=true
 stdout_logfile=/app/logs/nextjs.log
 stderr_logfile=/app/logs/nextjs-error.log
 environment=NODE_ENV="production",PORT="3000",NEXT_PUBLIC_N8N_JD_WEBHOOK_URL="http://localhost:5678/webhook/process-jd",NEXT_PUBLIC_N8N_RESUME_WEBHOOK_URL="http://localhost:5678/webhook/process-resume",NEXT_PUBLIC_N8N_COVER_LETTER_WEBHOOK_URL="http://localhost:5678/webhook/process-cover-letter",NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL="http://localhost:5678/webhook/evaluate-ats"
-priority=400
+priority=300
 EOF
 
 # Expose ports
