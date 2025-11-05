@@ -167,37 +167,27 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     loadSavedData(STORAGE_KEY, { hobbies: [] }).hobbies || []
   )
 
+  // Default section order
+  const defaultSectionOrder: SectionConfig[] = [
+    { id: 'summary', name: 'Professional Summary', enabled: true },
+    { id: 'skills', name: 'Technical Skills', enabled: true },
+    { id: 'experience', name: 'Work Experience', enabled: true },
+    { id: 'projects', name: 'Projects', enabled: true },
+    { id: 'education', name: 'Education', enabled: true },
+    { id: 'certifications', name: 'Certifications', enabled: false },
+    { id: 'languages', name: 'Languages', enabled: false },
+    { id: 'awards', name: 'Awards & Honors', enabled: false },
+    { id: 'publications', name: 'Publications', enabled: false },
+    { id: 'extracurricular', name: 'Extracurricular Activities', enabled: false },
+    { id: 'volunteer', name: 'Volunteer Experience', enabled: false },
+    { id: 'hobbies', name: 'Hobbies & Interests', enabled: false }
+  ]
+
   // Section ordering
   const [sectionOrder, setSectionOrder] = useState<SectionConfig[]>(() =>
     loadSavedData(STORAGE_KEY, {
-      sectionOrder: [
-        { id: 'summary', name: 'Professional Summary', enabled: true },
-        { id: 'skills', name: 'Technical Skills', enabled: true },
-        { id: 'experience', name: 'Work Experience', enabled: true },
-        { id: 'projects', name: 'Projects', enabled: true },
-        { id: 'education', name: 'Education', enabled: true },
-        { id: 'certifications', name: 'Certifications', enabled: false },
-        { id: 'languages', name: 'Languages', enabled: false },
-        { id: 'awards', name: 'Awards & Honors', enabled: false },
-        { id: 'publications', name: 'Publications', enabled: false },
-        { id: 'extracurricular', name: 'Extracurricular Activities', enabled: false },
-        { id: 'volunteer', name: 'Volunteer Experience', enabled: false },
-        { id: 'hobbies', name: 'Hobbies & Interests', enabled: false }
-      ]
-    }).sectionOrder || [
-      { id: 'summary', name: 'Professional Summary', enabled: true },
-      { id: 'skills', name: 'Technical Skills', enabled: true },
-      { id: 'experience', name: 'Work Experience', enabled: true },
-      { id: 'projects', name: 'Projects', enabled: true },
-      { id: 'education', name: 'Education', enabled: true },
-      { id: 'certifications', name: 'Certifications', enabled: false },
-      { id: 'languages', name: 'Languages', enabled: false },
-      { id: 'awards', name: 'Awards & Honors', enabled: false },
-      { id: 'publications', name: 'Publications', enabled: false },
-      { id: 'extracurricular', name: 'Extracurricular Activities', enabled: false },
-      { id: 'volunteer', name: 'Volunteer Experience', enabled: false },
-      { id: 'hobbies', name: 'Hobbies & Interests', enabled: false }
-    ]
+      sectionOrder: defaultSectionOrder
+    }).sectionOrder || defaultSectionOrder
   )
 
   const allData = {
