@@ -1,6 +1,24 @@
 # Multi-stage Dockerfile for LETS-GET-A-JOB
 # Runs both Next.js app and n8n in a single container with supervisor
 
+# Stage 1: Build Next.js application
+FROM node:20-bullseye AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ALL dependencies (including devDependencies) for building
+RUN npm ci
+
+# Copy application code
+COPY . .
+
+# Build Next.js application
+RUN npm run build
+
+# Stage 2: Production image
 FROM node:20-bullseye AS base
 
 # Install system dependencies
@@ -23,14 +41,15 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install Node.js dependencies
+# Install only production dependencies
 RUN npm ci --only=production
 
-# Copy application code
-COPY . .
+# Copy built Next.js application from builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 
-# Build Next.js application
-RUN npm run build
+# Copy application code (excluding node_modules which we already installed)
+COPY . .
 
 # Install n8n globally
 RUN npm install -g n8n@latest
@@ -56,23 +75,23 @@ sleep 10
 WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
 
 if [ "$WORKFLOW_COUNT" -eq "0" ]; then
-    echo "Importing n8n workflows..."
-    
-    # Import each workflow
-    for workflow in /app/n8n-workflows/*.json; do
-        if [ -f "$workflow" ]; then
-            echo "Importing $(basename $workflow)..."
-            n8n import:workflow --input="$workflow" || echo "Warning: Failed to import $(basename $workflow)"
-        fi
-    done
-    
-    echo "Activating workflows..."
-    # Activate all workflows
-    sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET active = 1;" || echo "Warning: Failed to activate workflows"
-    
-    echo "Workflows imported and activated successfully!"
+echo "Importing n8n workflows..."
+
+# Import each workflow
+for workflow in /app/n8n-workflows/*.json; do
+if [ -f "$workflow" ]; then
+echo "Importing $(basename $workflow)..."
+n8n import:workflow --input="$workflow" || echo "Warning: Failed to import $(basename $workflow)"
+fi
+done
+
+echo "Activating workflows..."
+# Activate all workflows
+sqlite3 /app/n8n-data/database.sqlite "UPDATE workflow_entity SET active = 1;" || echo "Warning: Failed to activate workflows"
+
+echo "Workflows imported and activated successfully!"
 else
-    echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
+echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
 fi
 EOF
 
@@ -90,17 +109,17 @@ sleep 15
 USER_COUNT=$(sqlite3 /app/n8n-data/database.sqlite "SELECT COUNT(*) FROM user;" 2>/dev/null || echo "0")
 
 if [ "$USER_COUNT" -eq "0" ]; then
-    echo "Creating default n8n user..."
-    
-    # Create user using n8n CLI
-    N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key" \
+echo "Creating default n8n user..."
+
+# Create user using n8n CLI
+N8N_USER_MANAGEMENT_JWT_SECRET="random-secret-key" \
     n8n user-management:reset \
-        --email=admin@localhost \
-        --password=admin123 || echo "Warning: Failed to create user"
-    
-    echo "Default user created: admin@localhost / admin123"
+    --email=admin@localhost \
+    --password=admin123 || echo "Warning: Failed to create user"
+
+echo "Default user created: admin@localhost / admin123"
 else
-    echo "User already exists, skipping creation."
+echo "User already exists, skipping creation."
 fi
 EOF
 
