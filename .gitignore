@@ -33,6 +33,14 @@ test-*.pdf
 logs/
 *.log
 
+# LaTeX build artifacts
+*.aux
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+
 # Environment variables
 .env
 .env.local
