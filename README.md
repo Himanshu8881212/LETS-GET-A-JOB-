@@ -24,39 +24,29 @@ docker run -d --name n8n \
 
 Wait for n8n to start (about 30 seconds), then access it at http://localhost:5678
 
-### 2. Upload Workflows
+### 2. Setup n8n Workflows (Automated)
 
-1. Open n8n at http://localhost:5678
-2. Complete the initial setup (create an account)
-3. Import all 4 workflows from the `n8n-workflows` folder:
-   - Go to **Workflows** → **Add Workflow** → **Import from File**
-   - Import each workflow file:
-     - `Cover Letter.json`
-     - `Eval.json`
-     - `Job Desc.json`
-     - `Resume.json`
+Run the automated setup script that will:
+- Import all 4 workflows
+- Configure credentials (Groq API, Tavily API)
+- Activate workflows in production mode
 
-### 3. Setup Language Model Credentials
+```bash
+node setup-n8n-workflows.js
+```
 
-Configure the AI language model credentials in n8n:
+The script will prompt you for:
+- **Groq API Key** (required) - Get from https://console.groq.com/keys
+- **Tavily API Key** (optional) - Get from https://tavily.com (only needed for Job Description workflow)
 
-1. Open any of the imported workflows
-2. Click on the language model node (Groq or similar)
-3. Click **Credentials** → **Create New Credential**
-4. Enter your API key from your language model provider
-   - For Groq: Get your API key from https://console.groq.com/keys
-5. Save the credential
-6. Repeat for all workflows (or use the same credential across all)
+The script will automatically:
+- Create credentials in n8n
+- Import all workflows
+- Link credentials to workflows
+- Activate workflows in production mode
+- Set up webhooks correctly
 
-### 4. Activate All Workflows
-
-Activate all 4 workflows in n8n:
-
-1. Go to **Workflows** in the n8n sidebar
-2. For each workflow, click the toggle switch to activate it
-3. Ensure all 4 workflows show as "Active"
-
-### 5. Install Dependencies and Run the Application
+### 3. Install Dependencies and Run the Application
 
 ```bash
 npm install
@@ -120,12 +110,23 @@ These are pre-configured to work with n8n running on port 5678.
 
 ## Troubleshooting
 
-### n8n Webhooks Return 404
+### n8n Webhooks Return 404 or 500
 
-Make sure all workflows are activated in n8n:
+This usually means workflows are not activated or are in test mode:
+
+**Solution 1 - Use the setup script (recommended):**
+```bash
+node setup-n8n-workflows.js
+```
+
+**Solution 2 - Manual activation:**
 1. Open http://localhost:5678
 2. Go to **Workflows**
-3. Check that all 4 workflows show "Active"
+3. For each workflow, click it to open
+4. Click the toggle in the top right to activate
+5. Ensure it shows "Active" with a green badge
+
+**Important:** Workflows must be in **production mode** (not test mode) for the webhooks to work with the URLs in `.env.local`
 
 ### PDF Generation Fails
 
