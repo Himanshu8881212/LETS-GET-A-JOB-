@@ -32,7 +32,7 @@ docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8
 # Wait 30 seconds for n8n to fully start
 sleep 30
 
-# 6. Setup n8n workflows (you'll need a Groq API key)
+# 6. Setup n8n workflows (you'll need Groq and Tavily API keys)
 node setup-n8n-workflows.js
 
 # 7. Start the application
@@ -45,6 +45,7 @@ npm run dev
 - **Docker** installed and running
 - **Node.js** 18+ installed
 - **Groq API Key** - Get free from https://console.groq.com/keys
+- **Tavily API Key** - Get free from https://tavily.com
 
 ---
 
@@ -54,7 +55,9 @@ npm run dev
 # 1. Start n8n in Docker (port 5678, no auth)
 docker run -d --name n8n -p 5678:5678 -e N8N_USER_MANAGEMENT_DISABLED=true -v n8n_data:/home/node/.n8n n8nio/n8n:latest
 
-# 2. Setup workflows (requires Groq API key from https://console.groq.com/keys)
+# 2. Setup workflows (requires Groq and Tavily API keys)
+#    Groq: https://console.groq.com/keys
+#    Tavily: https://tavily.com
 node setup-n8n-workflows.js
 
 # 3. Install dependencies and run

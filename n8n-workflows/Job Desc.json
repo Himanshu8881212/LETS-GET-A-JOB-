@@ -73,7 +73,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "https://mcp.tavily.com/mcp/?tavilyApiKey=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",
+        "endpointUrl": "https://mcp.tavily.com/mcp/?tavilyApiKey=TAVILY_API_KEY_PLACEHOLDER",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",

@@ -4,10 +4,10 @@
  * n8n Workflow Setup Script
  *
  * This script:
- * 1. Prompts for n8n API key and workflow API keys (Groq and Tavily)
- * 2. Creates credentials in n8n
+ * 1. Prompts for n8n API key and workflow API keys (Groq and Tavily - both required)
+ * 2. Creates Groq credentials in n8n
  * 3. Imports workflows from n8n-workflows folder
- * 4. Updates workflows to use the created credentials
+ * 4. Updates workflows to use Groq credentials and Tavily API key
  * 5. Activates workflows in PRODUCTION mode
  */
 
@@ -187,7 +187,7 @@ async function createGroqCredential(apiKey) {
 }
 
 // Update workflow to use credentials
-async function updateWorkflowCredentials(workflowId, groqCredId) {
+async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey) {
   try {
     // Get the workflow
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
@@ -205,6 +205,18 @@ async function updateWorkflowCredentials(workflowId, groqCredId) {
           name: 'Groq account',
         };
         updated = true;
+      }
+
+      // Update Tavily API key in MCP Client nodes
+      if (node.type === '@n8n/n8n-nodes-langchain.mcpClientTool') {
+        if (node.parameters && node.parameters.endpointUrl) {
+          // Replace placeholder with actual API key
+          node.parameters.endpointUrl = node.parameters.endpointUrl.replace(
+            'TAVILY_API_KEY_PLACEHOLDER',
+            tavilyApiKey
+          );
+          updated = true;
+        }
       }
     });
 
@@ -343,11 +355,17 @@ async function main() {
 
   // Prompt for workflow API keys
   console.log(`${colors.bright}Workflow API Keys Setup${colors.reset}`);
-  console.log(`${colors.yellow}You'll need a Groq API key for the workflows to function.${colors.reset}\n`);
+  console.log(`${colors.yellow}You'll need both Groq and Tavily API keys for the workflows to function.${colors.reset}\n`);
 
   const groqApiKey = await prompt('Enter your Groq API key (get from https://console.groq.com/keys): ');
   if (!groqApiKey) {
     console.log(`${colors.red}✗ Groq API key is required${colors.reset}`);
+    process.exit(1);
+  }
+
+  const tavilyApiKey = await prompt('Enter your Tavily API key (get from https://tavily.com): ');
+  if (!tavilyApiKey) {
+    console.log(`${colors.red}✗ Tavily API key is required${colors.reset}`);
     process.exit(1);
   }
 
@@ -403,7 +421,7 @@ async function main() {
   let credentialsUpdated = 0;
   for (const { filename, id } of importedWorkflows) {
     console.log(`${colors.cyan}${filename}${colors.reset}`);
-    const success = await updateWorkflowCredentials(id, groqCredId);
+    const success = await updateWorkflowCredentials(id, groqCredId, tavilyApiKey);
     if (success) {
       credentialsUpdated++;
     }
