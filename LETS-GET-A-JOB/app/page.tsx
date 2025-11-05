@@ -87,7 +87,7 @@ interface RecentDocument {
   version_number: string
   branch_name: string
   created_at: string
-  data_json?: string
+  data?: any // Parsed JSON data from the API
 }
 
 export default function Home() {
@@ -145,8 +145,8 @@ export default function Home() {
 
   const handlePreviewResume = async (resume: RecentDocument) => {
     try {
-      // Parse the data_json field which contains the resume data
-      const resumeData = resume.data_json ? JSON.parse(resume.data_json) : {}
+      // Use the already-parsed data field from the API
+      const resumeData = resume.data || {}
 
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
@@ -158,6 +158,10 @@ export default function Home() {
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
         window.open(url, '_blank')
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert('Failed to preview resume. Please try again.')
       }
     } catch (error) {
       console.error('Error previewing resume:', error)
@@ -167,8 +171,8 @@ export default function Home() {
 
   const handleDownloadResume = async (resume: RecentDocument) => {
     try {
-      // Parse the data_json field which contains the resume data
-      const resumeData = resume.data_json ? JSON.parse(resume.data_json) : {}
+      // Use the already-parsed data field from the API
+      const resumeData = resume.data || {}
 
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
@@ -186,6 +190,10 @@ export default function Home() {
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert('Failed to download resume. Please try again.')
       }
     } catch (error) {
       console.error('Error downloading resume:', error)
@@ -195,8 +203,8 @@ export default function Home() {
 
   const handlePreviewCoverLetter = async (coverLetter: RecentDocument) => {
     try {
-      // Parse the data_json field which contains the cover letter data
-      const coverLetterData = coverLetter.data_json ? JSON.parse(coverLetter.data_json) : {}
+      // Use the already-parsed data field from the API
+      const coverLetterData = coverLetter.data || {}
 
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
@@ -208,6 +216,10 @@ export default function Home() {
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
         window.open(url, '_blank')
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert('Failed to preview cover letter. Please try again.')
       }
     } catch (error) {
       console.error('Error previewing cover letter:', error)
@@ -217,8 +229,8 @@ export default function Home() {
 
   const handleDownloadCoverLetter = async (coverLetter: RecentDocument) => {
     try {
-      // Parse the data_json field which contains the cover letter data
-      const coverLetterData = coverLetter.data_json ? JSON.parse(coverLetter.data_json) : {}
+      // Use the already-parsed data field from the API
+      const coverLetterData = coverLetter.data || {}
 
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
@@ -236,6 +248,10 @@ export default function Home() {
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        alert('Failed to download cover letter. Please try again.')
       }
     } catch (error) {
       console.error('Error downloading cover letter:', error)
