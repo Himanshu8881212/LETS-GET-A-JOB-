@@ -239,14 +239,40 @@ async function importWorkflow(workflowPath) {
     // Read workflow file
     const workflowData = JSON.parse(fs.readFileSync(workflowPath, 'utf8'));
 
-    // Remove id if present (n8n will generate a new one)
+    // Remove metadata properties that n8n API doesn't accept
     delete workflowData.id;
+    delete workflowData.versionId;
+    delete workflowData.meta;
+    delete workflowData.updatedAt;
+    delete workflowData.createdAt;
+
+    // Clean up tags if empty
+    if (workflowData.tags && workflowData.tags.length === 0) {
+      delete workflowData.tags;
+    }
 
     // Ensure workflow is set to inactive initially
     workflowData.active = false;
 
+    // Create clean workflow object with only accepted properties
+    const cleanWorkflow = {
+      name: workflowData.name,
+      nodes: workflowData.nodes,
+      connections: workflowData.connections,
+      active: false,
+      settings: workflowData.settings || {},
+    };
+
+    // Add optional properties if they exist
+    if (workflowData.staticData) {
+      cleanWorkflow.staticData = workflowData.staticData;
+    }
+    if (workflowData.tags && workflowData.tags.length > 0) {
+      cleanWorkflow.tags = workflowData.tags;
+    }
+
     // Import the workflow
-    const result = await makeRequest('POST', '/api/v1/workflows', workflowData);
+    const result = await makeRequest('POST', '/api/v1/workflows', cleanWorkflow);
     console.log(`${colors.green}✓ Workflow imported (ID: ${result.id})${colors.reset}`);
 
     return result.id;
