@@ -28,6 +28,7 @@ let N8N_API_KEY = null;
 const colors = {
   reset: '\x1b[0m',
   bright: '\x1b[1m',
+  dim: '\x1b[2m',
   green: '\x1b[32m',
   red: '\x1b[31m',
   yellow: '\x1b[33m',
@@ -187,8 +188,6 @@ async function createGroqCredential(apiKey) {
 
 // Update workflow to use credentials and ensure production mode
 async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey = null) {
-  console.log(`${colors.blue}Updating workflow credentials...${colors.reset}`);
-
   try {
     // Get the workflow
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
@@ -220,12 +219,14 @@ async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey = 
     if (updated) {
       // Update the workflow using PUT
       await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, workflow);
-      console.log(`${colors.green}✓ Workflow credentials updated${colors.reset}`);
+      console.log(`  ${colors.green}✓ Credentials configured${colors.reset}`);
+    } else {
+      console.log(`  ${colors.blue}• No credentials to update${colors.reset}`);
     }
 
     return true;
   } catch (error) {
-    console.log(`${colors.yellow}⚠ Could not update workflow credentials: ${error.message}${colors.reset}`);
+    console.log(`  ${colors.red}✗ Failed: ${error.message}${colors.reset}`);
     return false;
   }
 }
@@ -281,17 +282,15 @@ async function importWorkflow(workflowPath) {
 
 // Activate workflow
 async function activateWorkflow(workflowId) {
-  console.log(`${colors.blue}Activating workflow in production mode...${colors.reset}`);
-
   try {
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
     workflow.active = true;
 
     await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, workflow);
-    console.log(`${colors.green}✓ Workflow activated${colors.reset}`);
+    console.log(`  ${colors.green}✓ Activated (production mode)${colors.reset}`);
     return true;
   } catch (error) {
-    console.log(`${colors.red}✗ Failed to activate workflow: ${error.message}${colors.reset}`);
+    console.log(`  ${colors.red}✗ Failed: ${error.message}${colors.reset}`);
     return false;
   }
 }
@@ -362,7 +361,8 @@ async function main() {
     'Resume.json',
   ];
 
-  console.log(`${colors.bright}Importing Workflows${colors.reset}\n`);
+  // Step 1: Import all workflows
+  console.log(`${colors.bright}Step 1: Importing Workflows${colors.reset}\n`);
 
   const importedWorkflows = [];
 
@@ -377,38 +377,74 @@ async function main() {
     const workflowId = await importWorkflow(workflowPath);
 
     if (workflowId) {
-      // Update credentials
-      await updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey);
-
-      // Activate workflow
-      await activateWorkflow(workflowId);
-
       importedWorkflows.push({ filename, id: workflowId });
     }
   }
+
+  if (importedWorkflows.length === 0) {
+    console.log(`${colors.red}✗ No workflows were imported${colors.reset}`);
+    process.exit(1);
+  }
+
+  // Step 2: Update credentials in all workflows
+  console.log(`\n${colors.bright}Step 2: Configuring Credentials${colors.reset}\n`);
+
+  let credentialsUpdated = 0;
+  for (const { filename, id } of importedWorkflows) {
+    console.log(`${colors.cyan}${filename}${colors.reset}`);
+    const success = await updateWorkflowCredentials(id, groqCredId, tavilyApiKey);
+    if (success) {
+      credentialsUpdated++;
+    }
+  }
+
+  console.log(`${colors.green}✓ Configured credentials for ${credentialsUpdated}/${importedWorkflows.length} workflows${colors.reset}`);
+
+  // Step 3: Activate all workflows
+  console.log(`\n${colors.bright}Step 3: Activating Workflows${colors.reset}\n`);
+
+  let activated = 0;
+  for (const { filename, id } of importedWorkflows) {
+    console.log(`${colors.cyan}${filename}${colors.reset}`);
+    const success = await activateWorkflow(id);
+    if (success) {
+      activated++;
+    }
+  }
+
+  console.log(`${colors.green}✓ Activated ${activated}/${importedWorkflows.length} workflows${colors.reset}`);
 
   // Summary
   console.log(`\n${colors.bright}${colors.cyan}========================================${colors.reset}`);
   console.log(`${colors.bright}${colors.green}   Setup Complete!${colors.reset}`);
   console.log(`${colors.bright}${colors.cyan}========================================${colors.reset}\n`);
 
-  console.log(`${colors.green}✓ Imported and activated ${importedWorkflows.length} workflows${colors.reset}\n`);
+  console.log(`${colors.bright}Summary:${colors.reset}`);
+  console.log(`  ${colors.green}✓ Imported:      ${importedWorkflows.length} workflows${colors.reset}`);
+  console.log(`  ${colors.green}✓ Configured:    ${credentialsUpdated} workflows${colors.reset}`);
+  console.log(`  ${colors.green}✓ Activated:     ${activated} workflows${colors.reset}\n`);
 
+  if (activated === importedWorkflows.length) {
+    console.log(`${colors.green}${colors.bright}All workflows are ready and running in production mode!${colors.reset}\n`);
+  } else {
+    console.log(`${colors.yellow}⚠ Some workflows failed to activate. Check errors above.${colors.reset}\n`);
+  }
+
+  console.log(`${colors.bright}Imported Workflows:${colors.reset}`);
   importedWorkflows.forEach(({ filename, id }) => {
-    console.log(`  - ${filename} (ID: ${id})`);
+    console.log(`  • ${filename} ${colors.dim}(${id})${colors.reset}`);
   });
 
   console.log(`\n${colors.bright}Next Steps:${colors.reset}`);
-  console.log(`1. Verify workflows at: ${colors.cyan}${N8N_BASE_URL}${colors.reset}`);
-  console.log(`2. Copy .env.example to .env.local if not done`);
-  console.log(`3. Start your application: ${colors.cyan}npm run dev${colors.reset}`);
-  console.log(`4. Test the webhooks to ensure they're working\n`);
+  console.log(`1. Start your application: ${colors.cyan}npm run dev${colors.reset}`);
+  console.log(`2. Test the webhooks to verify they work`);
+  console.log(`3. Check workflows at: ${colors.cyan}${N8N_BASE_URL}${colors.reset}\n`);
 
-  console.log(`${colors.bright}Webhook URLs (configured in .env.local):${colors.reset}`);
-  console.log(`  - Job Description:   ${N8N_BASE_URL}/webhook/process-jd`);
-  console.log(`  - Resume:            ${N8N_BASE_URL}/webhook/process-resume`);
-  console.log(`  - Cover Letter:      ${N8N_BASE_URL}/webhook/process-cover-letter`);
-  console.log(`  - ATS Evaluation:    ${N8N_BASE_URL}/webhook/evaluate-ats`);
+  console.log(`${colors.bright}Webhook Endpoints:${colors.reset}`);
+  console.log(`  • Job Description:   ${N8N_BASE_URL}/webhook/process-jd`);
+  console.log(`  • Resume:            ${N8N_BASE_URL}/webhook/process-resume`);
+  console.log(`  • Cover Letter:      ${N8N_BASE_URL}/webhook/process-cover-letter`);
+  console.log(`  • ATS Evaluation:    ${N8N_BASE_URL}/webhook/evaluate-ats`);
   console.log('');
 }
 
