@@ -101,6 +101,40 @@ CREATE TABLE IF NOT EXISTS activity_logs (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- ATS Evaluations table (stores processed data and evaluation results)
+CREATE TABLE IF NOT EXISTS ats_evaluations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+
+  -- Source data
+  job_url TEXT,
+  job_description_text TEXT NOT NULL,
+  resume_text TEXT NOT NULL,
+  cover_letter_text TEXT NOT NULL,
+
+  -- Evaluation results (stored as JSON)
+  evaluation_result TEXT, -- JSON with full evaluation data
+  overall_score REAL, -- Weighted score for quick filtering
+
+  -- Custom name for the evaluation
+  custom_name TEXT,
+
+  -- Metadata
+  resume_version_id INTEGER,
+  cover_letter_version_id INTEGER,
+  job_application_id INTEGER,
+
+  -- Timestamps
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  -- Foreign keys
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resume_version_id) REFERENCES resume_versions(id) ON DELETE SET NULL,
+  FOREIGN KEY (cover_letter_version_id) REFERENCES cover_letter_versions(id) ON DELETE SET NULL,
+  FOREIGN KEY (job_application_id) REFERENCES job_applications(id) ON DELETE SET NULL
+);
+
 -- Job Application Status History (track status changes)
 CREATE TABLE IF NOT EXISTS job_status_history (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -124,6 +158,12 @@ CREATE INDEX IF NOT EXISTS idx_cover_created ON cover_letter_versions(created_at
 CREATE INDEX IF NOT EXISTS idx_cover_job ON cover_letter_versions(job_application_id);
 CREATE INDEX IF NOT EXISTS idx_activity_user ON activity_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ats_eval_user ON ats_evaluations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ats_eval_created ON ats_evaluations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ats_eval_score ON ats_evaluations(overall_score DESC);
+CREATE INDEX IF NOT EXISTS idx_ats_eval_resume ON ats_evaluations(resume_version_id);
+CREATE INDEX IF NOT EXISTS idx_ats_eval_cover ON ats_evaluations(cover_letter_version_id);
+CREATE INDEX IF NOT EXISTS idx_ats_eval_job ON ats_evaluations(job_application_id);
 CREATE INDEX IF NOT EXISTS idx_status_history_job ON job_status_history(job_application_id);
 
 -- Additional composite indexes for common query patterns
@@ -165,10 +205,16 @@ BEGIN
   UPDATE resume_versions SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
-CREATE TRIGGER IF NOT EXISTS update_cover_timestamp 
+CREATE TRIGGER IF NOT EXISTS update_cover_timestamp
 AFTER UPDATE ON cover_letter_versions
 BEGIN
   UPDATE cover_letter_versions SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS update_ats_eval_timestamp
+AFTER UPDATE ON ats_evaluations
+BEGIN
+  UPDATE ats_evaluations SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
 -- Trigger to log job status changes
