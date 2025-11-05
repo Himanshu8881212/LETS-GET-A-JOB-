@@ -209,13 +209,12 @@ async function updateWorkflowCredentials(workflowId, groqCredId) {
     });
 
     if (updated) {
-      // Clean workflow for PUT - only include accepted properties
+      // Clean workflow for PUT - only include accepted properties (NOT active - it's read-only)
       const cleanWorkflow = {
         name: workflow.name,
         nodes: workflow.nodes,
         connections: workflow.connections,
         settings: workflow.settings,
-        active: workflow.active,
       };
       if (workflow.staticData) {
         cleanWorkflow.staticData = workflow.staticData;
@@ -290,29 +289,25 @@ async function importWorkflow(workflowPath) {
 // Activate workflow
 async function activateWorkflow(workflowId) {
   try {
-    const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
-
-    // Clean workflow for PUT - only include accepted properties
-    const cleanWorkflow = {
-      name: workflow.name,
-      nodes: workflow.nodes,
-      connections: workflow.connections,
-      settings: workflow.settings,
-      active: true,  // Set to active
-    };
-    if (workflow.staticData) {
-      cleanWorkflow.staticData = workflow.staticData;
-    }
-    if (workflow.tags && workflow.tags.length > 0) {
-      cleanWorkflow.tags = workflow.tags;
-    }
-
-    await makeRequest('PUT', `/api/v1/workflows/${workflowId}`, cleanWorkflow);
+    // Try to activate using PATCH with only the active field
+    await makeRequest('PATCH', `/api/v1/workflows/${workflowId}`, { active: true });
     console.log(`  ${colors.green}✓ Activated (production mode)${colors.reset}`);
     return true;
-  } catch (error) {
-    console.log(`  ${colors.red}✗ Failed: ${error.message}${colors.reset}`);
-    return false;
+  } catch (patchError) {
+    // If PATCH fails, try alternative: GET full workflow, clean it, and PUT back with modifications
+    try {
+      const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
+
+      // Manually toggle via web interface or use settings
+      // Since active is read-only, we can't set it via API
+      // Workflows imported should already be inactive by default
+      console.log(`  ${colors.yellow}⚠ Cannot activate via API (active field is read-only)${colors.reset}`);
+      console.log(`  ${colors.yellow}  Please activate manually at http://localhost:5678${colors.reset}`);
+      return false;
+    } catch (error) {
+      console.log(`  ${colors.red}✗ Failed: ${error.message}${colors.reset}`);
+      return false;
+    }
   }
 }
 
