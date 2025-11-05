@@ -72,15 +72,21 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 
 5. **⚠️ IMPORTANT: Activate n8n Workflows** (Required for AI features):
    - Open http://localhost:5678 in your browser
+   - **Login with Basic Auth credentials:**
+     - **Username:** `admin`
+     - **Password:** `admin123`
    - Click on **Workflows** in the left sidebar
-   - For each workflow (job-desc, resume, cover-letter, eval):
+   - You should see 4 workflows: **Cover Letter**, **Eval**, **Job Desc**, **Resume**
+   - For each workflow:
      - Click on the workflow name
-     - Click the **Inactive** toggle in the top-right corner to activate it
+     - Click the **Inactive** toggle in the top-right corner to activate it (it will turn green)
    - See detailed instructions in the **n8n Workflow Setup** section below
 
 6. **Access the application:**
    - **Main Application:** http://localhost:3000
    - **n8n Workflow Editor:** http://localhost:5678
+     - **Username:** `admin`
+     - **Password:** `admin123`
 
 ---
 
@@ -144,23 +150,34 @@ Once configured:
 
 **⚠️ IMPORTANT:** The AI ATS Evaluator requires manual n8n workflow activation. This is a one-time setup.
 
+### **Authentication**
+
+n8n is configured with Basic Authentication for security:
+
+- **Username:** `admin`
+- **Password:** `admin123`
+
+> **Note:** For production deployments, change these credentials immediately by modifying the Dockerfile (line 119) and rebuilding the container.
+
 ### **Why is manual activation needed?**
 
-n8n workflows need to be manually activated to register their webhooks. This is a limitation of how n8n handles workflow imports.
+n8n workflows are automatically imported during container startup, but they are **deactivated by default**. You need to manually activate them in the n8n UI to register their webhooks.
 
 ### **Step-by-Step Activation:**
 
 1. **Access n8n:**
    - Open http://localhost:5678 in your browser
-   - n8n is configured without authentication for local development
+   - **Login with:**
+     - Username: `admin`
+     - Password: `admin123`
 
 2. **View Workflows:**
    - Click on **Workflows** in the left sidebar
    - You should see 4 workflows:
-     - `job-desc` - Job description parser
-     - `resume` - Resume analyzer
-     - `cover-letter` - Cover letter analyzer
-     - `eval` - ATS evaluation
+     - **Cover Letter** - Cover letter analyzer
+     - **Eval** - ATS evaluation
+     - **Job Desc** - Job description parser
+     - **Resume** - Resume analyzer
 
 3. **Activate Each Workflow:**
 
