@@ -40,7 +40,6 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 ### Prerequisites
 
 - **Docker** (version 20.10 or higher)
-- **Docker Compose** (version 2.0 or higher)
 - **Git**
 
 ### Installation
@@ -48,36 +47,40 @@ A comprehensive Next.js application that helps you create ATS-compatible resumes
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Himanshu8881212/LETS-GET-A-JOB-.git
-   cd LETS-GET-A-JOB-/LETS-GET-A-JOB
+   cd LETS-GET-A-JOB-
    ```
 
-2. **Start the application:**
+2. **Build the Docker image:**
    ```bash
-   docker-compose up -d --build
+   docker build -t lets-get-a-job:latest .
    ```
 
-3. **Wait for services to initialize** (approximately 2 minutes):
+3. **Run the container:**
+   ```bash
+   docker run -d -p 3000:3000 -p 5678:5678 --name lets-get-a-job --restart unless-stopped lets-get-a-job:latest
+   ```
+
+   The `--restart unless-stopped` flag ensures the container automatically restarts when Docker starts (e.g., after system reboot).
+
+4. **Wait for services to initialize** (approximately 30 seconds):
    ```bash
    # Check if services are ready
-   docker logs lets-get-a-job-all-in-one
+   docker logs lets-get-a-job
+
+   # You should see messages indicating n8n and Next.js are running
    ```
 
-4. **⚠️ IMPORTANT: Activate n8n Workflows** (Required for AI features):
+5. **⚠️ IMPORTANT: Activate n8n Workflows** (Required for AI features):
    - Open http://localhost:5678 in your browser
-   - **Login with default credentials:**
-     - **Email:** `admin@localhost`
-     - **Password:** `admin123`
    - Click on **Workflows** in the left sidebar
    - For each workflow (job-desc, resume, cover-letter, eval):
      - Click on the workflow name
      - Click the **Inactive** toggle in the top-right corner to activate it
    - See detailed instructions in the **n8n Workflow Setup** section below
 
-5. **Access the application:**
+6. **Access the application:**
    - **Main Application:** http://localhost:3000
    - **n8n Workflow Editor:** http://localhost:5678
-     - **Email:** `admin@localhost`
-     - **Password:** `admin123`
 
 ---
 
@@ -141,15 +144,6 @@ Once configured:
 
 **⚠️ IMPORTANT:** The AI ATS Evaluator requires manual n8n workflow activation. This is a one-time setup.
 
-### **Authentication**
-
-A default user is automatically created on first startup:
-
-- **Email:** `admin@localhost`
-- **Password:** `admin123`
-
-> **Note:** For production deployments, you should change these default credentials immediately after first login and configure proper authentication with strong passwords.
-
 ### **Why is manual activation needed?**
 
 n8n workflows need to be manually activated to register their webhooks. This is a limitation of how n8n handles workflow imports.
@@ -158,9 +152,7 @@ n8n workflows need to be manually activated to register their webhooks. This is 
 
 1. **Access n8n:**
    - Open http://localhost:5678 in your browser
-   - **Login with:**
-     - Email: `admin@localhost`
-     - Password: `admin123`
+   - n8n is configured without authentication for local development
 
 2. **View Workflows:**
    - Click on **Workflows** in the left sidebar
@@ -171,7 +163,7 @@ n8n workflows need to be manually activated to register their webhooks. This is 
      - `eval` - ATS evaluation
 
 3. **Activate Each Workflow:**
-   
+
    For **each of the 4 workflows**:
    - Click on the workflow name
    - Look for the toggle switch in the top-right corner (it will say "Inactive")
@@ -180,12 +172,12 @@ n8n workflows need to be manually activated to register their webhooks. This is 
    - Repeat for all 4 workflows
 
 4. **Verify Activation:**
-   
+
    Run this command to verify all workflows are active:
    ```bash
-   docker exec lets-get-a-job-all-in-one sqlite3 /app/n8n-data/database.sqlite "SELECT name, active FROM workflow_entity;"
+   docker exec lets-get-a-job sqlite3 /app/n8n-data/database.sqlite "SELECT name, active FROM workflow_entity;"
    ```
-   
+
    You should see:
    ```
    cover-letter|1
@@ -195,14 +187,14 @@ n8n workflows need to be manually activated to register their webhooks. This is 
    ```
 
 5. **Test Webhooks:**
-   
+
    Test that webhooks are working:
    ```bash
    curl -X POST http://localhost:5678/webhook/process-jd \
      -H "Content-Type: application/json" \
      -d '{"jobUrl":"https://example.com/job"}'
    ```
-   
+
    Should return JSON (not a 404 error)
 
 ### **Configure AI Provider (Optional)**
@@ -244,36 +236,41 @@ NEXT_PUBLIC_N8N_EVALUATION_WEBHOOK_URL=http://localhost:5678/webhook/evaluate-at
 
 ### **Security Note**
 
-⚠️ **For Local Development Only:** n8n is configured without authentication (`N8N_USER_MANAGEMENT_DISABLED=true`) for ease of local development.
+⚠️ **For Local Development Only:** n8n is configured with basic authentication for ease of local development.
 
 **For production deployments:**
-1. Remove `N8N_USER_MANAGEMENT_DISABLED="true"` from the Dockerfile (line 115)
-2. Set up n8n user management with proper credentials
-3. Configure firewall rules to restrict access to n8n port (5678)
-4. Use environment variables for sensitive credentials
+1. Configure strong authentication credentials in the Dockerfile
+2. Set up proper firewall rules to restrict access to n8n port (5678)
+3. Use environment variables for sensitive credentials
+4. Consider using HTTPS/SSL certificates
 
 ### **Data Persistence**
 
-All data is stored in Docker volumes:
-- `app_data` - Application database, PDFs, and documents
-- `n8n_data` - n8n workflows and execution history
+All data is stored inside the Docker container at:
+- `/app/data` - Application database, PDFs, and documents
+- `/app/n8n-data` - n8n workflows and execution history
+
+**⚠️ Important:** Data is stored inside the container. If you remove the container, all data will be lost.
 
 **Backup your data:**
 ```bash
 # Backup application data
-docker run --rm -v lets-get-a-job_app_data:/data -v $(pwd):/backup alpine tar czf /backup/app_data_backup.tar.gz -C /data .
+docker cp lets-get-a-job:/app/data ./backup_app_data
 
 # Backup n8n data
-docker run --rm -v lets-get-a-job_n8n_data:/data -v $(pwd):/backup alpine tar czf /backup/n8n_data_backup.tar.gz -C /data .
+docker cp lets-get-a-job:/app/n8n-data ./backup_n8n_data
 ```
 
 **Restore from backup:**
 ```bash
 # Restore application data
-docker run --rm -v lets-get-a-job_app_data:/data -v $(pwd):/backup alpine sh -c "cd /data && tar xzf /backup/app_data_backup.tar.gz"
+docker cp ./backup_app_data lets-get-a-job:/app/data
 
 # Restore n8n data
-docker run --rm -v lets-get-a-job_n8n_data:/data -v $(pwd):/backup alpine sh -c "cd /data && tar xzf /backup/n8n_data_backup.tar.gz"
+docker cp ./backup_n8n_data lets-get-a-job:/app/n8n-data
+
+# Restart container after restore
+docker restart lets-get-a-job
 ```
 
 ---
@@ -284,7 +281,7 @@ docker run --rm -v lets-get-a-job_n8n_data:/data -v $(pwd):/backup alpine sh -c 
 
 ```bash
 # Check container logs
-docker logs lets-get-a-job-all-in-one
+docker logs lets-get-a-job
 
 # Check service health
 curl http://localhost:3000/api/health
@@ -295,10 +292,10 @@ curl http://localhost:5678/healthz
 
 ```bash
 # Check LaTeX installation
-docker exec lets-get-a-job-all-in-one pdflatex --version
+docker exec lets-get-a-job pdflatex --version
 
 # Test manual PDF generation
-docker exec lets-get-a-job-all-in-one bash -c "cd /app && make resume"
+docker exec lets-get-a-job bash -c "cd /app && make resume"
 ```
 
 ### **n8n Webhooks Return 404**
@@ -307,7 +304,7 @@ This means workflows are not activated. Follow the **n8n Workflow Setup** sectio
 
 ```bash
 # Check workflow status in database
-docker exec lets-get-a-job-all-in-one sqlite3 /app/n8n-data/database.sqlite "SELECT name, active FROM workflow_entity;"
+docker exec lets-get-a-job sqlite3 /app/n8n-data/database.sqlite "SELECT name, active FROM workflow_entity;"
 
 # Should show all workflows with active=1
 ```
@@ -318,25 +315,30 @@ If workflows show `active=0`, you need to activate them manually in the n8n UI.
 
 ```bash
 # Check database
-docker exec lets-get-a-job-all-in-one sqlite3 /app/data/app.db ".tables"
+docker exec lets-get-a-job sqlite3 /app/data/app.db ".tables"
 
 # Reset database (⚠️ DELETES ALL DATA)
-docker-compose down -v
-docker-compose up -d --build
+docker stop lets-get-a-job && docker rm lets-get-a-job
+docker rmi lets-get-a-job:latest
+docker build -t lets-get-a-job:latest .
+docker run -d -p 3000:3000 -p 5678:5678 --name lets-get-a-job --restart unless-stopped lets-get-a-job:latest
 ```
 
 ### **Port Conflicts**
 
 If ports 3000 or 5678 are already in use:
 
-1. Edit `docker-compose.yml`
-2. Change port mappings:
-   ```yaml
-   ports:
-     - "3001:3000"  # Change 3000 to 3001
-     - "5679:5678"  # Change 5678 to 5679
+1. Stop and remove the existing container:
+   ```bash
+   docker stop lets-get-a-job && docker rm lets-get-a-job
    ```
-3. Restart: `docker-compose down && docker-compose up -d`
+
+2. Run with different ports:
+   ```bash
+   docker run -d -p 3001:3000 -p 5679:5678 --name lets-get-a-job --restart unless-stopped lets-get-a-job:latest
+   ```
+
+3. Access the app at http://localhost:3001 and n8n at http://localhost:5679
 
 ### **First Preview Fails**
 
@@ -352,7 +354,7 @@ If the first preview attempt fails with "Failed to generate preview", click **Pr
 - **Backend:** Next.js API Routes, SQLite
 - **PDF Generation:** LaTeX (TeX Live), pdflatex
 - **Workflow Automation:** n8n
-- **AI:** OpenRouter (GPT-4, Claude, etc.)
+- **AI:** Groq (Kimi, Gptos, etc)
 - **Containerization:** Docker, Docker Compose, Supervisor
 
 ### **Single-Container Architecture**
@@ -379,32 +381,34 @@ User → Next.js UI → API Routes → SQLite Database
 ## Common Commands
 
 ```bash
-# Start the application
-docker-compose up -d --build
-
-# Stop the application
-docker-compose down
-
 # View logs
-docker logs lets-get-a-job-all-in-one
+docker logs lets-get-a-job
 
 # Follow logs in real-time
-docker logs -f lets-get-a-job-all-in-one
+docker logs -f lets-get-a-job
 
 # Restart the application
-docker restart lets-get-a-job-all-in-one
+docker restart lets-get-a-job
+
+# Stop the application
+docker stop lets-get-a-job
+
+# Start the application (if stopped)
+docker start lets-get-a-job
 
 # Access container shell
-docker exec -it lets-get-a-job-all-in-one bash
+docker exec -it lets-get-a-job bash
 
 # Check service health
 curl http://localhost:3000/api/health
 curl http://localhost:5678/healthz
 
 # Complete reset (⚠️ DELETES ALL DATA)
-docker-compose down -v
-docker system prune -af --volumes
-docker-compose up -d --build
+docker stop lets-get-a-job
+docker rm lets-get-a-job
+docker rmi lets-get-a-job:latest
+docker build -t lets-get-a-job:latest .
+docker run -d -p 3000:3000 -p 5678:5678 --name lets-get-a-job --restart unless-stopped lets-get-a-job:latest
 ```
 
 ---
@@ -431,7 +435,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - **LaTeX** for beautiful PDF generation
 - **n8n** for workflow automation
-- **OpenRouter** for AI model access
+- **Groq** for AI model access
 - **Next.js** for the amazing framework
 
 ---
