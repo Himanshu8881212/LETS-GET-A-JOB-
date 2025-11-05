@@ -9,31 +9,6 @@ echo "========================================"
 echo "Waiting for n8n to start and create database..."
 sleep 30
 
-# Delete n8n config file to force it to use ENV var encryption key
-echo "Removing n8n config file to ensure encryption key consistency..."
-rm -f /app/n8n-data/.n8n/config
-
-# Wait for n8n to recreate config
-sleep 5
-
-echo "Checking for Groq credentials..."
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📋 MANUAL SETUP REQUIRED"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "To use the AI workflows, you must:"
-echo ""
-echo "1. Open n8n UI: http://localhost:5678"
-echo "2. Go to: Credentials > Add Credential > Groq"
-echo "3. Name it: 'Groq account' (exactly as shown)"
-echo "4. Add your Groq API key from: https://console.groq.com/keys"
-echo "5. Save the credential"
-echo "6. The workflows will automatically use this credential"
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-
 # Check if workflows already exist
 WORKFLOW_COUNT=$(sqlite3 /app/n8n-data/.n8n/database.sqlite "SELECT COUNT(*) FROM workflow_entity;" 2>/dev/null || echo "0")
 
@@ -56,30 +31,46 @@ if [ "$WORKFLOW_COUNT" -eq "0" ]; then
     echo "Waiting 5 seconds for workflows to be saved..."
     sleep 5
 
-    echo "Activating all workflows..."
-    sqlite3 /app/n8n-data/.n8n/database.sqlite "UPDATE workflow_entity SET active = 1;" 2>&1 || echo "Warning: Failed to activate workflows"
-
-    echo "All workflows imported and activated successfully!"
+    echo "All workflows imported successfully!"
 else
     echo "Workflows already exist (count: $WORKFLOW_COUNT), skipping import."
-
-    # Still try to update workflow files in database if credential changed
-    if [ -n "$CRED_ID" ]; then
-        echo "Checking if workflows need credential update..."
-        # This would require updating the workflow JSON in the database
-        # For now, we'll skip this and rely on manual re-import if credentials change
-    fi
 fi
 
+# Check for Groq credentials
+CRED_ID=$(sqlite3 /app/n8n-data/.n8n/database.sqlite "SELECT id FROM credentials_entity WHERE name='Groq account' LIMIT 1;" 2>/dev/null || echo "")
+
+echo ""
 echo "========================================"
 echo "n8n Setup Complete!"
 echo "========================================"
 echo ""
+
 if [ -n "$CRED_ID" ]; then
-    echo "✓ Groq credentials: OK (ID: $CRED_ID)"
+    echo "✓ Groq credentials: Found (ID: $CRED_ID)"
+    echo "✓ Workflows will use this credential automatically"
+    echo ""
+    echo "Workflows are ready to use!"
 else
-    echo "✗ Groq credentials: MISSING - Add via UI at http://localhost:5678"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📋 SETUP REQUIRED"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "To activate workflows, add Groq credentials:"
+    echo ""
+    echo "1. Open n8n UI: http://localhost:5678"
+    echo "2. Go to: Credentials > Add Credential > Groq"
+    echo "3. Name it: 'Groq account' (EXACTLY as shown)"
+    echo "4. Add your Groq API key from: https://console.groq.com/keys"
+    echo "5. Save the credential"
+    echo "6. Restart n8n: docker restart lets-get-a-job-all-in-one"
+    echo ""
+    echo "After restart, workflows will automatically find and"
+    echo "use the 'Groq account' credential."
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 fi
+
+echo ""
 echo "✓ Workflows: $WORKFLOW_COUNT imported"
 echo ""
 echo "n8n is ready at: http://localhost:5678"
