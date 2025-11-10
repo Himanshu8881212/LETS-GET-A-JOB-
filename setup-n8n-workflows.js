@@ -17,12 +17,16 @@ const readline = require('readline');
 const http = require('http');
 
 // Configuration
-const N8N_HOST = 'localhost';
-const N8N_PORT = 5678;
+// Use environment variables if available (Docker), otherwise use localhost (local dev)
+const N8N_HOST = process.env.N8N_HOST || 'localhost';
+const N8N_PORT = process.env.N8N_PORT || 5678;
 const N8N_BASE_URL = `http://${N8N_HOST}:${N8N_PORT}`;
 const WORKFLOWS_DIR = path.join(__dirname, 'n8n-workflows');
 
-let N8N_API_KEY = null;
+// Check if running in non-interactive mode (Docker)
+const IS_DOCKER = !process.stdin.isTTY;
+
+let N8N_API_KEY = process.env.N8N_API_KEY || null;
 
 // ANSI color codes for terminal output
 const colors = {
@@ -334,39 +338,86 @@ async function main() {
 
   // If API access requires authentication, prompt for API key
   if (accessStatus === false) {
-    printApiKeyInstructions();
-    N8N_API_KEY = await prompt('Enter your n8n API key: ');
+    // In Docker mode, don't prompt - exit gracefully if no valid API key
+    if (IS_DOCKER) {
+      console.log(`${colors.yellow}⚠️  Running in Docker mode${colors.reset}`);
+      if (N8N_API_KEY) {
+        console.log(`${colors.blue}Testing provided API key...${colors.reset}`);
+        try {
+          await makeRequest('GET', '/api/v1/workflows');
+          console.log(`${colors.green}✓ API key is valid${colors.reset}\n`);
+        } catch (error) {
+          console.log(`${colors.red}✗ Invalid API key: ${error.message}${colors.reset}`);
+          console.log(`${colors.yellow}⚠️  Workflow setup skipped. Please update N8N_API_KEY in .env and restart.${colors.reset}`);
+          process.exit(1);
+        }
+      } else {
+        console.log(`${colors.yellow}⚠️  No N8N_API_KEY provided. Workflow setup skipped.${colors.reset}`);
+        console.log(`${colors.yellow}   Update N8N_API_KEY in .env and restart the app container.${colors.reset}`);
+        process.exit(1);
+      }
+    } else {
+      // Interactive mode - prompt for API key
+      printApiKeyInstructions();
+      N8N_API_KEY = await prompt('Enter your n8n API key: ');
 
-    if (!N8N_API_KEY) {
-      console.log(`${colors.red}✗ n8n API key is required${colors.reset}`);
-      process.exit(1);
-    }
+      if (!N8N_API_KEY) {
+        console.log(`${colors.red}✗ n8n API key is required${colors.reset}`);
+        process.exit(1);
+      }
 
-    // Test the API key
-    console.log(`${colors.blue}Testing API key...${colors.reset}`);
-    try {
-      await makeRequest('GET', '/api/v1/workflows');
-      console.log(`${colors.green}✓ API key is valid${colors.reset}\n`);
-    } catch (error) {
-      console.log(`${colors.red}✗ Invalid API key: ${error.message}${colors.reset}`);
-      process.exit(1);
+      // Test the API key
+      console.log(`${colors.blue}Testing API key...${colors.reset}`);
+      try {
+        await makeRequest('GET', '/api/v1/workflows');
+        console.log(`${colors.green}✓ API key is valid${colors.reset}\n`);
+      } catch (error) {
+        console.log(`${colors.red}✗ Invalid API key: ${error.message}${colors.reset}`);
+        process.exit(1);
+      }
     }
   }
 
-  // Prompt for workflow API keys
-  console.log(`${colors.bright}Workflow API Keys Setup${colors.reset}`);
-  console.log(`${colors.yellow}You'll need both Groq and Tavily API keys for the workflows to function.${colors.reset}\n`);
+  // Get workflow API keys
+  let groqApiKey, tavilyApiKey;
 
-  const groqApiKey = await prompt('Enter your Groq API key (get from https://console.groq.com/keys): ');
-  if (!groqApiKey) {
-    console.log(`${colors.red}✗ Groq API key is required${colors.reset}`);
-    process.exit(1);
-  }
+  if (IS_DOCKER) {
+    // In Docker mode, read from stdin (provided by entrypoint script)
+    console.log(`${colors.blue}Reading API keys from environment...${colors.reset}`);
+    const stdinLines = [];
+    const rl = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    });
 
-  const tavilyApiKey = await prompt('Enter your Tavily API key (get from https://tavily.com): ');
-  if (!tavilyApiKey) {
-    console.log(`${colors.red}✗ Tavily API key is required${colors.reset}`);
-    process.exit(1);
+    for await (const line of rl) {
+      stdinLines.push(line.trim());
+    }
+
+    groqApiKey = stdinLines[0];
+    tavilyApiKey = stdinLines[1];
+
+    if (!groqApiKey || !tavilyApiKey) {
+      console.log(`${colors.red}✗ Missing API keys from environment${colors.reset}`);
+      process.exit(1);
+    }
+  } else {
+    // Interactive mode - prompt for API keys
+    console.log(`${colors.bright}Workflow API Keys Setup${colors.reset}`);
+    console.log(`${colors.yellow}You'll need both Groq and Tavily API keys for the workflows to function.${colors.reset}\n`);
+
+    groqApiKey = await prompt('Enter your Groq API key (get from https://console.groq.com/keys): ');
+    if (!groqApiKey) {
+      console.log(`${colors.red}✗ Groq API key is required${colors.reset}`);
+      process.exit(1);
+    }
+
+    tavilyApiKey = await prompt('Enter your Tavily API key (get from https://tavily.com): ');
+    if (!tavilyApiKey) {
+      console.log(`${colors.red}✗ Tavily API key is required${colors.reset}`);
+      process.exit(1);
+    }
   }
 
   console.log('');

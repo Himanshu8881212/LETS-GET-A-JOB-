@@ -61,6 +61,8 @@ This setup uses **two Docker containers**:
 
 ### Step-by-Step Setup
 
+**Note:** n8n and app run in **separate Docker containers**.
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Himanshu8881212/LETS-GET-A-JOB-.git
@@ -69,34 +71,41 @@ cd LETS-GET-A-JOB-
 # 2. Start n8n container FIRST
 docker-compose --profile n8n up -d
 
-# 3. Wait 30 seconds, then open n8n
+# 3. Wait 30 seconds, then access n8n
 echo "Waiting for n8n to start..."
 sleep 30
-echo "n8n ready! Open http://localhost:5678"
 
 # 4. Get your n8n API key:
-#    a. Go to http://localhost:5678
-#    b. Create an account (first time only)
-#    c. Go to Settings → API
-#    d. Click "Create an API key"
-#    e. Copy the API key
+#    Open http://localhost:5678 in your browser
+#    - Create an account (first time only)
+#    - Go to Settings → API
+#    - Click "Create an API key"
+#    - Copy the FULL API key
 
 # 5. Create .env file with ALL THREE API keys
 cp .env.docker .env
-# Edit .env and add:
-#   - N8N_API_KEY (from step 4)
-#   - GROQ_API_KEY
-#   - TAVILY_API_KEY
+# Edit .env and add (no quotes around values):
+#   N8N_API_KEY=your_actual_key_here
+#   GROQ_API_KEY=your_groq_key_here
+#   TAVILY_API_KEY=your_tavily_key_here
 
-# 6. Start the application container
-docker-compose --profile app up -d
+# 6. Build and start the application container
+docker-compose --profile app up -d --build
+# NOTE: First build takes 5-10 minutes (installs texlive-full ~400MB for PDF generation)
 
-# That's it! Wait 30 seconds for workflows to setup
+# 7. Check if app started successfully
+docker-compose logs app | grep "Ready in"
+# You should see: "✓ Ready in XXXms"
 ```
 
 **Done!**
 - Application: http://localhost:3000
 - n8n: http://localhost:5678
+
+**Important Notes:**
+- The first Docker build downloads and installs texlive-full (~400MB) for LaTeX PDF generation. This is a one-time process that takes 5-10 minutes.
+- If the N8N_API_KEY is invalid, the app will skip workflow setup but **still start successfully**. You can fix the key later and restart.
+- The app and n8n run in **separate containers** - they are NOT combined.
 
 **To stop everything:**
 ```bash
@@ -112,8 +121,9 @@ docker-compose logs -f n8n
 docker-compose logs -f app
 ```
 
-**To start everything together (if already configured):**
+**To start both containers together (after initial setup):**
 ```bash
+# Only use this AFTER you've completed the setup above and have .env configured
 docker-compose --profile full up -d
 ```
 
@@ -247,6 +257,46 @@ These are pre-configured to work with n8n running on port 5678.
 ---
 
 ## Troubleshooting
+
+### n8n Workflow Setup Skipped / Invalid API Key
+
+If you see "⚠️ Workflow setup skipped" in the app logs, your N8N_API_KEY is incorrect or missing.
+
+**The app will still run**, but workflows won't be set up. To fix:
+
+```bash
+# 1. Get a valid API key from n8n
+#    Open http://localhost:5678
+#    Go to Settings → API → Create API key
+
+# 2. Update your .env file with the correct key
+nano .env  # or use any editor
+# Make sure the line looks like:
+# N8N_API_KEY=n8n_api_xxxxxxxxxxxxx (no quotes)
+
+# 3. Restart the app container to apply changes
+docker-compose restart app
+
+# 4. Check if workflows were set up successfully
+docker-compose logs app | grep "workflows setup"
+# You should see: "✅ n8n workflows setup complete!"
+```
+
+### Docker Build Fails: "texlive-latex-extra (no such package)"
+
+If you see this error during Docker build, your Dockerfile has the wrong package name for Alpine Linux.
+
+**Solution:**
+The Dockerfile should use `texlive-full` instead of `texlive-latex-extra`. Check line 40 in [Dockerfile](Dockerfile#L40):
+
+```dockerfile
+RUN apk add --no-cache \
+    curl \
+    bash \
+    texlive-full
+```
+
+This package is large (~400MB) and the first build will take 5-10 minutes.
 
 ### Webpack Chunk Loading Errors / Evaluation Workflow Issues
 

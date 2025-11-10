@@ -33,13 +33,11 @@ WORKDIR /app
 # Install required system dependencies
 # - curl: for healthchecks
 # - bash: for entrypoint script
-# - texlive: LaTeX base for PDF generation (includes pdflatex)
-# - texlive-latex-extra: Additional LaTeX packages for resume templates
+# - texlive-full: Complete LaTeX distribution for PDF generation (includes pdflatex and all packages)
 RUN apk add --no-cache \
     curl \
     bash \
-    texlive \
-    texlive-latex-extra
+    texlive-full
 
 ENV NODE_ENV=production
 

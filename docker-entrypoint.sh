@@ -35,13 +35,16 @@ if [ -n "$N8N_API_KEY" ] && [ -n "$GROQ_API_KEY" ] && [ -n "$TAVILY_API_KEY" ]; 
   # Export N8N_API_KEY for the setup script
   export N8N_API_KEY="$N8N_API_KEY"
 
-  # Run setup script with environment variables
+  # Run setup script with environment variables (don't fail if it exits with error)
+  set +e  # Temporarily disable exit on error
   node setup-n8n-workflows.js << EOF
 $GROQ_API_KEY
 $TAVILY_API_KEY
 EOF
+  setup_exit_code=$?
+  set -e  # Re-enable exit on error
 
-  if [ $? -eq 0 ]; then
+  if [ $setup_exit_code -eq 0 ]; then
     echo "✅ n8n workflows setup complete!"
   else
     echo "⚠️  n8n workflow setup failed, but continuing..."
