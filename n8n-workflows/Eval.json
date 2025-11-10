@@ -31,19 +31,22 @@
       "typeVersion": 1,
       "position": [
         112,
-        224
+        368
       ],
       "id": "31adad02-2a5a-4ffe-8e92-93de42651671",
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
+          "id": "MQTiM32sqfDCIi4P",
           "name": "Groq account"
         }
       }
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{\n  \"summary\": \"Brief overview of fit and biggest blockers.\",\n  \"overall\": {\n    \"weighted_score\": 0,\n    \"weights\": {\n      \"role_fit\": 0.30,\n      \"skills_keywords\": 0.25,\n      \"impact_evidence\": 0.20,\n      \"ats_compliance\": 0.15,\n      \"cover_letter\": 0.10\n    },\n    \"rationale\": \"One-liner explaining the overall score.\"\n  },\n  \"scores\": {\n    \"role_fit\": {\n      \"score\": 0,\n      \"evidence_found\": [\"Quoted line from resume/CL\", \"Quoted line from JD\"],\n      \"gaps\": [\"Missing must-have X\", \"No domain experience Y\"],\n      \"fixes\": [\"Add project showing X with metrics\", \"Clarify years doing Y\"]\n    },\n    \"skills_keywords\": {\n      \"score\": 0,\n      \"present\": [\"Exact term A\", \"Exact term B\"],\n      \"missing\": [\"Exact term C\", \"Exact term D\"],\n      \"fixes\": [\"Add C in Skills if true\", \"Name tool D in Project Z bullet\"]\n    },\n    \"impact_evidence\": {\n      \"score\": 0,\n      \"issues\": [\"Vague verbs\", \"No metrics\", \"Unclear scope\"],\n      \"example_rewrites\": [\n        \"Replace: \\\"Worked on reporting\\\" -> \\\"Built Power BI suite cutting refresh time 6h->45m (-87%)\\\"\"\n      ]\n    },\n    \"ats_compliance\": {\n      \"score\": 0,\n      \"problems\": [\"Two-column layout\", \"Icons in headers\", \"Missing dates\"],\n      \"fixes\": [\"Use single-column\", \"Standard section names\", \"Add MM/YYYY ranges\"]\n    },\n    \"cover_letter\": {\n      \"score\": 0,\n      \"critique\": [\"Generic opener\", \"Repeats resume\", \"No tie to company\"],\n      \"fixes\": [\"Open with JD-linked value\", \"Cite 2 quantified wins\", \"Keep ≤300 words\"]\n    }\n  },\n  \"missing_keywords\": {\n    \"must_have\": [\"Term from JD essential 1\", \"Term essential 2\"],\n    \"should_have\": [\"Important term 1\"],\n    \"nice_to_have\": [\"Optional term 1\"]\n  },\n  \"top_fixes\": [\n    {\n      \"area\": \"Resume → Experience\",\n      \"action\": \"Quantify outcomes for Project A\",\n      \"why\": \"JD requires measurable impact\",\n      \"example\": \"Automated pipeline reducing failures 28% QoQ\"\n    },\n    {\n      \"area\": \"Resume → Skills\",\n      \"action\": \"List exact JD tools actually used\",\n      \"why\": \"Improves ATS matching\",\n      \"example\": \"Skills: Snowflake, dbt, Power BI, Celonis, Python\"\n    },\n    {\n      \"area\": \"Cover Letter\",\n      \"action\": \"Tie achievements to JD responsibilities\",\n      \"why\": \"Signals tailoring\",\n      \"example\": \"Shipped prompt-eval harness raising success 62%→79%\"\n    }\n  ],\n  \"keyword_occurrences\": [\n    {\n      \"term\": \"Power BI\",\n      \"in_resume\": 2,\n      \"in_cover_letter\": 0,\n      \"in_job_description\": 5\n    }\n  ],\n  \"risk_flags\": [\"Employment gaps\", \"Tech mismatch (Tableau vs Power BI)\", \"Language mismatch\"],\n  \"source\": {\n    \"job_description_id\": \"jd_123\",\n    \"resume_id\": \"cv_456\",\n    \"cover_letter_id\": \"cl_789\"\n  }\n}\n"
+        "jsonSchemaExample": "{\n  \"summary\": \"Brief overview of fit and biggest blockers.\",\n  \"overall\": {\n    \"weighted_score\": 0,\n    \"weights\": {\n      \"role_fit\": 0.30,\n      \"skills_keywords\": 0.25,\n      \"impact_evidence\": 0.20,\n      \"ats_compliance\": 0.15,\n      \"cover_letter\": 0.10\n    },\n    \"rationale\": \"One-liner explaining the overall score.\"\n  },\n  \"scores\": {\n    \"role_fit\": {\n      \"score\": 0,\n      \"evidence_found\": [\"Quoted line from resume/CL\", \"Quoted line from JD\"],\n      \"gaps\": [\"Missing must-have X\", \"No domain experience Y\"],\n      \"fixes\": [\"Add project showing X with metrics\", \"Clarify years doing Y\"]\n    },\n    \"skills_keywords\": {\n      \"score\": 0,\n      \"present\": [\"Exact term A\", \"Exact term B\"],\n      \"missing\": [\"Exact term C\", \"Exact term D\"],\n      \"fixes\": [\"Add C in Skills if true\", \"Name tool D in Project Z bullet\"]\n    },\n    \"impact_evidence\": {\n      \"score\": 0,\n      \"issues\": [\"Vague verbs\", \"No metrics\", \"Unclear scope\"],\n      \"example_rewrites\": [\n        \"Replace: \\\"Worked on reporting\\\" -> \\\"Built Power BI suite cutting refresh time 6h->45m (-87%)\\\"\"\n      ]\n    },\n    \"ats_compliance\": {\n      \"score\": 0,\n      \"problems\": [\"Two-column layout\", \"Icons in headers\", \"Missing dates\"],\n      \"fixes\": [\"Use single-column\", \"Standard section names\", \"Add MM/YYYY ranges\"]\n    },\n    \"cover_letter\": {\n      \"score\": 0,\n      \"critique\": [\"Generic opener\", \"Repeats resume\", \"No tie to company\"],\n      \"fixes\": [\"Open with JD-linked value\", \"Cite 2 quantified wins\", \"Keep ≤300 words\"]\n    }\n  },\n  \"missing_keywords\": {\n    \"must_have\": [\"Term from JD essential 1\", \"Term essential 2\"],\n    \"should_have\": [\"Important term 1\"],\n    \"nice_to_have\": [\"Optional term 1\"]\n  },\n  \"top_fixes\": [\n    {\n      \"area\": \"Resume → Experience\",\n      \"action\": \"Quantify outcomes for Project A\",\n      \"why\": \"JD requires measurable impact\",\n      \"example\": \"Automated pipeline reducing failures 28% QoQ\"\n    },\n    {\n      \"area\": \"Resume → Skills\",\n      \"action\": \"List exact JD tools actually used\",\n      \"why\": \"Improves ATS matching\",\n      \"example\": \"Skills: Snowflake, dbt, Power BI, Celonis, Python\"\n    },\n    {\n      \"area\": \"Cover Letter\",\n      \"action\": \"Tie achievements to JD responsibilities\",\n      \"why\": \"Signals tailoring\",\n      \"example\": \"Shipped prompt-eval harness raising success 62%→79%\"\n    }\n  ],\n  \"keyword_occurrences\": [\n    {\n      \"term\": \"Power BI\",\n      \"in_resume\": 2,\n      \"in_cover_letter\": 0,\n      \"in_job_description\": 5\n    }\n  ],\n  \"risk_flags\": [\"Employment gaps\", \"Tech mismatch (Tableau vs Power BI)\", \"Language mismatch\"],\n  \"source\": {\n    \"job_description_id\": \"jd_123\",\n    \"resume_id\": \"cv_456\",\n    \"cover_letter_id\": \"cl_789\"\n  }\n}\n",
+        "autoFix": true,
+        "customizeRetryPrompt": true
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
@@ -87,12 +90,18 @@
       "webhookId": "0f93e18c-1bd2-4b15-8401-841c4ab4ed83"
     }
   ],
+  "pinData": {},
   "connections": {
     "Groq Chat Model": {
       "ai_languageModel": [
         [
           {
             "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -137,11 +146,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1b2931d7-8ca1-48ab-9a45-64eec904f9ae",
+  "versionId": "a95121d5-b35e-4cd3-8e40-c9651a61a4ef",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "91619af48a111996d57e467ff2315ebcea6bea0614914ccbffc4272c1511d582"
+    "instanceId": "1d7f121d6f41fa43ce62af505ee9919b27b84bf718bb8a09181f7ae726675641"
   },
-  "id": "pyGw8Xkfa9DkwfLI",
+  "id": "hIHB7D6DfZor5peE",
   "tags": []
 }
