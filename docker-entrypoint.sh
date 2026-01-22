@@ -28,7 +28,7 @@ fi
 sleep 5
 
 # Setup n8n workflows if API keys are provided
-if [ -n "$N8N_API_KEY" ] && [ -n "$GROQ_API_KEY" ] && [ -n "$TAVILY_API_KEY" ]; then
+if [ -n "$N8N_API_KEY" ] && [ -n "$MISTRAL_API_KEY" ] && [ -n "$TAVILY_API_KEY" ]; then
   echo "🔧 Setting up n8n workflows..."
   echo "   Using n8n at: http://$N8N_HOST:$N8N_PORT"
 
@@ -38,7 +38,7 @@ if [ -n "$N8N_API_KEY" ] && [ -n "$GROQ_API_KEY" ] && [ -n "$TAVILY_API_KEY" ]; 
   # Run setup script with environment variables (don't fail if it exits with error)
   set +e  # Temporarily disable exit on error
   node setup-n8n-workflows.js << EOF
-$GROQ_API_KEY
+$MISTRAL_API_KEY
 $TAVILY_API_KEY
 EOF
   setup_exit_code=$?
@@ -52,7 +52,7 @@ EOF
   fi
 else
   echo "⚠️  Missing API keys - skipping workflow setup"
-  echo "   Required: N8N_API_KEY, GROQ_API_KEY, TAVILY_API_KEY"
+  echo "   Required: N8N_API_KEY, MISTRAL_API_KEY, TAVILY_API_KEY"
   echo "   You can run 'docker exec -it lets-get-a-job-app node setup-n8n-workflows.js' manually"
 fi
 

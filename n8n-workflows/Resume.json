@@ -82,20 +82,20 @@
     },
     {
       "parameters": {
-        "model": "moonshotai/kimi-k2-instruct-0905",
+        "model": "mistral-medium-latest",
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
       "typeVersion": 1,
       "position": [
         704,
         224
       ],
       "id": "7487a449-d8fd-48d7-b883-f1e788a73fac",
-      "name": "Groq Chat Model",
+      "name": "Mistral Chat Model",
       "credentials": {
-        "groqApi": {
-          "name": "Groq account"
+        "mistralCloudApi": {
+          "name": "Mistral account"
         }
       }
     }
@@ -145,7 +145,7 @@
         ]
       ]
     },
-    "Groq Chat Model": {
+    "Mistral Chat Model": {
       "ai_languageModel": [
         [
           {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, GitBranch } from 'lucide-react'
+import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, GitBranch, Sparkles } from 'lucide-react'
 import { useAutoSave, loadSavedData, clearSavedData } from '@/hooks/useAutoSave'
 import { useToast } from '@/components/ui/Toast'
 import { Input } from '@/components/ui/Input'
@@ -28,6 +28,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import AIResumeGenerator from './AIResumeGenerator'
 
 const STORAGE_KEY = 'enhanced-resume-builder-data'
 
@@ -89,6 +90,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
   const [currentVersionName, setCurrentVersionName] = useState<string>('')
   const [currentParentVersionId, setCurrentParentVersionId] = useState<number | null>(null)
   const [showSaveModal, setShowSaveModal] = useState(false)
+  const [showAI, setShowAI] = useState(false)
 
   // Personal Info
   const [personalInfo, setPersonalInfo] = useState(() => {
@@ -237,6 +239,80 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       })
       showToast('success', 'Section order updated')
     }
+  }
+
+  const handleAIGenerated = (incomingData: any) => {
+    console.log("Raw AI Response:", incomingData);
+
+    // Normalize data: handling deep nesting, stringification, and arrays
+    const unwrap = (d: any): any => {
+      if (!d) return d;
+      if (typeof d === 'string') {
+        try { return unwrap(JSON.parse(d)); } catch { return d; }
+      }
+      if (Array.isArray(d)) {
+        return unwrap(d[0]); // Take first item if array
+      }
+      if (d && typeof d === 'object') {
+        if (d.output) return unwrap(d.output);
+        if (d.json) return unwrap(d.json);
+        if (d.body) return unwrap(d.body);
+      }
+      return d;
+    }
+
+    const data = unwrap(incomingData);
+    console.log("Normalized AI Data:", data);
+
+    if (!data || typeof data !== 'object') {
+      showToast('error', 'Received invalid data from AI');
+      setShowAI(false);
+      return;
+    }
+
+    // Merge AI data into resumeData
+    if (data.personalInfo) setPersonalInfo((prev: any) => ({ ...prev, ...data.personalInfo }))
+    if (data.summary) setSummary(data.summary)
+    if (data.experience) setExperiences(data.experience)
+    if (data.education) setEducation(data.education)
+    if (data.skills) setSkillCategories(data.skills)
+    if (data.projects) setProjects(data.projects)
+
+    // Optional Sections
+    if (data.certifications) setCertifications(data.certifications)
+    if (data.languages) setLanguages(data.languages)
+    if (data.awards) setAwards(data.awards)
+    if (data.publications) setPublications(data.publications)
+    if (data.extracurricular) setExtracurricular(data.extracurricular)
+    if (data.volunteer) setVolunteer(data.volunteer)
+    if (data.hobbies) setHobbies(data.hobbies)
+
+    // Auto-enable sections that have data
+    setSectionOrder(prevOrder => prevOrder.map(section => {
+      let hasData = false
+      switch (section.id) {
+        case 'summary': hasData = !!data.summary; break;
+        case 'skills': hasData = !!data.skills?.length; break;
+        case 'experience': hasData = !!data.experience?.length; break;
+        case 'projects': hasData = !!data.projects?.length; break;
+        case 'education': hasData = !!data.education?.length; break;
+        case 'certifications': hasData = !!data.certifications?.length; break;
+        case 'languages': hasData = !!data.languages?.length; break;
+        case 'awards': hasData = !!data.awards?.length; break;
+        case 'publications': hasData = !!data.publications?.length; break;
+        case 'extracurricular': hasData = !!data.extracurricular?.length; break;
+        case 'volunteer': hasData = !!data.volunteer?.length; break;
+        case 'hobbies': hasData = !!data.hobbies?.length; break;
+      }
+      return hasData ? { ...section, enabled: true } : section
+    }))
+
+    setShowAI(false)
+    showToast('success', 'Resume generated from AI!')
+  }
+
+  if (showAI) {
+    return <AIResumeGenerator onBack={() => setShowAI(false)} onGenerate={handleAIGenerated} />
   }
 
   const toggleSection = (id: string) => {
@@ -783,6 +859,15 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => setShowAI(true)}
+                className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                icon={<Sparkles className="w-4 h-4 text-purple-600" />}
+              >
+                AI Assistant
+              </Button>
               {!showLineage && (
                 <>
                   <Button variant="outline" size="md" onClick={handleClearData}>

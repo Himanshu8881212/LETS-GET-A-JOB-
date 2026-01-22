@@ -4,16 +4,17 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     ports:
-      - "5678:5678"
+      - "5679:5678"
     environment:
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
     volumes:
       - n8n_data:/home/node/.n8n
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +37,7 @@ services:
       - N8N_HOST=n8n
       - N8N_PORT=5678
       - N8N_API_KEY=${N8N_API_KEY}
-      - GROQ_API_KEY=${GROQ_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - TAVILY_API_KEY=${TAVILY_API_KEY}
       # Webhook URLs (Docker internal network - use service name 'n8n')
       - NEXT_PUBLIC_N8N_JD_WEBHOOK_URL=http://n8n:5678/webhook/process-jd

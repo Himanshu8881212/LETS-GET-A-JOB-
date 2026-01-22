@@ -4,10 +4,10 @@
  * n8n Workflow Setup Script
  *
  * This script:
- * 1. Prompts for n8n API key and workflow API keys (Groq and Tavily - both required)
- * 2. Creates Groq credentials in n8n
+ * 1. Prompts for n8n API key and workflow API keys (Mistral and Tavily - both required)
+ * 2. Creates Mistral credentials in n8n
  * 3. Imports workflows from n8n-workflows folder
- * 4. Updates workflows to use Groq credentials and Tavily API key
+ * 4. Updates workflows to use Mistral credentials and Tavily API key
  * 5. Activates workflows in PRODUCTION mode
  */
 
@@ -19,7 +19,7 @@ const http = require('http');
 // Configuration
 // Use environment variables if available (Docker), otherwise use localhost (local dev)
 const N8N_HOST = process.env.N8N_HOST || 'localhost';
-const N8N_PORT = process.env.N8N_PORT || 5678;
+const N8N_PORT = process.env.N8N_PORT || 5679;
 const N8N_BASE_URL = `http://${N8N_HOST}:${N8N_PORT}`;
 const WORKFLOWS_DIR = path.join(__dirname, 'n8n-workflows');
 
@@ -157,13 +157,13 @@ function printApiKeyInstructions() {
   console.log(`5. Copy and paste it below\n`);
 }
 
-// Create Groq credential
-async function createGroqCredential(apiKey) {
-  console.log(`${colors.blue}Creating Groq credential...${colors.reset}`);
+// Create Mistral credential
+async function createMistralCredential(apiKey) {
+  console.log(`${colors.blue}Creating Mistral credential...${colors.reset}`);
 
   const credentialData = {
-    name: 'Groq account',
-    type: 'groqApi',
+    name: 'Mistral account',
+    type: 'mistralCloudApi',
     data: {
       apiKey: apiKey,
     },
@@ -171,16 +171,16 @@ async function createGroqCredential(apiKey) {
 
   try {
     const result = await makeRequest('POST', '/api/v1/credentials', credentialData);
-    console.log(`${colors.green}✓ Groq credential created (ID: ${result.id})${colors.reset}`);
+    console.log(`${colors.green}✓ Mistral credential created (ID: ${result.id})${colors.reset}`);
     return result.id;
   } catch (error) {
-    console.log(`${colors.yellow}⚠ Could not create Groq credential: ${error.message}${colors.reset}`);
+    console.log(`${colors.yellow}⚠ Could not create Mistral credential: ${error.message}${colors.reset}`);
     // Try to find existing credential
     try {
       const credentials = await makeRequest('GET', '/api/v1/credentials');
-      const existingCred = credentials.data.find(c => c.type === 'groqApi' && c.name === 'Groq account');
+      const existingCred = credentials.data.find(c => c.type === 'mistralCloudApi' && c.name === 'Mistral account');
       if (existingCred) {
-        console.log(`${colors.green}✓ Using existing Groq credential (ID: ${existingCred.id})${colors.reset}`);
+        console.log(`${colors.green}✓ Using existing Mistral credential (ID: ${existingCred.id})${colors.reset}`);
         return existingCred.id;
       }
     } catch (e) {
@@ -191,22 +191,22 @@ async function createGroqCredential(apiKey) {
 }
 
 // Update workflow to use credentials
-async function updateWorkflowCredentials(workflowId, groqCredId, tavilyApiKey) {
+async function updateWorkflowCredentials(workflowId, mistralCredId, tavilyApiKey) {
   try {
     // Get the workflow
     const workflow = await makeRequest('GET', `/api/v1/workflows/${workflowId}`);
 
     let updated = false;
 
-    // Update Groq credentials in all nodes
+    // Update Mistral credentials in all nodes
     workflow.nodes.forEach(node => {
-      if (node.type === '@n8n/n8n-nodes-langchain.lmChatGroq') {
+      if (node.type === '@n8n/n8n-nodes-langchain.lmChatMistralCloud') {
         if (!node.credentials) {
           node.credentials = {};
         }
-        node.credentials.groqApi = {
-          id: groqCredId,
-          name: 'Groq account',
+        node.credentials.mistralCloudApi = {
+          id: mistralCredId,
+          name: 'Mistral account',
         };
         updated = true;
       }
@@ -379,7 +379,7 @@ async function main() {
   }
 
   // Get workflow API keys
-  let groqApiKey, tavilyApiKey;
+  let mistralApiKey, tavilyApiKey;
 
   if (IS_DOCKER) {
     // In Docker mode, read from stdin (provided by entrypoint script)
@@ -395,21 +395,21 @@ async function main() {
       stdinLines.push(line.trim());
     }
 
-    groqApiKey = stdinLines[0];
+    mistralApiKey = stdinLines[0];
     tavilyApiKey = stdinLines[1];
 
-    if (!groqApiKey || !tavilyApiKey) {
+    if (!mistralApiKey || !tavilyApiKey) {
       console.log(`${colors.red}✗ Missing API keys from environment${colors.reset}`);
       process.exit(1);
     }
   } else {
     // Interactive mode - prompt for API keys
     console.log(`${colors.bright}Workflow API Keys Setup${colors.reset}`);
-    console.log(`${colors.yellow}You'll need both Groq and Tavily API keys for the workflows to function.${colors.reset}\n`);
+    console.log(`${colors.yellow}You'll need both Mistral and Tavily API keys for the workflows to function.${colors.reset}\n`);
 
-    groqApiKey = await prompt('Enter your Groq API key (get from https://console.groq.com/keys): ');
-    if (!groqApiKey) {
-      console.log(`${colors.red}✗ Groq API key is required${colors.reset}`);
+    mistralApiKey = await prompt('Enter your Mistral API key (get from https://console.mistral.ai/api-keys): ');
+    if (!mistralApiKey) {
+      console.log(`${colors.red}✗ Mistral API key is required${colors.reset}`);
       process.exit(1);
     }
 
@@ -422,12 +422,12 @@ async function main() {
 
   console.log('');
 
-  // Create Groq credential
-  let groqCredId;
+  // Create Mistral credential
+  let mistralCredId;
   try {
-    groqCredId = await createGroqCredential(groqApiKey);
+    mistralCredId = await createMistralCredential(mistralApiKey);
   } catch (error) {
-    console.log(`${colors.red}✗ Failed to create Groq credential: ${error.message}${colors.reset}`);
+    console.log(`${colors.red}✗ Failed to create Mistral credential: ${error.message}${colors.reset}`);
     process.exit(1);
   }
 
@@ -472,7 +472,7 @@ async function main() {
   let credentialsUpdated = 0;
   for (const { filename, id } of importedWorkflows) {
     console.log(`${colors.cyan}${filename}${colors.reset}`);
-    const success = await updateWorkflowCredentials(id, groqCredId, tavilyApiKey);
+    const success = await updateWorkflowCredentials(id, mistralCredId, tavilyApiKey);
     if (success) {
       credentialsUpdated++;
     }

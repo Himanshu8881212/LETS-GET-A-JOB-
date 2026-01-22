@@ -310,7 +310,6 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
     try {
       // Step 1: Process Job Description
       setCurrentStep(1)
-      showToast('info', 'Processing job description...')
 
       // Fetch job description from URL via n8n
       const jdResponse = await fetch('/api/n8n/process-jd', {
@@ -335,7 +334,6 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
 
       // Step 2: Process Resume
       setCurrentStep(2)
-      showToast('info', 'Processing resume...')
       let resumePdfBlob: Blob
 
       if (resumeSource === 'lineage') {
@@ -370,7 +368,6 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
 
       // Step 3: Process Cover Letter
       setCurrentStep(3)
-      showToast('info', 'Processing cover letter...')
       let coverLetterPdfBlob: Blob
 
       if (coverLetterSource === 'lineage') {
@@ -405,7 +402,6 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
 
       // Step 4: Run Final Evaluation
       setCurrentStep(4)
-      showToast('info', 'Running AI evaluation...')
 
       const saveResponse = await fetch('/api/ats-evaluations', {
         method: 'POST',

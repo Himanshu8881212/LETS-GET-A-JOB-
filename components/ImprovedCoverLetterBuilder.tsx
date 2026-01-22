@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Plus, Trash2, Download, CheckCircle, Eye, GitBranch } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Download, CheckCircle, Eye, GitBranch, Sparkles } from 'lucide-react'
 import { Input } from './ui/Input'
 import { Textarea } from './ui/Textarea'
 import { Button } from './ui/Button'
@@ -501,6 +501,45 @@ export default function ImprovedCoverLetterBuilder({ onBack }: ImprovedCoverLett
                     onClick={handleSave}
                   >
                     Save
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    loading={isGenerating}
+                    icon={<Sparkles className="w-4 h-4 text-purple-600" />}
+                    className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                    onClick={() => {
+                      const jd = prompt('Please paste the Job Description URL:')
+                      if (jd) {
+                        setIsGenerating(true)
+                        fetch('/api/generate-cover-letter', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            resume_text: "My Resume content...", // Ideally fetch from latest resume or user input
+                            jd_url: jd,
+                            company_name: recipientInfo.company || "Target Company",
+                            job_title: recipientInfo.role || "Target Role"
+                          })
+                        })
+                          .then(res => res.json())
+                          .then(data => {
+                            if (data.cover_letter_text) {
+                              // Split into paragraphs (simple fallback logic)
+                              const paragraphs = data.cover_letter_text.bodyParagraphs || data.cover_letter_text.split('\n\n') || [data.cover_letter_text]
+                              setBodyParagraphs(Array.isArray(paragraphs) ? paragraphs : [paragraphs])
+                              showToast('success', 'Cover letter generated!')
+                            }
+                          })
+                          .catch(err => {
+                            console.error(err)
+                            showToast('error', 'Failed to generate')
+                          })
+                          .finally(() => setIsGenerating(false))
+                      }
+                    }}
+                  >
+                    AI Generate
                   </Button>
                 </>
               )}

@@ -53,27 +53,27 @@
     },
     {
       "parameters": {
-        "model": "moonshotai/kimi-k2-instruct-0905",
+        "model": "mistral-medium-latest",
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
       "typeVersion": 1,
       "position": [
         232,
         224
       ],
       "id": "21c5f48e-2e2d-4908-816d-0079c0a998b8",
-      "name": "Groq Chat Model",
+      "name": "Mistral Chat Model",
       "credentials": {
-        "groqApi": {
+        "mistralCloudApi": {
           "id": "A5FquK4o8Fvk4t8u",
-          "name": "Groq account"
+          "name": "Mistral account"
         }
       }
     },
     {
       "parameters": {
-        "endpointUrl": "https://mcp.tavily.com/mcp/?tavilyApiKey=TAVILY_API_KEY_PLACEHOLDER",
+        "endpointUrl": "https://mcp.tavily.com/mcp/?tavilyApiKey={{ $env.TAVILY_API_KEY }}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
@@ -110,7 +110,7 @@
         ]
       ]
     },
-    "Groq Chat Model": {
+    "Mistral Chat Model": {
       "ai_languageModel": [
         [
           {

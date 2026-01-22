@@ -1,0 +1,141 @@
+{
+    "name": "Generate Cover Letter",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "generate-cover-letter",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "id": "webhook-generate-cl",
+            "name": "Webhook"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://localhost:5678/webhook/process-jd",
+                "sendBody": true,
+                "contentType": "json",
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "jobUrl",
+                            "value": "={{ $json.body.jd_url }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                220,
+                0
+            ],
+            "id": "fetch-jd-cl-gen",
+            "name": "Fetch JD"
+        },
+        {
+            "parameters": {
+                "model": "mistral-large-latest",
+                "options": {
+                    "temperature": 0.7
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+            "typeVersion": 1,
+            "position": [
+                380,
+                240
+            ],
+            "id": "mistral-chat-model-cl",
+            "name": "Mistral Chat Model"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=Resume Context: {{ $('Webhook').item.json.body.resume_text }}\n\nJob Description: {{ $json.output }}\n\nCompany Name: {{ $('Webhook').item.json.body.company_name }}\n\nJob Title: {{ $('Webhook').item.json.body.job_title }}",
+                "options": {
+                    "systemMessage": "## ROLE\n\nYou are an **Expert Career Coach and Copywriter**. Your goal is to write a compelling, concise, and tailored cover letter that connects the candidate's experience to the specific job requirements.\n\n## INSTRUCTIONS\n\n1.  **Hook (Opening):** Start with a strong enthusiastic opening. Mention the specific role and company. If provided, mention *why* this company.\n2.  **The \"Meat\" (Body Paragraphs):**\n    *   Select 2-3 key achievements from the resume that *directly relate* to the top requirements in the JD.\n    *   Don't just repeat the resume. Tell a mini-story about *how* you delivered results.\n    *   Show valid \"Why You?\".\n3.  **Closing:** confident call to action.\n4.  **Tone:** Professional, enthusiastic, authentic. Avoid generic fluff (\"I am a hard worker\").\n\n## OUTPUT FORMAT\n\nReturn **ONLY** the body text of the cover letter. Do not include the header (addresses/dates) as those are handled by the template system. Just start with \"Dear Hiring Manager,\" or the salutation.\n"
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1,
+            "position": [
+                500,
+                0
+            ],
+            "id": "ai-cl-agent",
+            "name": "AI Cover Letter Agent"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { cover_letter_text: $json.output } }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                900,
+                0
+            ],
+            "id": "respond-to-webhook-cl",
+            "name": "Respond to Webhook"
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch JD",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch JD": {
+            "main": [
+                [
+                    {
+                        "node": "AI Cover Letter Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Mistral Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Cover Letter Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Cover Letter Agent": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
