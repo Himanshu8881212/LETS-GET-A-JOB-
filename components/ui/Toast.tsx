@@ -54,10 +54,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }
 
   const colors = {
-    success: 'bg-green-50 border-green-500 text-green-800',
-    error: 'bg-red-50 border-red-500 text-red-800',
-    warning: 'bg-orange-50 border-orange-500 text-orange-800',
-    info: 'bg-blue-50 border-blue-500 text-blue-800'
+    success: 'border-emerald-500 text-emerald-700',
+    error: 'border-red-500 text-red-700',
+    warning: 'border-amber-500 text-amber-700',
+    info: 'border-brand-accent text-brand-ink'
   }
 
   return (
@@ -69,7 +69,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={toast.id}
             className={`
-              flex items-center gap-3 px-6 py-3 rounded-lg border-l-4 shadow-xl
+              flex items-center gap-3 px-6 py-3 rounded-xl border shadow-soft bg-white
               animate-in slide-in-from-bottom duration-300
               pointer-events-auto min-w-[320px] max-w-[500px]
               ${colors[toast.type]}
@@ -89,4 +89,3 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     </ToastContext.Provider>
   )
 }
-

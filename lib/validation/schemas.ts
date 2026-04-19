@@ -55,7 +55,8 @@ export const experienceSchema = z.object({
 
 export const projectSchema = z.object({
   title: z.string().max(200).trim().optional().default(''),
-  description: z.string().max(1000).trim().optional().default('')
+  description: z.string().max(1000).trim().optional().default(''),
+  bullets: z.array(z.string().max(300).trim()).optional().default([]),
 })
 
 export const educationSchema = z.object({

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, GitBranch, Sparkles } from 'lucide-react'
+import { ArrowLeft, Download, Plus, Trash2, CheckCircle, GripVertical, Eye, EyeOff, GitBranch } from 'lucide-react'
 import { useAutoSave, loadSavedData, clearSavedData } from '@/hooks/useAutoSave'
 import { useToast } from '@/components/ui/Toast'
 import { Input } from '@/components/ui/Input'
@@ -797,7 +797,28 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
     }
   }
 
-  // Professional Sortable Section Component
+  function hasSectionData(sectionId: string): boolean {
+    switch (sectionId) {
+      case 'summary': return summary.trim().length >= 40
+      case 'skills': return skillCategories.some(c => c.skills.trim().length > 0)
+      case 'experience': return experiences.some(e => (e.title || e.company || e.bullets.some(b => b.trim())))
+      case 'projects': return projects.some(p => p.title || p.description)
+      case 'education': return education.some(e => e.degree || e.institution)
+      case 'certifications': return certifications.some(v => v.trim())
+      case 'languages': return languages.some(v => v.trim())
+      case 'awards': return awards.some(v => v.trim())
+      case 'hobbies': return hobbies.some(v => v.trim())
+      case 'publications': return publications.some(p => p.title || p.details)
+      case 'extracurricular': return extracurricular.some(a => a.title || a.details)
+      case 'volunteer': return volunteer.some(a => a.title || a.details)
+      default: return false
+    }
+  }
+
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   function SortableSection({ section }: { section: SectionConfig }) {
     const {
       attributes,
@@ -805,6 +826,7 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       setNodeRef,
       transform,
       transition,
+      isDragging,
     } = useSortable({ id: section.id })
 
     const style = {
@@ -812,66 +834,78 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       transition,
     }
 
+    const complete = hasSectionData(section.id)
+
     return (
       <div
         ref={setNodeRef}
         style={style}
-        className={`group flex items-center gap-2 px-2 py-2 transition-all ${section.enabled
-          ? 'bg-gray-900 text-white'
-          : 'bg-white text-gray-600 hover:bg-gray-50'
-          }`}
+        className={`group flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+          isDragging ? 'bg-brand-mist shadow-soft' : 'hover:bg-brand-mist'
+        }`}
       >
+        <span
+          className={`inline-flex w-4 h-4 rounded-full border-2 flex-shrink-0 ${
+            complete ? 'bg-brand-ink border-brand-ink' : 'bg-white border-brand-border'
+          }`}
+          aria-hidden
+        />
+        <button
+          type="button"
+          onClick={() => scrollToSection(section.id)}
+          className={`flex-1 min-w-0 text-left text-sm truncate ${
+            section.enabled ? 'text-brand-slate' : 'text-brand-steel/60 line-through decoration-brand-steel/40'
+          }`}
+        >
+          {section.name}
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleSection(section.id)}
+          title={section.enabled ? 'Hide section' : 'Show section'}
+          className="p-1 rounded text-brand-steel hover:text-brand-ink hover:bg-white transition-colors opacity-0 group-hover:opacity-100"
+        >
+          {section.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+        </button>
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing"
+          title="Reorder"
+          className="cursor-grab active:cursor-grabbing p-1 text-brand-steel hover:text-brand-ink opacity-0 group-hover:opacity-100"
         >
-          <GripVertical className="w-4 h-4 text-gray-400" />
+          <GripVertical className="w-3.5 h-3.5" />
         </button>
-        <input
-          type="checkbox"
-          checked={section.enabled}
-          onChange={() => toggleSection(section.id)}
-          className="w-3.5 h-3.5 text-black rounded border-gray-400 focus:ring-black cursor-pointer"
-        />
-        <span className={`flex-1 text-xs ${section.enabled ? 'font-medium' : ''}`}>
-          {section.name}
-        </span>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-mist/20">
       {/* Header */}
-      <div className="bg-gray-900 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="p-2 hover:bg-gray-800 rounded transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-              <h1 className="text-xl font-bold text-white">
-                Resume Builder
-              </h1>
-            </div>
+      <div className="h-[72px] px-6 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="p-2 hover:bg-brand-mist rounded transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-brand-ink" />
+          </button>
+          <h1 className="text-xl font-bold text-brand-ink">
+            Resume
+          </h1>
+        </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => setShowAI(true)}
-                className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                icon={<Sparkles className="w-4 h-4 text-purple-600" />}
-              >
-                AI Assistant
-              </Button>
               {!showLineage && (
                 <>
                   <Button variant="outline" size="md" onClick={handleClearData}>
                     Clear
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => setShowAI(true)}
+                  >
+                    AI
                   </Button>
                   <Button
                     variant="outline"
@@ -903,8 +937,6 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
                 {showLineage ? 'Editor' : 'Versions'}
               </Button>
             </div>
-          </div>
-        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-6">
@@ -921,14 +953,28 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Left Sidebar - Section Manager */}
             <div className="lg:col-span-1">
-              <div className="bg-white border border-gray-300 sticky top-20">
-                <div className="p-4 border-b border-gray-300 bg-gray-50">
-                  <h2 className="text-sm font-bold text-gray-900">Sections</h2>
-                  <p className="text-xs text-gray-600 mt-1">
-                    {sectionOrder.filter(s => s.enabled).length} of {sectionOrder.length} enabled
-                  </p>
+              <div className="bg-white border border-brand-border rounded-xl shadow-soft sticky top-[88px]">
+                <div className="px-4 py-3 bg-brand-mist border-b border-brand-border">
+                  <div className="text-[10px] uppercase tracking-wider text-brand-steel font-medium">Sections</div>
+                  <p className="text-xs text-brand-steel mt-1">Click to jump</p>
                 </div>
-                <div className="p-3">
+                <div className="p-2 space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('personal-info')}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm text-brand-slate hover:bg-brand-mist transition-colors"
+                  >
+                    <span
+                      className={`inline-flex w-4 h-4 rounded-full border-2 flex-shrink-0 ${
+                        (personalInfo.firstName && personalInfo.lastName && personalInfo.email && personalInfo.phone)
+                          ? 'bg-brand-ink border-brand-ink'
+                          : 'bg-white border-brand-border'
+                      }`}
+                      aria-hidden
+                    />
+                    <span className="flex-1 truncate">Personal Information</span>
+                  </button>
+                  <div className="my-2 border-t border-brand-border" />
                   <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
@@ -952,13 +998,13 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-4">
               {/* Personal Information - Always shown */}
-              <section className="bg-white border border-gray-300">
-                <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
-                  <h2 className="text-lg font-bold text-gray-900">
+              <section id="personal-info" className="bg-white border border-brand-border rounded-xl shadow-soft overflow-hidden">
+                <div className="px-6 py-4 bg-brand-mist border-b border-brand-border">
+                  <h2 className="text-lg font-semibold text-brand-ink">
                     Personal Information
                   </h2>
                 </div>
-                <div className="p-8">
+                <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
                       label="First Name"
@@ -1063,12 +1109,15 @@ export default function EnhancedResumeBuilder({ onBack }: EnhancedResumeBuilderP
       </div >
 
       {/* PDF Preview Modal */}
-      < PDFPreviewModal
+      <PDFPreviewModal
         isOpen={showPreview}
         onClose={handleClosePreview}
         pdfUrl={previewUrl}
-        title="Resume Preview"
+        title={currentVersionName || 'Resume'}
         onDownload={handleSave}
+        docType="resume"
+        data={allData}
+        fileBaseName={currentVersionName || 'resume'}
       />
 
       {/* Save Resume Modal */}

@@ -2,84 +2,90 @@
 
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { FileText, Mail, BarChart3, ChevronRight, Sparkles, Eye, Download, Clock, Trash2 } from 'lucide-react'
+import {
+  BarChart3,
+  BookOpen,
+  Brain,
+  ChevronRight,
+  Download,
+  Eye,
+  FileText,
+  FolderArchive,
+  LayoutGrid,
+  Mail,
+  Settings as SettingsIcon,
+  Sparkles,
+  Trash2,
+} from 'lucide-react'
 import { ToastProvider } from '@/components/ui/Toast'
+import { AppShell } from '@/components/ui/AppShell'
+import { SidebarNav } from '@/components/ui/SidebarNav'
+import { Card } from '@/components/ui/Card'
+import { Spinner } from '@/components/ui/Spinner'
+import { StatCard } from '@/components/ui/StatCard'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
 
-// Lazy load heavy components
-const EnhancedResumeBuilder = dynamic(
-  () => import('@/components/EnhancedResumeBuilder'),
-  {
-    loading: () => (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Resume Builder...</p>
-        </div>
-      </div>
-    ),
-    ssr: false
-  }
-)
+const EnhancedResumeBuilder = dynamic(() => import('@/components/EnhancedResumeBuilder'), {
+  loading: () => <StudioLoader label="Loading Resume Studio…" />,
+  ssr: false,
+})
 
-const ImprovedCoverLetterBuilder = dynamic(
-  () => import('@/components/ImprovedCoverLetterBuilder'),
-  {
-    loading: () => (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Cover Letter Builder...</p>
-        </div>
-      </div>
-    ),
-    ssr: false
-  }
-)
+const ImprovedCoverLetterBuilder = dynamic(() => import('@/components/ImprovedCoverLetterBuilder'), {
+  loading: () => <StudioLoader label="Loading Letter Studio…" />,
+  ssr: false,
+})
 
-const AIATSEvaluator = dynamic(
-  () => import('@/components/AIATSEvaluator'),
-  {
-    loading: () => (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading AI ATS Evaluator...</p>
-        </div>
-      </div>
-    ),
-    ssr: false
-  }
-)
+const AIATSEvaluator = dynamic(() => import('@/components/AIATSEvaluator'), {
+  loading: () => <StudioLoader label="Loading ATS Studio…" />,
+  ssr: false,
+})
 
-const JobTrackerPage = dynamic(
-  () => import('@/components/JobTrackerPage'),
-  {
-    loading: () => (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Job Tracker...</p>
-        </div>
-      </div>
-    ),
-    ssr: false
-  }
-)
+const JobTrackerPage = dynamic(() => import('@/components/JobTrackerPage'), {
+  loading: () => <StudioLoader label="Loading Job Tracker…" />,
+  ssr: false,
+})
 
-const ATSHistoryPage = dynamic(
-  () => import('@/components/ATSHistoryPage'),
-  {
-    loading: () => (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading ATS History...</p>
-        </div>
+const ATSHistoryPage = dynamic(() => import('@/components/ATSHistoryPage'), {
+  loading: () => <StudioLoader label="Loading History…" />,
+  ssr: false,
+})
+
+const SettingsPage = dynamic(() => import('@/components/SettingsPage'), {
+  loading: () => <StudioLoader label="Loading Settings…" />,
+  ssr: false,
+})
+
+const DocumentsPage = dynamic(() => import('@/components/DocumentsPage'), {
+  loading: () => <StudioLoader label="Loading Documents…" />,
+  ssr: false,
+})
+
+const GuidelinesPage = dynamic(() => import('@/components/GuidelinesPage'), {
+  loading: () => <StudioLoader label="Loading Guidelines…" />,
+  ssr: false,
+})
+
+const MemoryPage = dynamic(() => import('@/components/MemoryPage'), {
+  loading: () => <StudioLoader label="Loading Memory…" />,
+  ssr: false,
+})
+
+const PDFPreviewModal = dynamic(() => import('@/components/PDFPreviewModal'), { ssr: false })
+
+function StudioLoader({ label }: { label: string }) {
+  return (
+    <div className="flex-1 bg-brand-mist/20 flex flex-col h-full overflow-hidden">
+      <div className="h-[72px] px-4 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+        <h2 className="font-display font-bold text-brand-ink leading-tight">Headhunter</h2>
       </div>
-    ),
-    ssr: false
-  }
-)
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 p-12 animate-fade-in">
+        <Spinner size="lg" />
+        <p className="text-sm text-brand-steel">{label}</p>
+      </div>
+    </div>
+  )
+}
 
 interface RecentDocument {
   id: number
@@ -87,30 +93,47 @@ interface RecentDocument {
   version_number: string
   branch_name: string
   created_at: string
-  data?: any // Parsed JSON data from the API
+  data?: any
 }
 
+type ActiveTab = 'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator' | 'ats-history' | 'settings' | 'documents' | 'guidelines' | 'memory'
+
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator' | 'ats-history'>('home')
+  const [activeTab, setActiveTab] = useState<ActiveTab>('home')
   const [atsHistoryId, setAtsHistoryId] = useState<string | undefined>(undefined)
   const [trackerPrefillData, setTrackerPrefillData] = useState<any>(null)
   const [trackerAutoOpenModal, setTrackerAutoOpenModal] = useState(false)
   const [recentResumes, setRecentResumes] = useState<RecentDocument[]>([])
   const [recentCoverLetters, setRecentCoverLetters] = useState<RecentDocument[]>([])
+  const [totalResumes, setTotalResumes] = useState(0)
+  const [totalCoverLetters, setTotalCoverLetters] = useState(0)
+  const [totalEvaluations, setTotalEvaluations] = useState(0)
   const [isLoadingResumes, setIsLoadingResumes] = useState(true)
   const [isLoadingCoverLetters, setIsLoadingCoverLetters] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [previewState, setPreviewState] = useState<
+    | null
+    | {
+        kind: 'resume' | 'cover-letter'
+        title: string
+        fileBaseName: string
+        pdfUrl: string
+        data: any
+      }
+  >(null)
 
-  // Fetch recent resumes and cover letters
   useEffect(() => {
+    if (activeTab !== 'home') return
+
     const fetchRecentDocuments = async () => {
       try {
-        // Fetch resumes
         const resumesResponse = await fetch('/api/resumes')
         if (resumesResponse.ok) {
           const allResumes = await resumesResponse.json()
-          // Sort by created_at descending and take top 5
-          const sorted = allResumes.sort((a: RecentDocument, b: RecentDocument) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          setTotalResumes(allResumes.length)
+          const sorted = [...allResumes].sort(
+            (a: RecentDocument, b: RecentDocument) =>
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           )
           setRecentResumes(sorted.slice(0, 5))
         }
@@ -121,13 +144,13 @@ export default function Home() {
       }
 
       try {
-        // Fetch cover letters
         const coverLettersResponse = await fetch('/api/cover-letters')
         if (coverLettersResponse.ok) {
           const allCoverLetters = await coverLettersResponse.json()
-          // Sort by created_at descending and take top 5
-          const sorted = allCoverLetters.sort((a: RecentDocument, b: RecentDocument) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          setTotalCoverLetters(allCoverLetters.length)
+          const sorted = [...allCoverLetters].sort(
+            (a: RecentDocument, b: RecentDocument) =>
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           )
           setRecentCoverLetters(sorted.slice(0, 5))
         }
@@ -136,31 +159,40 @@ export default function Home() {
       } finally {
         setIsLoadingCoverLetters(false)
       }
+
+      try {
+        const evaluationsResponse = await fetch('/api/ats-evaluations')
+        if (evaluationsResponse.ok) {
+          const data = await evaluationsResponse.json()
+          const evaluations = Array.isArray(data) ? data : data.evaluations || []
+          setTotalEvaluations(evaluations.length)
+        }
+      } catch (error) {
+        console.error('Error fetching evaluations:', error)
+      }
     }
 
-    if (activeTab === 'home') {
-      fetchRecentDocuments()
-    }
+    fetchRecentDocuments()
   }, [activeTab])
 
   const handlePreviewResume = async (resume: RecentDocument) => {
     try {
-      // Use the already-parsed data field from the API
-      const resumeData = resume.data || {}
-
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resumeData)
+        body: JSON.stringify(resume.data || {}),
       })
-
       if (response.ok) {
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
-        window.open(url, '_blank')
+        setPreviewState({
+          kind: 'resume',
+          title: resume.version_name,
+          fileBaseName: `${resume.version_name}-${resume.version_number}`,
+          pdfUrl: url,
+          data: resume.data || {},
+        })
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
         alert('Failed to preview resume. Please try again.')
       }
     } catch (error) {
@@ -171,15 +203,11 @@ export default function Home() {
 
   const handleDownloadResume = async (resume: RecentDocument) => {
     try {
-      // Use the already-parsed data field from the API
-      const resumeData = resume.data || {}
-
       const response = await fetch('/api/generate-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resumeData)
+        body: JSON.stringify(resume.data || {}),
       })
-
       if (response.ok) {
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
@@ -191,8 +219,6 @@ export default function Home() {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
         alert('Failed to download resume. Please try again.')
       }
     } catch (error) {
@@ -203,33 +229,32 @@ export default function Home() {
 
   const handlePreviewCoverLetter = async (coverLetter: RecentDocument) => {
     try {
-      // Use the already-parsed data field from the API
       const coverLetterData = coverLetter.data || {}
-
-      // Transform data from database format to API format
       const apiData = {
         personalInfo: coverLetterData.personalInfo || {},
-        recipient: coverLetterData.recipientInfo || {}, // recipientInfo -> recipient
+        recipient: coverLetterData.recipientInfo || {},
         content: {
           opening: coverLetterData.openingParagraph || '',
           bodyParagraphs: coverLetterData.bodyParagraphs || [],
-          closing: coverLetterData.closingParagraph || ''
-        }
+          closing: coverLetterData.closingParagraph || '',
+        },
       }
-
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(apiData)
+        body: JSON.stringify(apiData),
       })
-
       if (response.ok) {
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
-        window.open(url, '_blank')
+        setPreviewState({
+          kind: 'cover-letter',
+          title: coverLetter.version_name,
+          fileBaseName: `${coverLetter.version_name}-${coverLetter.version_number}`,
+          pdfUrl: url,
+          data: apiData,
+        })
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
         alert('Failed to preview cover letter. Please try again.')
       }
     } catch (error) {
@@ -240,26 +265,21 @@ export default function Home() {
 
   const handleDownloadCoverLetter = async (coverLetter: RecentDocument) => {
     try {
-      // Use the already-parsed data field from the API
       const coverLetterData = coverLetter.data || {}
-
-      // Transform data from database format to API format
       const apiData = {
         personalInfo: coverLetterData.personalInfo || {},
-        recipient: coverLetterData.recipientInfo || {}, // recipientInfo -> recipient
+        recipient: coverLetterData.recipientInfo || {},
         content: {
           opening: coverLetterData.openingParagraph || '',
           bodyParagraphs: coverLetterData.bodyParagraphs || [],
-          closing: coverLetterData.closingParagraph || ''
-        }
+          closing: coverLetterData.closingParagraph || '',
+        },
       }
-
       const response = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(apiData)
+        body: JSON.stringify(apiData),
       })
-
       if (response.ok) {
         const blob = await response.blob()
         const url = URL.createObjectURL(blob)
@@ -271,8 +291,6 @@ export default function Home() {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
         alert('Failed to download cover letter. Please try again.')
       }
     } catch (error) {
@@ -282,22 +300,13 @@ export default function Home() {
   }
 
   const handleDeleteResume = async (resume: RecentDocument) => {
-    if (!confirm(`Are you sure you want to delete "${resume.version_name}" (${resume.version_number})? This cannot be undone.`)) {
-      return
-    }
-
+    if (!confirm(`Are you sure you want to delete "${resume.version_name}" (${resume.version_number})? This cannot be undone.`)) return
     try {
-      const response = await fetch(`/api/resumes/${resume.id}`, {
-        method: 'DELETE'
-      })
-
+      const response = await fetch(`/api/resumes/${resume.id}`, { method: 'DELETE' })
       if (response.ok) {
-        // Refresh the list
         setRecentResumes(recentResumes.filter(r => r.id !== resume.id))
-        alert('Resume deleted successfully')
+        setTotalResumes(t => Math.max(0, t - 1))
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
         alert('Failed to delete resume. Please try again.')
       }
     } catch (error) {
@@ -307,22 +316,13 @@ export default function Home() {
   }
 
   const handleDeleteCoverLetter = async (coverLetter: RecentDocument) => {
-    if (!confirm(`Are you sure you want to delete "${coverLetter.version_name}" (${coverLetter.version_number})? This cannot be undone.`)) {
-      return
-    }
-
+    if (!confirm(`Are you sure you want to delete "${coverLetter.version_name}" (${coverLetter.version_number})? This cannot be undone.`)) return
     try {
-      const response = await fetch(`/api/cover-letters/${coverLetter.id}`, {
-        method: 'DELETE'
-      })
-
+      const response = await fetch(`/api/cover-letters/${coverLetter.id}`, { method: 'DELETE' })
       if (response.ok) {
-        // Refresh the list
         setRecentCoverLetters(recentCoverLetters.filter(c => c.id !== coverLetter.id))
-        alert('Cover letter deleted successfully')
+        setTotalCoverLetters(t => Math.max(0, t - 1))
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', errorText)
         alert('Failed to delete cover letter. Please try again.')
       }
     } catch (error) {
@@ -332,12 +332,10 @@ export default function Home() {
   }
 
   const handleViewSampleResume = () => {
-    // Open the static sample resume PDF in a new tab
     window.open('/samples/resumes/sample-resume.pdf', '_blank')
   }
 
   const handleViewSampleCoverLetter = () => {
-    // Open the static sample cover letter PDF in a new tab
     window.open('/samples/cover-letters/sample-cover-letter.pdf', '_blank')
   }
 
@@ -348,7 +346,6 @@ export default function Home() {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
@@ -356,53 +353,220 @@ export default function Home() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  if (activeTab === 'resume') {
-    return (
-      <ToastProvider>
-        <EnhancedResumeBuilder onBack={() => setActiveTab('home')} />
-      </ToastProvider>
-    )
-  }
+  type RecentItem = RecentDocument & { docType: 'resume' | 'cover' }
+  const recentDocuments: RecentItem[] = [
+    ...recentResumes.map(doc => ({ ...doc, docType: 'resume' as const })),
+    ...recentCoverLetters.map(doc => ({ ...doc, docType: 'cover' as const })),
+  ]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 8)
 
-  if (activeTab === 'cover') {
-    return (
-      <ToastProvider>
-        <ImprovedCoverLetterBuilder onBack={() => setActiveTab('home')} />
-      </ToastProvider>
-    )
-  }
+  const sidebar = (
+    <SidebarNav
+      brand="Headhunter"
+      onLogoClick={() => setActiveTab('home')}
+      isCollapsed={isSidebarCollapsed}
+      onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      items={[
+        { id: 'home', label: 'Dashboard', icon: <LayoutGrid className="w-4 h-4" />, active: activeTab === 'home', onClick: () => setActiveTab('home') },
+        { id: 'resume', label: 'Resume', icon: <FileText className="w-4 h-4" />, active: activeTab === 'resume', onClick: () => setActiveTab('resume') },
+        { id: 'cover', label: 'Cover Letter', icon: <Mail className="w-4 h-4" />, active: activeTab === 'cover', onClick: () => setActiveTab('cover') },
+        { id: 'ai-evaluator', label: 'ATS Evaluator', icon: <Sparkles className="w-4 h-4" />, active: activeTab === 'ai-evaluator', onClick: () => setActiveTab('ai-evaluator') },
+        { id: 'tracker', label: 'Job Tracker', icon: <BarChart3 className="w-4 h-4" />, active: activeTab === 'tracker', onClick: () => setActiveTab('tracker') },
+        { id: 'documents', label: 'Documents', icon: <FolderArchive className="w-4 h-4" />, active: activeTab === 'documents', onClick: () => setActiveTab('documents') },
+      ]}
+      secondaryItems={[
+        { id: 'settings', label: 'Settings', icon: <SettingsIcon className="w-4 h-4" />, active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
+      ]}
+    />
+  )
 
-  if (activeTab === 'ai-evaluator') {
-    return (
-      <ToastProvider>
+  const renderDashboard = () => (
+    <div className="flex-1 bg-brand-mist/20 flex flex-col h-full overflow-hidden">
+      <div className="h-[72px] px-6 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+        <div>
+          <h2 className="font-display font-bold text-brand-ink leading-tight">Dashboard</h2>
+          <p className="text-[10px] uppercase tracking-wider text-brand-steel font-medium">Workspace Overview</p>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-6 space-y-8">
+        <Card className="bg-gradient-to-br from-brand-ink to-brand-slate text-white border-none shadow-soft">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between py-2">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-white/70">Welcome to Headhunter</p>
+              <h2 className="mt-3 text-3xl font-semibold font-display">Craft confident applications today.</h2>
+              <p className="mt-3 text-sm text-white/80 max-w-2xl">
+                Professional resumes, tailored cover letters, and AI insights — all in one workspace to accelerate your career.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 lg:flex-nowrap">
+              <button
+                onClick={() => setActiveTab('resume')}
+                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-brand-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              >
+                New Resume
+              </button>
+              <button
+                onClick={() => setActiveTab('cover')}
+                className="inline-flex items-center justify-center rounded-full border border-white/70 bg-transparent px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              >
+                New Cover Letter
+              </button>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <StatCard label="Resumes" value={totalResumes} meta="Total versions" icon={<FileText className="h-6 w-6" />} />
+          <StatCard label="Cover Letters" value={totalCoverLetters} meta="Total versions" icon={<Mail className="h-6 w-6" />} />
+          <StatCard label="Evaluations" value={totalEvaluations} meta="ATS runs logged" icon={<Sparkles className="h-6 w-6" />} />
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <Card title="Recent Documents" description="Latest resume and cover letter versions across your workspace.">
+            {(isLoadingResumes || isLoadingCoverLetters) && (
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-sm text-brand-steel animate-fade-in">
+                <Spinner size="lg" />
+                <p>Loading your documents…</p>
+              </div>
+            )}
+
+            {!isLoadingResumes && !isLoadingCoverLetters && recentDocuments.length === 0 && (
+              <EmptyState
+                title="No documents yet"
+                description="Create your first resume or cover letter to start building your archive."
+                icon={<FileText className="h-10 w-10" />}
+                action={<Button size="sm" onClick={() => setActiveTab('resume')}>Create Resume</Button>}
+              />
+            )}
+
+            {!isLoadingResumes && !isLoadingCoverLetters && recentDocuments.length > 0 && (
+              <div className="overflow-hidden rounded-xl border border-brand-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-brand-mist text-brand-steel uppercase tracking-[0.18em] text-[11px]">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Document</th>
+                      <th className="px-4 py-3 text-left">Type</th>
+                      <th className="px-4 py-3 text-left">Version</th>
+                      <th className="px-4 py-3 text-left">Branch</th>
+                      <th className="px-4 py-3 text-left">Updated</th>
+                      <th className="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-brand-border bg-white">
+                    {recentDocuments.map(doc => (
+                      <tr key={`${doc.docType}-${doc.id}`} className="hover:bg-brand-mist/60 transition-colors">
+                        <td className="px-4 py-3 font-medium text-brand-ink">{doc.version_name}</td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full border border-brand-border px-2.5 py-0.5 text-xs font-semibold text-brand-slate">
+                            {doc.docType === 'resume' ? 'Resume' : 'Cover Letter'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full bg-brand-ink px-2.5 py-0.5 text-xs font-semibold text-white">
+                            {doc.version_number}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-brand-steel">{doc.branch_name}</td>
+                        <td className="px-4 py-3 text-brand-steel">{formatDate(doc.created_at)}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => (doc.docType === 'resume' ? handlePreviewResume(doc) : handlePreviewCoverLetter(doc))}
+                            >
+                              <Eye className="h-4 w-4" />
+                              Preview
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => (doc.docType === 'resume' ? handleDownloadResume(doc) : handleDownloadCoverLetter(doc))}
+                            >
+                              <Download className="h-4 w-4" />
+                              Download
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => (doc.docType === 'resume' ? handleDeleteResume(doc) : handleDeleteCoverLetter(doc))}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          <Card title="Reference Library" description="Samples and a complete writing playbook.">
+            <div className="space-y-2">
+              <button
+                onClick={() => setActiveTab('guidelines')}
+                className="flex w-full items-center justify-between rounded-lg border border-brand-border bg-brand-ink px-4 py-3 text-left text-sm font-semibold text-white transition hover:bg-brand-slate"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Writing Guidelines
+                </span>
+                <ChevronRight className="h-4 w-4 text-white/80" />
+              </button>
+              <button
+                onClick={handleViewSampleResume}
+                className="flex w-full items-center justify-between rounded-lg border border-brand-border bg-white px-4 py-3 text-left text-sm font-medium text-brand-ink transition hover:bg-brand-mist"
+              >
+                Sample Resume
+                <ChevronRight className="h-4 w-4 text-brand-steel" />
+              </button>
+              <button
+                onClick={handleViewSampleCoverLetter}
+                className="flex w-full items-center justify-between rounded-lg border border-brand-border bg-white px-4 py-3 text-left text-sm font-medium text-brand-ink transition hover:bg-brand-mist"
+              >
+                Sample Cover Letter
+                <ChevronRight className="h-4 w-4 text-brand-steel" />
+              </button>
+            </div>
+          </Card>
+        </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderContent = () => {
+    if (activeTab === 'resume') return <EnhancedResumeBuilder onBack={() => setActiveTab('home')} />
+    if (activeTab === 'cover') return <ImprovedCoverLetterBuilder onBack={() => setActiveTab('home')} />
+    if (activeTab === 'ai-evaluator') {
+      return (
         <AIATSEvaluator
           onBack={() => setActiveTab('home')}
-          onNavigateToHistory={(evaluationId) => {
-            if (evaluationId) {
-              setAtsHistoryId(String(evaluationId))
-            }
+          onNavigateToHistory={evaluationId => {
+            if (evaluationId) setAtsHistoryId(String(evaluationId))
             setActiveTab('ats-history')
           }}
         />
-      </ToastProvider>
-    )
-  }
-
-  if (activeTab === 'tracker') {
-    return (
-      <ToastProvider>
+      )
+    }
+    if (activeTab === 'tracker') {
+      return (
         <JobTrackerPage
           onBack={() => setActiveTab('home')}
           prefillData={trackerPrefillData}
           autoOpenModal={trackerAutoOpenModal}
         />
-      </ToastProvider>
-    )
-  }
-
-  if (activeTab === 'ats-history') {
-    return (
-      <ToastProvider>
+      )
+    }
+    if (activeTab === 'ats-history') {
+      return (
         <ATSHistoryPage
           onBack={() => setActiveTab('home')}
           evaluationId={atsHistoryId}
@@ -413,371 +577,57 @@ export default function Home() {
             setActiveTab('tracker')
           }}
         />
-      </ToastProvider>
-    )
+      )
+    }
+    if (activeTab === 'settings') {
+      return (
+        <SettingsPage
+          onBack={() => setActiveTab('home')}
+          onOpenMemory={() => setActiveTab('memory')}
+        />
+      )
+    }
+    if (activeTab === 'documents') return <DocumentsPage onBack={() => setActiveTab('home')} />
+    if (activeTab === 'guidelines') return <GuidelinesPage onBack={() => setActiveTab('home')} />
+    if (activeTab === 'memory') return <MemoryPage onBack={() => setActiveTab('settings')} />
+    return renderDashboard()
+  }
+
+  const closePreview = () => {
+    if (previewState?.pdfUrl) URL.revokeObjectURL(previewState.pdfUrl)
+    setPreviewState(null)
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <h1 className="text-4xl font-bold text-white tracking-tight">
-            LETS GET A JOB!!!
-          </h1>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-6 py-16">
-
-        {/* Vertical Tiles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Resume Card */}
-          <div
-            onClick={() => setActiveTab('resume')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
-          >
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
-                <FileText className="w-12 h-12 text-white" />
-              </div>
-
-              <h3 className="text-2xl font-bold text-gray-900">
-                Resume Builder
-              </h3>
-
-              <p className="text-gray-600 text-base">
-                Build ATS-compatible resumes with version control
-              </p>
-            </div>
-          </div>
-
-          {/* Cover Letter Card */}
-          <div
-            onClick={() => setActiveTab('cover')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
-          >
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
-                <Mail className="w-12 h-12 text-white" />
-              </div>
-
-              <h3 className="text-2xl font-bold text-gray-900">
-                Cover Letter Builder
-              </h3>
-
-              <p className="text-gray-600 text-base">
-                Create professional cover letters with version control
-              </p>
-            </div>
-          </div>
-
-          {/* AI ATS Evaluator Card */}
-          <div
-            onClick={() => setActiveTab('ai-evaluator')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
-          >
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
-                <Sparkles className="w-12 h-12 text-white" />
-              </div>
-
-              <h3 className="text-2xl font-bold text-gray-900">
-                AI ATS Evaluator
-              </h3>
-
-              <p className="text-gray-600 text-base">
-                Get AI-powered feedback on your resume and cover letter
-              </p>
-            </div>
-          </div>
-
-          {/* Job Tracker Card */}
-          <div
-            onClick={() => setActiveTab('tracker')}
-            className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-12 cursor-pointer transition-all hover:shadow-xl rounded-lg"
-          >
-            <div className="flex flex-col items-center text-center space-y-6">
-              <div className="w-24 h-24 bg-gray-900 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-12 h-12 text-white" />
-              </div>
-
-              <h3 className="text-2xl font-bold text-gray-900">
-                Job Tracker
-              </h3>
-
-              <p className="text-gray-600 text-base">
-                Track applications with kanban board and analytics
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Sample Documents Section */}
-        <div className="mt-16 mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Need Inspiration?</h2>
-            <p className="text-gray-600 text-lg">Check out our sample documents to see what you can create</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            <button
-              onClick={handleViewSampleResume}
-              className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 rounded-lg transition-all hover:shadow-xl"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gray-900 rounded-lg flex items-center justify-center">
-                    <FileText className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">Sample Resume</h3>
-                    <p className="text-sm text-gray-600">See a professional resume example</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-6 h-6 text-gray-900 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-
-            <button
-              onClick={handleViewSampleCoverLetter}
-              className="group bg-white border-2 border-gray-200 hover:border-gray-900 p-8 rounded-lg transition-all hover:shadow-xl"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gray-900 rounded-lg flex items-center justify-center">
-                    <Mail className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">Sample Cover Letter</h3>
-                    <p className="text-sm text-gray-600">See a professional cover letter example</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-6 h-6 text-gray-900 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Recent Documents Section */}
-        <div className="mt-16 space-y-12">
-          {/* Recent Resumes */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Clock className="w-6 h-6 text-gray-600" />
-                <h2 className="text-2xl font-bold text-gray-900">Recent Resumes</h2>
-              </div>
-              {recentResumes.length > 0 && (
-                <button
-                  onClick={() => setActiveTab('resume')}
-                  className="text-sm text-gray-900 hover:text-gray-700 font-medium flex items-center gap-1"
-                >
-                  View all
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {isLoadingResumes ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="text-gray-600 mt-4">Loading resumes...</p>
-              </div>
-            ) : recentResumes.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 mb-4">No resumes yet</p>
-                <button
-                  onClick={() => setActiveTab('resume')}
-                  className="text-gray-900 hover:text-gray-700 font-medium"
-                >
-                  Create your first resume →
-                </button>
-              </div>
-            ) : (
-              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Resume Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Version
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Branch
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Last Modified
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {recentResumes.map((resume) => (
-                      <tr key={resume.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{resume.version_name}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-900 text-white">
-                            {resume.version_number}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            {resume.branch_name}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(resume.created_at)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handlePreviewResume(resume)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                              Preview
-                            </button>
-                            <button
-                              onClick={() => handleDownloadResume(resume)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-50 transition-colors"
-                            >
-                              <Download className="w-4 h-4" />
-                              Download
-                            </button>
-                            <button
-                              onClick={() => handleDeleteResume(resume)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                              title="Delete resume"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Recent Cover Letters */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Clock className="w-6 h-6 text-gray-600" />
-                <h2 className="text-2xl font-bold text-gray-900">Recent Cover Letters</h2>
-              </div>
-              {recentCoverLetters.length > 0 && (
-                <button
-                  onClick={() => setActiveTab('cover')}
-                  className="text-sm text-gray-900 hover:text-gray-700 font-medium flex items-center gap-1"
-                >
-                  View all
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {isLoadingCoverLetters ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="text-gray-600 mt-4">Loading cover letters...</p>
-              </div>
-            ) : recentCoverLetters.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <Mail className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 mb-4">No cover letters yet</p>
-                <button
-                  onClick={() => setActiveTab('cover')}
-                  className="text-gray-900 hover:text-gray-700 font-medium"
-                >
-                  Create your first cover letter →
-                </button>
-              </div>
-            ) : (
-              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cover Letter Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Version
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Branch
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Last Modified
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {recentCoverLetters.map((coverLetter) => (
-                      <tr key={coverLetter.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{coverLetter.version_name}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-900 text-white">
-                            {coverLetter.version_number}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            {coverLetter.branch_name}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(coverLetter.created_at)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handlePreviewCoverLetter(coverLetter)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                              Preview
-                            </button>
-                            <button
-                              onClick={() => handleDownloadCoverLetter(coverLetter)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-gray-900 text-gray-900 rounded-md hover:bg-gray-50 transition-colors"
-                            >
-                              <Download className="w-4 h-4" />
-                              Download
-                            </button>
-                            <button
-                              onClick={() => handleDeleteCoverLetter(coverLetter)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                              title="Delete cover letter"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <ToastProvider>
+      {previewState && (
+        <PDFPreviewModal
+          isOpen={true}
+          onClose={closePreview}
+          pdfUrl={previewState.pdfUrl}
+          title={previewState.title}
+          docType={previewState.kind}
+          data={previewState.data}
+          fileBaseName={previewState.fileBaseName}
+          onDownload={() => {
+            const a = document.createElement('a')
+            a.href = previewState.pdfUrl
+            a.download = `${previewState.fileBaseName}.pdf`.toLowerCase().replace(/\s+/g, '-')
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+          }}
+        />
+      )}
+      <AppShell
+        sidebar={sidebar}
+        header={null}
+        noPadding
+        isCollapsed={isSidebarCollapsed}
+        hideSidebar={activeTab === 'ats-history' || activeTab === 'settings' || activeTab === 'guidelines' || activeTab === 'memory'}
+      >
+        {renderContent()}
+      </AppShell>
+    </ToastProvider>
   )
 }
-

@@ -294,10 +294,10 @@ function ATSHistoryPageContent({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-mist/20 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading evaluation history...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
+          <p className="text-brand-steel">Loading evaluation history...</p>
         </div>
       </div>
     )
@@ -305,32 +305,30 @@ function ATSHistoryPageContent({
 
   if (evaluationHistory.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-brand-mist/20">
         {/* Header */}
-        <div className="bg-gray-900 sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center gap-4">
-              {onBack && (
-                <button
-                  onClick={onBack}
-                  className="p-2 hover:bg-gray-800 rounded transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 text-white" />
-                </button>
-              )}
-              <h1 className="text-xl font-bold text-white">Evaluation History</h1>
-            </div>
+        <div className="h-[72px] px-6 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="p-2 hover:bg-brand-mist rounded-full transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-brand-ink" />
+              </button>
+            )}
+            <h1 className="text-xl font-bold text-brand-ink">Evaluation History</h1>
           </div>
         </div>
 
         {/* Empty State */}
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Completed Evaluations</h2>
-          <p className="text-gray-600 mb-2">
+          <Calendar className="w-16 h-16 text-brand-steel mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-brand-ink mb-2">No Completed Evaluations</h2>
+          <p className="text-brand-steel mb-2">
             You haven't completed any ATS evaluations yet.
           </p>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-brand-steel mb-6">
             Evaluations appear here only after they have been fully processed and scored.
           </p>
           <Button
@@ -348,49 +346,45 @@ function ATSHistoryPageContent({
   const evaluationResult = selectedEvaluation ? getParsedEvaluationResult(selectedEvaluation) : null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-mist/20">
       {/* Header */}
-      <div className="bg-gray-900 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {onBack && (
-                <button
-                  onClick={onBack}
-                  className="p-2 hover:bg-gray-800 rounded transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 text-white" />
-                </button>
-              )}
-              <h1 className="text-xl font-bold text-white">Evaluation History</h1>
-            </div>
-            <Button
-              variant="outline"
-              size="md"
-              onClick={handleNewEvaluation}
+      <div className="h-[72px] px-6 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 hover:bg-brand-mist rounded transition-colors"
             >
-              New Evaluation
-            </Button>
-          </div>
+              <ArrowLeft className="w-5 h-5 text-brand-ink" />
+            </button>
+          )}
+          <h1 className="text-xl font-bold text-brand-ink">Evaluation History</h1>
         </div>
+        <Button
+          variant="outline"
+          size="md"
+          onClick={handleNewEvaluation}
+        >
+          New Evaluation
+        </Button>
       </div>
 
       {/* Main Content with Sidebar */}
       <div className="flex">
         {/* Sidebar - Evaluation History */}
-        <div className="w-64 bg-gray-900 border-r border-gray-800 min-h-screen sticky top-16 overflow-y-auto max-h-[calc(100vh-4rem)]">
-          <div className="p-4 border-b border-gray-800">
-            <h2 className="font-bold text-white text-sm">
+        <div className="w-64 bg-white border-r border-brand-border min-h-screen sticky top-[72px] overflow-y-auto max-h-[calc(100vh-72px)]">
+          <div className="p-4 border-b border-brand-border">
+            <h2 className="text-[10px] uppercase tracking-wider text-brand-steel font-medium">
               {evaluationHistory.length} Evaluation{evaluationHistory.length !== 1 ? 's' : ''}
             </h2>
           </div>
-          <div className="divide-y divide-gray-800">
+          <div className="p-2 space-y-1">
             {evaluationHistory.map((evaluation) => (
               <div
                 key={evaluation.id}
-                className={`relative group ${selectedEvaluation?.id === evaluation.id
-                  ? 'bg-gray-800 border-l-4 border-l-blue-500'
-                  : 'hover:bg-gray-800/50'
+                className={`relative group rounded-lg ${selectedEvaluation?.id === evaluation.id
+                  ? 'bg-brand-mist border-l-4 border-l-brand-accent'
+                  : 'hover:bg-brand-mist/60'
                   } transition-colors`}
               >
                 {editingId === evaluation.id ? (
@@ -407,13 +401,13 @@ function ATSHistoryPageContent({
                           setEditingName('')
                         }
                       }}
-                      className="w-full px-2 py-1 text-sm bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-blue-500"
+                      className="w-full px-2 py-1 text-sm bg-white text-brand-ink border border-brand-border rounded-lg focus:outline-none focus:border-brand-accent"
                       autoFocus
                     />
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={() => handleRename(evaluation.id, editingName)}
-                        className="flex-1 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center gap-1"
+                        className="flex-1 px-2 py-1 text-xs bg-brand-accent text-white rounded-full hover:bg-brand-ink flex items-center justify-center gap-1"
                       >
                         <Check className="w-3 h-3" /> Save
                       </button>
@@ -422,7 +416,7 @@ function ATSHistoryPageContent({
                           setEditingId(null)
                           setEditingName('')
                         }}
-                        className="flex-1 px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-600 flex items-center justify-center gap-1"
+                        className="flex-1 px-2 py-1 text-xs bg-white text-brand-slate border border-brand-border rounded-full hover:bg-brand-mist flex items-center justify-center gap-1"
                       >
                         <X className="w-3 h-3" /> Cancel
                       </button>
@@ -436,7 +430,7 @@ function ATSHistoryPageContent({
                       className="flex-1 text-left p-4"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="text-xs text-gray-400 flex items-center gap-1">
+                        <div className="text-xs text-brand-steel flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {new Date(evaluation.created_at).toLocaleDateString('en-US', {
                             month: 'short',
@@ -446,18 +440,18 @@ function ATSHistoryPageContent({
                           })}
                         </div>
                       </div>
-                      <div className="text-sm font-medium text-white mb-2 line-clamp-2">
+                      <div className="text-sm font-medium text-brand-ink mb-2 line-clamp-2">
                         {evaluation.custom_name || getDefaultName(evaluation)}
                       </div>
                       {evaluation.overall_score && (
                         <div className="flex items-center gap-2">
-                          <div className={`text-xs font-bold ${evaluation.overall_score >= 8 ? 'text-green-400' :
-                            evaluation.overall_score >= 6 ? 'text-yellow-400' :
-                              'text-red-400'
+                          <div className={`text-xs font-bold ${evaluation.overall_score >= 8 ? 'text-green-600' :
+                            evaluation.overall_score >= 6 ? 'text-yellow-600' :
+                              'text-red-600'
                             }`}>
                             {evaluation.overall_score.toFixed(1)}/10
                           </div>
-                          <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-brand-border rounded-full overflow-hidden">
                             <div
                               className={`h-full ${evaluation.overall_score >= 8 ? 'bg-green-500' :
                                 evaluation.overall_score >= 6 ? 'bg-yellow-500' :
@@ -477,29 +471,29 @@ function ATSHistoryPageContent({
                           e.stopPropagation()
                           setMenuOpenId(menuOpenId === evaluation.id ? null : evaluation.id)
                         }}
-                        className="p-2 m-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-2 m-2 text-brand-steel hover:text-brand-ink hover:bg-brand-mist rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
 
                       {/* Dropdown Menu */}
                       {menuOpenId === evaluation.id && (
-                        <div className="absolute right-0 mt-1 w-40 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
+                        <div className="absolute right-0 mt-1 w-40 bg-white border border-brand-border rounded-lg shadow-soft z-50">
                           <button
                             onClick={() => handleApply(evaluation)}
-                            className="w-full px-4 py-2 text-left text-sm text-green-400 hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                            className="w-full px-4 py-2 text-left text-sm text-green-700 hover:bg-brand-mist flex items-center gap-2 rounded-t-lg"
                           >
                             <RefreshCw className="w-4 h-4" /> Apply
                           </button>
                           <button
                             onClick={() => startRename(evaluation)}
-                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700 flex items-center gap-2"
+                            className="w-full px-4 py-2 text-left text-sm text-brand-ink hover:bg-brand-mist flex items-center gap-2"
                           >
                             <Pencil className="w-4 h-4" /> Rename
                           </button>
                           <button
                             onClick={() => handleDelete(evaluation.id)}
-                            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2 rounded-b-lg"
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-brand-mist flex items-center gap-2 rounded-b-lg"
                           >
                             <Trash2 className="w-4 h-4" /> Delete
                           </button>
@@ -525,17 +519,17 @@ function ATSHistoryPageContent({
               onNewEvaluation={handleNewEvaluation}
             />
           ) : selectedEvaluation && !evaluationResult ? (
-            <div className="bg-white border border-gray-300 rounded-lg p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-              <p className="text-gray-900 font-medium mb-2">Loading evaluation data...</p>
-              <p className="text-sm text-gray-600">
+            <div className="bg-white border border-brand-border rounded-xl shadow-soft p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
+              <p className="text-brand-ink font-medium mb-2">Loading evaluation data...</p>
+              <p className="text-sm text-brand-steel">
                 Evaluation ID: {selectedEvaluation.id}
               </p>
             </div>
           ) : (
-            <div className="bg-white border border-gray-300 rounded-lg p-12 text-center">
-              <p className="text-gray-900 font-medium mb-2">Select an evaluation from the sidebar to view details</p>
-              <p className="text-sm text-gray-600">
+            <div className="bg-white border border-brand-border rounded-xl shadow-soft p-12 text-center">
+              <p className="text-brand-ink font-medium mb-2">Select an evaluation from the sidebar to view details</p>
+              <p className="text-sm text-brand-steel">
                 {evaluationHistory.length} evaluation{evaluationHistory.length !== 1 ? 's' : ''} available
               </p>
             </div>

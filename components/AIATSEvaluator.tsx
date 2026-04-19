@@ -1,16 +1,28 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, Upload, FileText, Mail, Link as LinkIcon, Sparkles, AlertCircle, CheckCircle2, TrendingUp, TrendingDown, Minus, Loader2, History } from 'lucide-react'
+import { ArrowLeft, Upload, FileText, Mail, Link as LinkIcon, Sparkles, AlertCircle, CheckCircle2, TrendingUp, TrendingDown, Minus, Loader2, History, Rocket } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
 import { useToast } from './ui/Toast'
 import ATSResultsView from './ATSResultsView'
+import ApplyModal from './ApplyModal'
 
 interface AIATSEvaluatorProps {
   onBack: () => void
   onNavigateToHistory?: (evaluationId?: number) => void
+}
+
+async function blobToBase64(blob: Blob): Promise<string> {
+  const buffer = await blob.arrayBuffer()
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  const chunk = 0x8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)))
+  }
+  return btoa(binary)
 }
 
 interface ResumeVersion {
@@ -125,16 +137,16 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
   ]
 
   return (
-    <div className="fixed inset-0 bg-gray-900/95 backdrop-blur-md z-50 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-2xl w-full mx-4 border border-gray-200">
+    <div className="fixed inset-0 bg-brand-ink/95 backdrop-blur-md z-50 flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow-soft p-10 max-w-2xl w-full mx-4 border border-brand-border">
         <div className="flex flex-col items-center space-y-8">
           {/* Animated spinner with pulse effect */}
           <div className="relative">
             <div className="w-20 h-20 relative">
-              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-gray-900 rounded-full border-t-transparent animate-spin"></div>
+              <div className="absolute inset-0 border-4 border-brand-border rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-brand-ink rounded-full border-t-transparent animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 bg-gray-900 rounded-full animate-pulse"></div>
+                <div className="w-12 h-12 bg-brand-ink rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>
@@ -145,18 +157,18 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
               <div
                 key={step.number}
                 className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-300 ${currentStep === step.number
-                  ? 'bg-gray-900 text-white shadow-lg scale-105'
+                  ? 'bg-brand-ink text-white shadow-soft scale-105'
                   : currentStep > step.number
-                    ? 'bg-gray-100 text-gray-600'
-                    : 'bg-white text-gray-400 border border-gray-200'
+                    ? 'bg-brand-mist text-brand-steel'
+                    : 'bg-white text-brand-steel border border-brand-border'
                   }`}
               >
                 <div
                   className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${currentStep === step.number
-                    ? 'bg-white text-gray-900'
+                    ? 'bg-white text-brand-ink'
                     : currentStep > step.number
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-200 text-gray-400'
+                      ? 'bg-brand-ink text-white'
+                      : 'bg-brand-border text-brand-steel'
                     }`}
                 >
                   {currentStep > step.number ? '✓' : step.number}
@@ -170,13 +182,13 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
 
           {/* Progress bar */}
           <div className="w-full">
-            <div className="flex justify-between text-sm font-medium text-gray-600 mb-3">
+            <div className="flex justify-between text-sm font-medium text-brand-steel mb-3">
               <span>Overall Progress</span>
               <span>{Math.round((currentStep / totalSteps) * 100)}%</span>
             </div>
-            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <div className="w-full h-3 bg-brand-border rounded-full overflow-hidden shadow-inner">
               <div
-                className="h-full bg-gradient-to-r from-gray-700 to-gray-900 transition-all duration-500 ease-out rounded-full"
+                className="h-full bg-gradient-to-r from-brand-slate to-brand-ink transition-all duration-500 ease-out rounded-full"
                 style={{ width: `${(currentStep / totalSteps) * 100}%` }}
               ></div>
             </div>
@@ -184,7 +196,7 @@ const LoadingOverlay = ({ currentStep, totalSteps }: { currentStep: number; tota
 
           {/* Inspirational quote */}
           <div className="text-center">
-            <p className="text-gray-700 font-medium text-lg animate-pulse min-h-[3rem] flex items-center justify-center">
+            <p className="text-brand-slate font-medium text-lg animate-pulse min-h-[3rem] flex items-center justify-center">
               {LOADING_QUOTES[quoteIndex]}
             </p>
           </div>
@@ -200,13 +212,17 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
   const { showToast } = useToast()
 
   // Input states
-  const [resumeSource, setResumeSource] = useState<'lineage' | 'upload'>('lineage')
-  const [coverLetterSource, setCoverLetterSource] = useState<'lineage' | 'upload'>('lineage')
+  const [resumeSource, setResumeSource] = useState<'lineage' | 'upload' | 'text'>('lineage')
+  const [coverLetterSource, setCoverLetterSource] = useState<'lineage' | 'upload' | 'text'>('lineage')
+  const [resumePastedText, setResumePastedText] = useState('')
+  const [coverLetterPastedText, setCoverLetterPastedText] = useState('')
   const [selectedResumeId, setSelectedResumeId] = useState<number | null>(null)
   const [selectedCoverLetterId, setSelectedCoverLetterId] = useState<number | null>(null)
   const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null)
   const [jobUrl, setJobUrl] = useState('')
+  const [jobText, setJobText] = useState('')
+  const [jobInputMode, setJobInputMode] = useState<'url' | 'text'>('url')
 
   // Data states
   const [resumeVersions, setResumeVersions] = useState<ResumeVersion[]>([])
@@ -218,6 +234,7 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
 
   // Results states
   const [evaluationResult, setEvaluationResult] = useState<EvaluationResponse | null>(null)
+  const [showApplyModal, setShowApplyModal] = useState(false)
   const [parsedResume, setParsedResume] = useState<string>('')
   const [parsedCoverLetter, setParsedCoverLetter] = useState<string>('')
   const [summarizedJD, setSummarizedJD] = useState<string>('')
@@ -281,6 +298,14 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
 
   const handleEvaluate = async () => {
     // Validation
+    if (resumeSource === 'text' && !resumePastedText.trim()) {
+      showToast('error', 'Please paste your resume text')
+      return
+    }
+    if (coverLetterSource === 'text' && !coverLetterPastedText.trim()) {
+      showToast('error', 'Please paste your cover letter text')
+      return
+    }
     if (resumeSource === 'lineage' && !selectedResumeId) {
       showToast('error', 'Please select a resume version')
       return
@@ -297,8 +322,12 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       showToast('error', 'Please upload a cover letter')
       return
     }
-    if (!jobUrl.trim()) {
+    if (jobInputMode === 'url' && !jobUrl.trim()) {
       showToast('error', 'Please enter a job URL')
+      return
+    }
+    if (jobInputMode === 'text' && !jobText.trim()) {
+      showToast('error', 'Please paste the job description text')
       return
     }
 
@@ -311,17 +340,18 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       // Step 1: Process Job Description
       setCurrentStep(1)
 
-      // Fetch job description from URL via n8n
-      const jdResponse = await fetch('/api/n8n/process-jd', {
+      const jdResponse = await fetch('/api/ai/parse-jd', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ jobUrl }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          jobInputMode === 'url' ? { url: jobUrl.trim() } : { text: jobText.trim() }
+        ),
       })
 
       if (!jdResponse.ok) {
-        throw new Error('Failed to process job description')
+        const errBody = await jdResponse.json().catch(() => ({}))
+        const detail = errBody.detail || errBody.error || `HTTP ${jdResponse.status}`
+        throw new Error(`Failed to process job description: ${detail}`)
       }
 
       const jdData = await jdResponse.json()
@@ -334,70 +364,66 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
 
       // Step 2: Process Resume
       setCurrentStep(2)
-      let resumePdfBlob: Blob
-
-      if (resumeSource === 'lineage') {
-        // Fetch resume PDF from API
-        const resumePdfResponse = await fetch(`/api/resumes/${selectedResumeId}/download`)
-        if (!resumePdfResponse.ok) {
-          throw new Error('Failed to fetch resume PDF')
-        }
-        resumePdfBlob = await resumePdfResponse.blob()
+      let parsedResumeText = ''
+      if (resumeSource === 'text') {
+        parsedResumeText = resumePastedText.trim()
       } else {
-        resumePdfBlob = resumeFile!
+        let resumePdfBlob: Blob
+        let resumeFileName = 'resume.pdf'
+        if (resumeSource === 'lineage') {
+          const resumePdfResponse = await fetch(`/api/resumes/${selectedResumeId}/download`)
+          if (!resumePdfResponse.ok) throw new Error('Failed to fetch resume PDF')
+          resumePdfBlob = await resumePdfResponse.blob()
+        } else {
+          resumePdfBlob = resumeFile!
+          resumeFileName = resumeFile!.name || resumeFileName
+        }
+        const pdfBase64 = await blobToBase64(resumePdfBlob)
+        const resumeResponse = await fetch('/api/ai/parse-resume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfBase64, fileName: resumeFileName }),
+        })
+        if (!resumeResponse.ok) {
+          const err = await resumeResponse.json().catch(() => ({}))
+          throw new Error(`Failed to process resume: ${err.detail || err.error || resumeResponse.status}`)
+        }
+        const resumeData = await resumeResponse.json()
+        parsedResumeText = resumeData.output || resumeData.parsedResume || resumeData.parsed || resumeData.text
       }
-
-      const resumeFormData = new FormData()
-      resumeFormData.append('data', resumePdfBlob, 'resume.pdf')
-
-      const resumeResponse = await fetch('/api/n8n/process-resume', {
-        method: 'POST',
-        body: resumeFormData,
-      })
-
-      if (!resumeResponse.ok) {
-        throw new Error('Failed to process resume')
-      }
-
-      const resumeData = await resumeResponse.json()
-      const parsedResumeText = resumeData.output || resumeData.parsedResume || resumeData.parsed || resumeData.text
-      const summarizedResumeText = resumeData.summarizedResume || resumeData.summary || parsedResumeText
-
-      // Store resume results
+      const summarizedResumeText = parsedResumeText
       setParsedResume(parsedResumeText)
 
       // Step 3: Process Cover Letter
       setCurrentStep(3)
-      let coverLetterPdfBlob: Blob
-
-      if (coverLetterSource === 'lineage') {
-        // Fetch cover letter PDF from API
-        const coverLetterPdfResponse = await fetch(`/api/cover-letters/${selectedCoverLetterId}/download`)
-        if (!coverLetterPdfResponse.ok) {
-          throw new Error('Failed to fetch cover letter PDF')
-        }
-        coverLetterPdfBlob = await coverLetterPdfResponse.blob()
+      let parsedCoverLetterText = ''
+      if (coverLetterSource === 'text') {
+        parsedCoverLetterText = coverLetterPastedText.trim()
       } else {
-        coverLetterPdfBlob = coverLetterFile!
+        let coverLetterPdfBlob: Blob
+        let coverLetterFileName = 'cover-letter.pdf'
+        if (coverLetterSource === 'lineage') {
+          const coverLetterPdfResponse = await fetch(`/api/cover-letters/${selectedCoverLetterId}/download`)
+          if (!coverLetterPdfResponse.ok) throw new Error('Failed to fetch cover letter PDF')
+          coverLetterPdfBlob = await coverLetterPdfResponse.blob()
+        } else {
+          coverLetterPdfBlob = coverLetterFile!
+          coverLetterFileName = coverLetterFile!.name || coverLetterFileName
+        }
+        const pdfBase64 = await blobToBase64(coverLetterPdfBlob)
+        const coverLetterResponse = await fetch('/api/ai/parse-cover-letter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfBase64, fileName: coverLetterFileName }),
+        })
+        if (!coverLetterResponse.ok) {
+          const err = await coverLetterResponse.json().catch(() => ({}))
+          throw new Error(`Failed to process cover letter: ${err.detail || err.error || coverLetterResponse.status}`)
+        }
+        const coverLetterData = await coverLetterResponse.json()
+        parsedCoverLetterText = coverLetterData.output || coverLetterData.parsedCoverLetter || coverLetterData.parsed || coverLetterData.text
       }
-
-      const coverLetterFormData = new FormData()
-      coverLetterFormData.append('data', coverLetterPdfBlob, 'cover-letter.pdf')
-
-      const coverLetterResponse = await fetch('/api/n8n/process-cover-letter', {
-        method: 'POST',
-        body: coverLetterFormData,
-      })
-
-      if (!coverLetterResponse.ok) {
-        throw new Error('Failed to process cover letter')
-      }
-
-      const coverLetterData = await coverLetterResponse.json()
-      const parsedCoverLetterText = coverLetterData.output || coverLetterData.parsedCoverLetter || coverLetterData.parsed || coverLetterData.text
-      const summarizedCoverLetterText = coverLetterData.summarizedCoverLetter || coverLetterData.summary || parsedCoverLetterText
-
-      // Store cover letter results
+      const summarizedCoverLetterText = parsedCoverLetterText
       setParsedCoverLetter(parsedCoverLetterText)
 
       // Step 4: Run Final Evaluation
@@ -425,7 +451,7 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       const saveData = await saveResponse.json()
       const evaluationId = saveData.evaluation_id
 
-      const evaluationResponse = await fetch('/api/n8n/evaluate-ats', {
+      const evaluationResponse = await fetch('/api/ai/evaluate-ats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -447,7 +473,16 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       const actualEvaluationResult = evaluationData.output || evaluationData
 
       // Step 6: Update database with evaluation results
-      const overallScore = actualEvaluationResult.overall?.weighted_score || 0
+      // v2 schema uses match_estimate (0-100); legacy used weighted_score (0-10).
+      // DB column is stored on a 0-10 scale for history/sorting compatibility.
+      const matchEstimate = actualEvaluationResult.overall?.match_estimate
+      const weightedScore = actualEvaluationResult.overall?.weighted_score
+      const overallScore =
+        typeof matchEstimate === 'number'
+          ? matchEstimate / 10
+          : typeof weightedScore === 'number'
+            ? weightedScore
+            : 0
 
       await fetch('/api/ats-evaluations', {
         method: 'PATCH',
@@ -516,51 +551,65 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
       <div className={`flex items-center gap-2 ${scoreColor}`}>
         <Icon className="w-5 h-5" />
         <span className="text-3xl font-bold">{score.toFixed(1)}</span>
-        <span className="text-lg font-medium text-gray-500">/10</span>
+        <span className="text-lg font-medium text-brand-steel">/10</span>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-mist/20">
       {/* Loading Overlay */}
       {isEvaluating && <LoadingOverlay currentStep={currentStep} totalSteps={totalSteps} />}
 
       {/* Header */}
-      <div className="bg-gray-900 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={onBack}
-                className="p-2 hover:bg-gray-800 rounded transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-6 h-6 text-white" />
-                <h1 className="text-xl font-bold text-white">
-                  AI ATS Evaluator
-                </h1>
-              </div>
-            </div>
+      <div className="h-[72px] px-6 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="p-2 hover:bg-brand-mist rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-brand-ink" />
+          </button>
+          <h1 className="text-xl font-bold text-brand-ink">
+            ATS Evaluator
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          {evaluationResult && (
             <Button
-              variant="outline"
+              variant="primary"
               size="md"
-              onClick={() => {
-                if (onNavigateToHistory) {
-                  onNavigateToHistory()
-                } else {
-                  router.push('/?tab=ats-history')
-                }
-              }}
-              icon={<History className="w-4 h-4" />}
+              onClick={() => setShowApplyModal(true)}
+              icon={<Rocket className="w-4 h-4" />}
             >
-              History
+              Apply
             </Button>
-          </div>
+          )}
+          <Button
+            variant="outline"
+            size="md"
+            onClick={() => {
+              if (onNavigateToHistory) {
+                onNavigateToHistory()
+              } else {
+                router.push('/?tab=ats-history')
+              }
+            }}
+            icon={<History className="w-4 h-4" />}
+          >
+            History
+          </Button>
         </div>
       </div>
+
+      <ApplyModal
+        open={showApplyModal}
+        onClose={() => setShowApplyModal(false)}
+        initialJobUrl={jobUrl}
+        initialJobDescription={summarizedJD}
+        initialResumeVersionId={selectedResumeId}
+        initialCoverLetterVersionId={selectedCoverLetterId}
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
@@ -568,11 +617,11 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
           // Input Form
           <div className="space-y-6">
             {/* Instructions */}
-            <div className="bg-blue-50 border border-blue-200 p-4">
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div>
-                  <h3 className="font-bold text-blue-900 mb-1">How it works</h3>
+                  <h3 className="text-sm font-semibold text-blue-900 mb-1">How it works</h3>
                   <p className="text-sm text-blue-800">
                     Upload or select your resume and cover letter, provide the job URL, and our AI will analyze your application against the job requirements, providing detailed feedback and improvement suggestions.
                   </p>
@@ -581,41 +630,36 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
             </div>
 
             {/* Resume Selection */}
-            <div className="bg-white border border-gray-300">
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+            <div className="bg-white border border-brand-border rounded-xl shadow-soft">
+              <div className="px-6 py-4 bg-brand-mist border-b border-brand-border rounded-t-xl">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-gray-900" />
-                  <h2 className="text-lg font-bold text-gray-900">Resume</h2>
+                  <FileText className="w-5 h-5 text-brand-ink" />
+                  <h2 className="text-lg font-semibold text-brand-ink">Resume</h2>
                 </div>
               </div>
               <div className="p-6 space-y-4">
                 {/* Source Toggle */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setResumeSource('lineage')}
-                    className={`flex-1 px-4 py-2 text-sm font-semibold border transition-colors ${resumeSource === 'lineage'
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-gray-900'
+                <div className="inline-flex gap-1 p-1 bg-brand-mist border border-brand-border rounded-full">
+                  {(['lineage', 'upload', 'text'] as const).map((src) => (
+                    <button
+                      key={src}
+                      onClick={() => setResumeSource(src)}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                        resumeSource === src
+                          ? 'bg-brand-ink text-white'
+                          : 'bg-transparent text-brand-slate hover:text-brand-ink'
                       }`}
-                  >
-                    Select from Lineage
-                  </button>
-                  <button
-                    onClick={() => setResumeSource('upload')}
-                    className={`flex-1 px-4 py-2 text-sm font-semibold border transition-colors ${resumeSource === 'upload'
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-gray-900'
-                      }`}
-                  >
-                    Upload PDF
-                  </button>
+                    >
+                      {src === 'lineage' ? 'From versions' : src === 'upload' ? 'Upload PDF' : 'Paste text'}
+                    </button>
+                  ))}
                 </div>
 
-                {resumeSource === 'lineage' ? (
+                {resumeSource === 'lineage' && (
                   <select
                     value={selectedResumeId || ''}
                     onChange={(e) => setSelectedResumeId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full px-4 py-3 border border-gray-900 bg-white text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    className="w-full px-4 py-3 rounded-lg border border-brand-border bg-white text-brand-ink text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-accent"
                   >
                     <option value="">Select a resume version</option>
                     {resumeVersions.map((version) => (
@@ -624,8 +668,9 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                       </option>
                     ))}
                   </select>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 hover:border-gray-900 transition-colors p-8 text-center">
+                )}
+                {resumeSource === 'upload' && (
+                  <div className="rounded-xl border-2 border-dashed border-brand-border hover:border-brand-ink transition-colors p-8 text-center">
                     <input
                       type="file"
                       accept=".pdf"
@@ -634,53 +679,57 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                       id="resume-upload"
                     />
                     <label htmlFor="resume-upload" className="cursor-pointer">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700">
+                      <Upload className="w-8 h-8 text-brand-steel mx-auto mb-2" />
+                      <p className="text-sm font-medium text-brand-slate">
                         {resumeFile ? resumeFile.name : 'Click to upload resume PDF'}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">PDF files only</p>
+                      <p className="text-xs text-brand-steel mt-1">PDF files only</p>
                     </label>
                   </div>
+                )}
+                {resumeSource === 'text' && (
+                  <textarea
+                    value={resumePastedText}
+                    onChange={(e) => setResumePastedText(e.target.value)}
+                    placeholder="Paste your resume text here…"
+                    rows={10}
+                    className="w-full px-4 py-3 rounded-lg border border-brand-border bg-white text-brand-ink text-sm focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent resize-y font-mono"
+                  />
                 )}
               </div>
             </div>
 
             {/* Cover Letter Selection */}
-            <div className="bg-white border border-gray-300">
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
+            <div className="bg-white border border-brand-border rounded-xl shadow-soft">
+              <div className="px-6 py-4 bg-brand-mist border-b border-brand-border rounded-t-xl">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-gray-900" />
-                  <h2 className="text-lg font-bold text-gray-900">Cover Letter</h2>
+                  <Mail className="w-5 h-5 text-brand-ink" />
+                  <h2 className="text-lg font-semibold text-brand-ink">Cover Letter</h2>
                 </div>
               </div>
               <div className="p-6 space-y-4">
                 {/* Source Toggle */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCoverLetterSource('lineage')}
-                    className={`flex-1 px-4 py-2 text-sm font-semibold border transition-colors ${coverLetterSource === 'lineage'
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-gray-900'
+                <div className="inline-flex gap-1 p-1 bg-brand-mist border border-brand-border rounded-full">
+                  {(['lineage', 'upload', 'text'] as const).map((src) => (
+                    <button
+                      key={src}
+                      onClick={() => setCoverLetterSource(src)}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                        coverLetterSource === src
+                          ? 'bg-brand-ink text-white'
+                          : 'bg-transparent text-brand-slate hover:text-brand-ink'
                       }`}
-                  >
-                    Select from Lineage
-                  </button>
-                  <button
-                    onClick={() => setCoverLetterSource('upload')}
-                    className={`flex-1 px-4 py-2 text-sm font-semibold border transition-colors ${coverLetterSource === 'upload'
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-gray-900'
-                      }`}
-                  >
-                    Upload PDF
-                  </button>
+                    >
+                      {src === 'lineage' ? 'From versions' : src === 'upload' ? 'Upload PDF' : 'Paste text'}
+                    </button>
+                  ))}
                 </div>
 
-                {coverLetterSource === 'lineage' ? (
+                {coverLetterSource === 'lineage' && (
                   <select
                     value={selectedCoverLetterId || ''}
                     onChange={(e) => setSelectedCoverLetterId(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full px-4 py-3 border border-gray-900 bg-white text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    className="w-full px-4 py-3 rounded-lg border border-brand-border bg-white text-brand-ink text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-accent"
                   >
                     <option value="">Select a cover letter version</option>
                     {coverLetterVersions.map((version) => (
@@ -689,8 +738,9 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                       </option>
                     ))}
                   </select>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 hover:border-gray-900 transition-colors p-8 text-center">
+                )}
+                {coverLetterSource === 'upload' && (
+                  <div className="rounded-xl border-2 border-dashed border-brand-border hover:border-brand-ink transition-colors p-8 text-center">
                     <input
                       type="file"
                       accept=".pdf"
@@ -699,36 +749,84 @@ export default function AIATSEvaluator({ onBack, onNavigateToHistory }: AIATSEva
                       id="cover-letter-upload"
                     />
                     <label htmlFor="cover-letter-upload" className="cursor-pointer">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700">
+                      <Upload className="w-8 h-8 text-brand-steel mx-auto mb-2" />
+                      <p className="text-sm font-medium text-brand-slate">
                         {coverLetterFile ? coverLetterFile.name : 'Click to upload cover letter PDF'}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">PDF files only</p>
+                      <p className="text-xs text-brand-steel mt-1">PDF files only</p>
                     </label>
                   </div>
+                )}
+                {coverLetterSource === 'text' && (
+                  <textarea
+                    value={coverLetterPastedText}
+                    onChange={(e) => setCoverLetterPastedText(e.target.value)}
+                    placeholder="Paste your cover letter text here…"
+                    rows={8}
+                    className="w-full px-4 py-3 rounded-lg border border-brand-border bg-white text-brand-ink text-sm focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent resize-y font-mono"
+                  />
                 )}
               </div>
             </div>
 
-            {/* Job URL */}
-            <div className="bg-white border border-gray-300">
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-300">
-                <div className="flex items-center gap-2">
-                  <LinkIcon className="w-5 h-5 text-gray-900" />
-                  <h2 className="text-lg font-bold text-gray-900">Job Posting URL</h2>
+            {/* Job Posting */}
+            <div className="bg-white border border-brand-border rounded-xl shadow-soft">
+              <div className="px-6 py-4 bg-brand-mist border-b border-brand-border rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <LinkIcon className="w-5 h-5 text-brand-ink" />
+                    <h2 className="text-lg font-semibold text-brand-ink">Job Posting</h2>
+                  </div>
+                  <div className="inline-flex rounded-full border border-brand-border bg-white p-0.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setJobInputMode('url')}
+                      className={`rounded-full px-3 py-1 font-medium transition-colors ${
+                        jobInputMode === 'url' ? 'bg-brand-ink text-white' : 'text-brand-slate hover:bg-brand-mist'
+                      }`}
+                    >
+                      URL
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setJobInputMode('text')}
+                      className={`rounded-full px-3 py-1 font-medium transition-colors ${
+                        jobInputMode === 'text' ? 'bg-brand-ink text-white' : 'text-brand-slate hover:bg-brand-mist'
+                      }`}
+                    >
+                      Paste text
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="p-6">
-                <Input
-                  type="url"
-                  value={jobUrl}
-                  onChange={(e) => setJobUrl(e.target.value)}
-                  placeholder="https://example.com/job-posting"
-                  className="w-full"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  Enter the URL of the job posting you're applying to
-                </p>
+                {jobInputMode === 'url' ? (
+                  <>
+                    <Input
+                      type="url"
+                      value={jobUrl}
+                      onChange={(e) => setJobUrl(e.target.value)}
+                      placeholder="https://example.com/job-posting"
+                      className="w-full"
+                    />
+                    <p className="text-xs text-brand-steel mt-2">
+                      Paste the posting URL. If a site blocks automated fetches (StepStone, some Workday pages), switch to <button type="button" onClick={() => setJobInputMode('text')} className="text-brand-ink underline">Paste text</button> and paste the JD directly.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <textarea
+                      value={jobText}
+                      onChange={(e) => setJobText(e.target.value)}
+                      placeholder="Paste the full job description here (copy from the posting page)…"
+                      rows={10}
+                      className="w-full px-4 py-3 rounded-lg border border-brand-border bg-white text-brand-ink text-sm focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent resize-y"
+                    />
+                    <p className="text-xs text-brand-steel mt-2">
+                      Use this when a site blocks automated fetches. Includes the posting URL in the first line if you want it captured.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 

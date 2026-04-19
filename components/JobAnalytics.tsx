@@ -71,24 +71,24 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'applied':
-        return 'bg-gray-100 text-gray-800 border-gray-300'
+        return 'bg-blue-50 text-blue-700'
       case 'interview':
-        return 'bg-blue-50 text-blue-700 border-blue-300'
+        return 'bg-amber-50 text-amber-700'
       case 'offer':
-        return 'bg-green-50 text-green-700 border-green-300'
+        return 'bg-green-50 text-green-700'
       case 'rejected':
-        return 'bg-red-50 text-red-700 border-red-300'
+        return 'bg-red-50 text-red-700'
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300'
+        return 'bg-brand-mist text-brand-ink'
     }
   }
 
   if (jobs.length === 0) {
     return (
       <div className="text-center py-20">
-        <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-gray-900 mb-2">No Applications Yet</h3>
-        <p className="text-gray-600">Add your first job application to see analytics</p>
+        <Briefcase className="w-16 h-16 text-brand-steel mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-brand-ink mb-2">No Applications Yet</h3>
+        <p className="text-sm text-brand-steel">Add your first job application to see analytics</p>
       </div>
     )
   }
@@ -97,74 +97,82 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
     <div className="space-y-8">
       {/* Overview Stats */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <h2 className="text-lg font-semibold text-brand-ink mb-4">Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Total Applications */}
-          <div className="bg-white border border-gray-300 p-6">
+          <div className="bg-white border border-brand-border p-6 rounded-xl shadow-soft">
             <div className="flex items-center justify-between mb-4">
-              <Briefcase className="w-8 h-8 text-gray-600" />
-              <span className="text-3xl font-bold text-gray-900">{stats.total}</span>
+              <span className="inline-flex items-center justify-center w-10 h-10 bg-brand-mist rounded-lg">
+                <Briefcase className="w-5 h-5 text-brand-steel" />
+              </span>
+              <span className="text-2xl font-semibold text-brand-ink">{stats.total}</span>
             </div>
-            <p className="text-gray-600 font-medium">Total Applications</p>
+            <p className="text-sm text-brand-steel font-medium">Total Applications</p>
           </div>
 
           {/* Interview Rate */}
-          <div className="bg-white border border-gray-300 p-6">
+          <div className="bg-white border border-brand-border p-6 rounded-xl shadow-soft">
             <div className="flex items-center justify-between mb-4">
-              <TrendingUp className="w-8 h-8 text-blue-600" />
-              <span className="text-3xl font-bold text-blue-600">{stats.interviewRate.toFixed(1)}%</span>
+              <span className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+              </span>
+              <span className="text-2xl font-semibold text-blue-600">{stats.interviewRate.toFixed(1)}%</span>
             </div>
-            <p className="text-gray-600 font-medium">Interview Rate</p>
-            <p className="text-sm text-gray-500 mt-1">{stats.interview} interviews</p>
+            <p className="text-sm text-brand-steel font-medium">Interview Rate</p>
+            <p className="text-xs text-brand-steel mt-1">{stats.interview} interviews</p>
           </div>
 
           {/* Success Rate */}
-          <div className="bg-white border border-gray-300 p-6">
+          <div className="bg-white border border-brand-border p-6 rounded-xl shadow-soft">
             <div className="flex items-center justify-between mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <span className="text-3xl font-bold text-green-600">{stats.successRate.toFixed(1)}%</span>
+              <span className="inline-flex items-center justify-center w-10 h-10 bg-green-50 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </span>
+              <span className="text-2xl font-semibold text-green-600">{stats.successRate.toFixed(1)}%</span>
             </div>
-            <p className="text-gray-600 font-medium">Success Rate</p>
-            <p className="text-sm text-gray-500 mt-1">{stats.offer} offers</p>
+            <p className="text-sm text-brand-steel font-medium">Success Rate</p>
+            <p className="text-xs text-brand-steel mt-1">{stats.offer} offers</p>
           </div>
 
           {/* Rejection Rate */}
-          <div className="bg-white border border-gray-300 p-6">
+          <div className="bg-white border border-brand-border p-6 rounded-xl shadow-soft">
             <div className="flex items-center justify-between mb-4">
-              <XCircle className="w-8 h-8 text-red-600" />
-              <span className="text-3xl font-bold text-red-600">
+              <span className="inline-flex items-center justify-center w-10 h-10 bg-red-50 rounded-lg">
+                <XCircle className="w-5 h-5 text-red-600" />
+              </span>
+              <span className="text-2xl font-semibold text-red-600">
                 {((stats.rejected / stats.total) * 100).toFixed(1)}%
               </span>
             </div>
-            <p className="text-gray-600 font-medium">Rejection Rate</p>
-            <p className="text-sm text-gray-500 mt-1">{stats.rejected} rejections</p>
+            <p className="text-sm text-brand-steel font-medium">Rejection Rate</p>
+            <p className="text-xs text-brand-steel mt-1">{stats.rejected} rejections</p>
           </div>
         </div>
       </div>
 
       {/* Status Breakdown */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Status Breakdown</h2>
-        <div className="bg-white border border-gray-300 p-6">
+        <h2 className="text-lg font-semibold text-brand-ink mb-4">Status Breakdown</h2>
+        <div className="bg-white border border-brand-border p-6 rounded-xl shadow-soft">
           <div className="space-y-4">
             {[
-              { label: 'Applied', count: stats.applied, color: 'bg-gray-600' },
-              { label: 'Interview', count: stats.interview, color: 'bg-blue-600' },
-              { label: 'Offer', count: stats.offer, color: 'bg-green-600' },
-              { label: 'Rejected', count: stats.rejected, color: 'bg-red-600' },
+              { label: 'Applied', count: stats.applied, color: 'bg-blue-500' },
+              { label: 'Interview', count: stats.interview, color: 'bg-amber-500' },
+              { label: 'Offer', count: stats.offer, color: 'bg-green-500' },
+              { label: 'Rejected', count: stats.rejected, color: 'bg-red-500' },
             ].map(item => {
               const percentage = stats.total > 0 ? (item.count / stats.total) * 100 : 0
               return (
                 <div key={item.label}>
                   <div className="flex justify-between mb-2">
-                    <span className="font-medium text-gray-900">{item.label}</span>
-                    <span className="text-gray-600">
+                    <span className="text-sm font-medium text-brand-ink">{item.label}</span>
+                    <span className="text-sm text-brand-steel">
                       {item.count} ({percentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 h-3">
+                  <div className="w-full bg-brand-mist h-2 rounded-full">
                     <div
-                      className={`${item.color} h-3 transition-all`}
+                      className={`${item.color} h-2 transition-all rounded-full`}
                       style={{ width: `${percentage}%` }}
                     ></div>
                   </div>
@@ -179,17 +187,17 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
 
       {/* Recent Activity - Max 5 items visible, then scroll */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
-        <div className="bg-white border border-gray-300 divide-y divide-gray-300 overflow-y-auto" style={{ maxHeight: 'calc(5 * 140px)' }}>
+        <h2 className="text-lg font-semibold text-brand-ink mb-4">Recent Activity</h2>
+        <div className="bg-white border border-brand-border divide-y divide-brand-border overflow-y-auto rounded-xl shadow-soft" style={{ maxHeight: 'calc(5 * 140px)' }}>
           {recentActivity.slice(0, 10).map(job => (
-            <div key={job.id} className="p-6 hover:bg-gray-50 transition-colors">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="font-bold text-gray-900 text-lg">{job.company}</h3>
-                  <p className="text-gray-700 mt-1">{job.position}</p>
-                  <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+            <div key={job.id} className="p-6 hover:bg-brand-mist transition-colors">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-brand-ink">{job.company}</h3>
+                  <p className="text-sm text-brand-slate mt-1">{job.position}</p>
+                  <div className="flex items-center gap-4 mt-3 text-xs text-brand-steel">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3.5 h-3.5" />
                       {formatDate(job.updatedAt)}
                     </span>
                     {job.location && (
@@ -201,7 +209,7 @@ export default function JobAnalytics({ jobs }: JobAnalyticsProps) {
                   </div>
                 </div>
                 <span
-                  className={`px-3 py-1 text-sm font-medium capitalize border ${getStatusColor(
+                  className={`px-3 py-1 text-xs font-medium capitalize rounded-full ${getStatusColor(
                     job.status
                   )}`}
                 >

@@ -186,17 +186,17 @@ export default function ResumeLineageDiagram({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-12 w-12 border-b-2 border-gray-900"></div>
+        <div className="animate-spin h-12 w-12 border-b-2 border-brand-ink"></div>
       </div>
     )
   }
 
   if (lineage.length === 0) {
     return (
-      <div className="text-center py-16 bg-gray-50 border border-gray-300">
-        <GitBranch className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <p className="text-lg font-semibold text-gray-700">No version history yet</p>
-        <p className="text-sm text-gray-500 mt-2">Create your first resume to start tracking versions</p>
+      <div className="text-center py-16 bg-brand-mist rounded-xl border border-brand-border shadow-soft">
+        <GitBranch className="w-16 h-16 text-brand-steel mx-auto mb-4" />
+        <p className="text-lg font-semibold text-brand-slate">No version history yet</p>
+        <p className="text-sm text-brand-steel mt-2">Create your first resume to start tracking versions</p>
       </div>
     )
   }
@@ -205,34 +205,34 @@ export default function ResumeLineageDiagram({
     <div className="space-y-8">
       <div className="flex flex-col gap-6">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-900 flex items-center justify-center">
+          <h2 className="text-3xl font-bold text-brand-ink flex items-center gap-3">
+            <div className="w-10 h-10 bg-brand-ink flex items-center justify-center">
               <GitBranch className="w-5 h-5 text-white" />
             </div>
             Version Lineage
           </h2>
-          <p className="text-gray-600 mt-2 ml-13">
+          <p className="text-brand-steel mt-2 ml-13">
             Visual representation of your resume evolution
           </p>
         </div>
 
         {/* Compact Filters Panel */}
-        <div className="bg-white border border-gray-300 p-4">
+        <div className="bg-white rounded-xl border border-brand-border shadow-soft p-4">
           <div className="flex items-center gap-2 mb-3">
-            <Filter className="w-4 h-4 text-gray-900" />
-            <h3 className="text-sm font-bold text-gray-900">Filters</h3>
+            <Filter className="w-4 h-4 text-brand-ink" />
+            <h3 className="text-sm font-bold text-brand-ink">Filters</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             {/* Main Resume Selector */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-brand-slate mb-1">
                 Select Main Resume
               </label>
               <select
                 value={selectedMainResume || ''}
                 onChange={(e) => setSelectedMainResume(e.target.value ? Number(e.target.value) : null)}
-                className="w-full px-3 py-2 border border-gray-900 bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 border border-brand-ink bg-white text-xs font-semibold hover:bg-brand-mist transition-colors cursor-pointer"
               >
                 <option value="">All Resumes</option>
                 {mainResumes.map(resume => (
@@ -245,30 +245,30 @@ export default function ResumeLineageDiagram({
 
             {/* Search */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-brand-slate mb-1">
                 Search Resumes
               </label>
               <div className="relative">
-                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-brand-steel" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name..."
-                  className="w-full pl-8 pr-3 py-2 border border-gray-900 bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-gray-900"
+                  className="w-full pl-8 pr-3 py-2 border border-brand-ink bg-white text-xs font-medium focus:outline-none focus:ring-1 focus:ring-brand-accent"
                 />
               </div>
             </div>
 
             {/* Branch Filter */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-brand-slate mb-1">
                 Branch
               </label>
               <select
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-900 bg-white text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 border border-brand-ink bg-white text-xs font-semibold hover:bg-brand-mist transition-colors cursor-pointer"
               >
                 <option value="all">All Branches</option>
                 {branches.map(branch => (
@@ -279,7 +279,7 @@ export default function ResumeLineageDiagram({
 
             {/* Display Options */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label className="block text-xs font-semibold text-brand-slate mb-1">
                 Display Options
               </label>
               <div className="space-y-1">
@@ -288,26 +288,26 @@ export default function ResumeLineageDiagram({
                     type="checkbox"
                     checked={showOnlyWithData}
                     onChange={(e) => setShowOnlyWithData(e.target.checked)}
-                    className="w-3.5 h-3.5 border-gray-300 text-gray-900 focus:ring-gray-900 cursor-pointer"
+                    className="w-3.5 h-3.5 border-brand-border text-brand-ink focus:ring-brand-accent cursor-pointer"
                   />
-                  <span className="text-xs text-gray-700">Only show versions with applications</span>
+                  <span className="text-xs text-brand-slate">Only show versions with applications</span>
                 </label>
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={showOnlyStarred}
                     onChange={(e) => setShowOnlyStarred(e.target.checked)}
-                    className="w-3.5 h-3.5 border-gray-300 text-gray-900 focus:ring-gray-900 cursor-pointer"
+                    className="w-3.5 h-3.5 border-brand-border text-brand-ink focus:ring-brand-accent cursor-pointer"
                   />
-                  <span className="text-xs text-gray-700">Only show starred resumes</span>
+                  <span className="text-xs text-brand-slate">Only show starred resumes</span>
                 </label>
               </div>
             </div>
           </div>
 
           {/* Min Success Rate Slider - Full Width Below */}
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
+          <div className="mt-3 pt-3 border-t border-brand-border">
+            <label className="block text-xs font-semibold text-brand-slate mb-1">
               Min Success Rate: {minSuccessRate}%
             </label>
             <input
@@ -317,9 +317,9 @@ export default function ResumeLineageDiagram({
               step="10"
               value={minSuccessRate}
               onChange={(e) => setMinSuccessRate(Number(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 appearance-none cursor-pointer accent-gray-900"
+              className="w-full h-1.5 bg-brand-mist appearance-none cursor-pointer accent-brand-ink"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-0.5">
+            <div className="flex justify-between text-xs text-brand-steel mt-0.5">
               <span>0%</span>
               <span>50%</span>
               <span>100%</span>
@@ -328,13 +328,13 @@ export default function ResumeLineageDiagram({
         </div>
       </div>
 
-      <div className="bg-white border border-gray-300 p-8 overflow-x-auto">
+      <div className="bg-white rounded-xl border border-brand-border shadow-soft p-8 overflow-x-auto">
         <div className="min-w-max">
           {filteredLineage.length === 0 ? (
             <div className="text-center py-12">
-              <Filter className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600">No versions match the current filters</p>
-              <p className="text-sm text-gray-500 mt-1">Try adjusting your filter criteria</p>
+              <Filter className="w-12 h-12 text-brand-steel mx-auto mb-3" />
+              <p className="text-brand-steel">No versions match the current filters</p>
+              <p className="text-sm text-brand-steel mt-1">Try adjusting your filter criteria</p>
             </div>
           ) : (
             filteredLineage.map((root, index) => (
@@ -391,7 +391,7 @@ function VersionTree({
   isLast?: boolean
 }) {
   const getSuccessColor = (successRate: number, hasData: boolean) => {
-    if (!hasData) return 'bg-gray-300'
+    if (!hasData) return 'bg-brand-border'
     if (successRate >= 50) return 'bg-green-500'
     if (successRate >= 25) return 'bg-yellow-500'
     return 'bg-red-500'
@@ -406,9 +406,9 @@ function VersionTree({
       {level > 0 && (
         <div className="flex items-center mr-4">
           {/* Horizontal line */}
-          <div className="w-8 h-px bg-gray-400"></div>
+          <div className="w-8 h-px bg-brand-steel"></div>
           {/* Arrow head */}
-          <div className="w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-8 border-l-gray-400"></div>
+          <div className="w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-8 border-l-brand-steel"></div>
         </div>
       )}
 
@@ -417,8 +417,8 @@ function VersionTree({
           className={`
             flex flex-col gap-4 px-5 py-4 border transition-all w-full
             ${isSelected
-              ? 'border-gray-900 bg-gray-50'
-              : 'border-gray-300 hover:border-gray-900'
+              ? 'border-brand-ink bg-brand-mist'
+              : 'border-brand-border hover:border-brand-ink'
             }
           `}
         >
@@ -427,8 +427,8 @@ function VersionTree({
             <div className="flex items-center gap-4">
               <div className={`w-4 h-4 ${successColor} flex-shrink-0`}></div>
               <div className="flex items-center gap-3">
-                <span className="font-bold text-lg text-gray-900">{node.version_number}</span>
-                <span className="px-2.5 py-0.5 bg-gray-900 text-white text-xs font-semibold">
+                <span className="font-bold text-lg text-brand-ink">{node.version_number}</span>
+                <span className="px-2.5 py-0.5 bg-brand-ink text-white text-xs font-semibold">
                   {node.branch_name}
                 </span>
                 {node.stats.successRate >= 70 && hasData && (
@@ -438,9 +438,9 @@ function VersionTree({
                   </span>
                 )}
               </div>
-              <div className="text-sm text-gray-600 font-medium">{node.version_name}</div>
+              <div className="text-sm text-brand-steel font-medium">{node.version_name}</div>
             </div>
-            <div className="text-xs text-gray-500 font-medium flex items-center gap-1">
+            <div className="text-xs text-brand-steel font-medium flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
               {new Date(node.created_at).toLocaleDateString('en-US', {
                 month: 'short',
@@ -482,14 +482,14 @@ function VersionTree({
                     )}
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-900">
+                    <span className="text-xs font-bold text-brand-ink">
                       {node.stats.totalApplications > 0
                         ? `${Math.round((node.stats.appliedCount / node.stats.totalApplications) * 100)}%`
                         : '0%'}
                     </span>
                   </div>
                 </div>
-                <span className="text-xs text-gray-600 font-medium mt-1">Applied</span>
+                <span className="text-xs text-brand-steel font-medium mt-1">Applied</span>
               </div>
 
               {/* Interview Ring */}
@@ -520,14 +520,14 @@ function VersionTree({
                     )}
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-900">
+                    <span className="text-xs font-bold text-brand-ink">
                       {node.stats.totalApplications > 0
                         ? `${Math.round((node.stats.interviewCount / node.stats.totalApplications) * 100)}%`
                         : '0%'}
                     </span>
                   </div>
                 </div>
-                <span className="text-xs text-gray-600 font-medium mt-1">Interview</span>
+                <span className="text-xs text-brand-steel font-medium mt-1">Interview</span>
               </div>
 
               {/* Offer Ring */}
@@ -558,14 +558,14 @@ function VersionTree({
                     )}
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-900">
+                    <span className="text-xs font-bold text-brand-ink">
                       {node.stats.totalApplications > 0
                         ? `${Math.round((node.stats.offerCount / node.stats.totalApplications) * 100)}%`
                         : '0%'}
                     </span>
                   </div>
                 </div>
-                <span className="text-xs text-gray-600 font-medium mt-1">Offer</span>
+                <span className="text-xs text-brand-steel font-medium mt-1">Offer</span>
               </div>
 
               {/* Rejected Ring */}
@@ -596,14 +596,14 @@ function VersionTree({
                     )}
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-900">
+                    <span className="text-xs font-bold text-brand-ink">
                       {node.stats.totalApplications > 0
                         ? `${Math.round((node.stats.rejectedCount / node.stats.totalApplications) * 100)}%`
                         : '0%'}
                     </span>
                   </div>
                 </div>
-                <span className="text-xs text-gray-600 font-medium mt-1">Rejected</span>
+                <span className="text-xs text-brand-steel font-medium mt-1">Rejected</span>
               </div>
             </div>
 
@@ -617,7 +617,7 @@ function VersionTree({
                   }}
                   className={`p-2 font-semibold transition-colors ${node.is_favorite
                     ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                    : 'bg-white border border-gray-300 text-gray-600 hover:border-yellow-500 hover:text-yellow-600'
+                    : 'bg-white border border-brand-border text-brand-steel hover:border-yellow-500 hover:text-yellow-600'
                     }`}
                   title={node.is_favorite ? 'Unstar' : 'Star'}
                 >
@@ -630,7 +630,7 @@ function VersionTree({
                     e.stopPropagation()
                     onDownload(node.id)
                   }}
-                  className="px-4 py-2 bg-white border border-gray-900 text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-white border border-brand-ink text-brand-ink font-semibold hover:bg-brand-ink hover:text-white transition-colors flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   Download
@@ -642,7 +642,7 @@ function VersionTree({
                     e.stopPropagation()
                     onCreateBranch(node.id)
                   }}
-                  className="px-4 py-2 bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-brand-ink text-white font-semibold hover:bg-brand-slate transition-colors flex items-center gap-2"
                 >
                   <GitBranch className="w-4 h-4" />
                   Branch
@@ -669,7 +669,7 @@ function VersionTree({
         {node.children && node.children.length > 0 && (
           <div className="ml-8 mt-6 space-y-6 relative">
             {/* Vertical connecting line */}
-            <div className="absolute left-0 top-0 bottom-6 w-px bg-gray-400"></div>
+            <div className="absolute left-0 top-0 bottom-6 w-px bg-brand-steel"></div>
 
             {node.children.map((child, index) => (
               <div key={child.id} className="relative">

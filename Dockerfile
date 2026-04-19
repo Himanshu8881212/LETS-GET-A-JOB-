@@ -1,71 +1,70 @@
+# ──────────────────────────────────────────────────────────────────────────
 # Stage 1: Dependencies
-FROM node:18-alpine AS deps
+# ──────────────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS deps
 WORKDIR /app
 
-# Install build dependencies for native modules
-# - python3, make, g++: Required to compile better-sqlite3 (includes SQLite)
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++
+# Toolchain for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++
 
-# Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
+# Skip Puppeteer's bundled Chromium download during install; we use the
+# system chromium package in the runner stage below (smaller image,
+# avoids musl/glibc ABI mismatches with Puppeteer's bundled build).
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN npm ci
 
+# ──────────────────────────────────────────────────────────────────────────
 # Stage 2: Builder
-FROM node:18-alpine AS builder
+# ──────────────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN npm run build
 
+# ──────────────────────────────────────────────────────────────────────────
 # Stage 3: Runner
-FROM node:18-alpine AS runner
+# ──────────────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS runner
 WORKDIR /app
 
-# Install required system dependencies
-# - curl: for healthchecks
-# - bash: for entrypoint script
-# - texlive-full: Complete LaTeX distribution for PDF generation (includes pdflatex and all packages)
+# Runtime deps:
+#   - curl, bash       — healthchecks + shell ergonomics
+#   - chromium + libs  — Puppeteer uses this for PDF rendering + URL fetching
+#   - fonts            — Latin + Noto fallback so PDFs don't render with
+#                        square replacement glyphs
 RUN apk add --no-cache \
     curl \
     bash \
-    texlive-full
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    font-noto
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Copy built application
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-
-# Copy necessary files for runtime
 COPY --from=builder /app/lib ./lib
 COPY --from=builder /app/components ./components
 COPY --from=builder /app/app ./app
 COPY --from=builder /app/.env.example ./.env.example
-COPY --from=builder /app/n8n-workflows ./n8n-workflows
-COPY --from=builder /app/setup-n8n-workflows.js ./setup-n8n-workflows.js
 
-# Copy entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Create data directory
 RUN mkdir -p /app/data
 
-# Expose port
 EXPOSE 3000
 
-# Use entrypoint script
-ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["npm", "start"]

@@ -44,45 +44,50 @@ export default function JobCard({ job, onClick }: JobCardProps) {
       {...listeners}
       {...attributes}
       onClick={onClick}
-      className={`bg-white border border-gray-900 p-4 cursor-pointer hover:border-gray-600 transition-all ${isDragging ? 'opacity-50' : ''
+      className={`bg-white border border-brand-border p-4 cursor-pointer hover:border-brand-steel transition-all rounded-xl shadow-soft hover:shadow-soft ${isDragging ? 'opacity-50' : ''
         }`}
     >
       {/* Company & Position */}
-      <div className="mb-3">
-        <h4 className="font-bold text-gray-900 text-lg mb-1">{job.company}</h4>
-        <p className="text-gray-700 font-medium">{job.position}</p>
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h4 className="text-sm font-semibold text-brand-ink truncate">{job.company}</h4>
+          <p className="text-xs text-brand-steel mt-0.5 truncate">{job.position}</p>
+        </div>
+        <span className="inline-flex items-center gap-1 bg-brand-mist text-brand-steel px-2 py-0.5 text-[11px] font-medium rounded-full flex-shrink-0">
+          <Calendar className="w-3 h-3" />
+          {getDaysAgo(job.applicationDate)}
+        </span>
       </div>
 
       {/* Details */}
-      <div className="space-y-2 text-sm">
+      <div className="space-y-1.5 text-xs text-brand-slate">
         {/* Application Date */}
-        <div className="flex items-center gap-2 text-gray-600">
-          <Calendar className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-brand-steel">
+          <Calendar className="w-3.5 h-3.5" />
           <span>{formatDate(job.applicationDate)}</span>
-          <span className="text-gray-400">({getDaysAgo(job.applicationDate)})</span>
         </div>
 
         {/* Location */}
         {job.location && (
-          <div className="flex items-center gap-2 text-gray-600">
-            <MapPin className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-brand-steel">
+            <MapPin className="w-3.5 h-3.5" />
             <span>{job.location}</span>
           </div>
         )}
 
         {/* Salary */}
         {job.salary && (
-          <div className="flex items-center gap-2 text-gray-600">
-            <DollarSign className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-brand-steel">
+            <DollarSign className="w-3.5 h-3.5" />
             <span>{job.salary}</span>
           </div>
         )}
 
         {/* Resume Version */}
         {job.resumeVersion && (
-          <div className="flex items-center gap-2 text-gray-600">
-            <FileText className="w-4 h-4" />
-            <span className="text-xs bg-gray-100 px-2 py-1">
+          <div className="flex items-center gap-2 text-brand-steel">
+            <FileText className="w-3.5 h-3.5" />
+            <span className="text-[11px] bg-brand-mist px-2 py-0.5 rounded-full">
               {job.resumeVersion}
             </span>
           </div>
@@ -91,8 +96,8 @@ export default function JobCard({ job, onClick }: JobCardProps) {
 
       {/* Notes Preview */}
       {job.notes && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-xs text-gray-500 line-clamp-2">{job.notes}</p>
+        <div className="mt-3 pt-3 border-t border-brand-border">
+          <p className="text-xs text-brand-steel line-clamp-2">{job.notes}</p>
         </div>
       )}
     </div>

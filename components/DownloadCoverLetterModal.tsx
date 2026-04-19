@@ -112,23 +112,23 @@ export default function DownloadCoverLetterModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white max-w-md w-full border border-gray-300">
+      <div className="bg-white max-w-md w-full rounded-xl border border-brand-border shadow-soft">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-300 bg-gray-50">
+        <div className="flex items-center justify-between p-6 border-b border-brand-border bg-brand-mist">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-900 flex items-center justify-center">
+            <div className="w-10 h-10 bg-brand-ink flex items-center justify-center">
               <Save className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Save to Lineage</h2>
-              <p className="text-xs text-gray-600">Save cover letter version to your lineage tree</p>
+              <h2 className="text-lg font-bold text-brand-ink">Save to Lineage</h2>
+              <p className="text-xs text-brand-steel">Save cover letter version to your lineage tree</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-200 transition-colors"
+            className="p-2 hover:bg-brand-mist transition-colors"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-brand-steel" />
           </button>
         </div>
 
@@ -136,8 +136,8 @@ export default function DownloadCoverLetterModal({
         <div className="p-6 space-y-4">
           {/* Name Input */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Cover Letter Name {isBranchedCoverLetter && <span className="text-gray-500 text-xs">(Read-only for branched cover letter)</span>}
+            <label className="block text-sm font-semibold text-brand-ink mb-2">
+              Cover Letter Name {isBranchedCoverLetter && <span className="text-brand-steel text-xs">(Read-only for branched cover letter)</span>}
             </label>
             <input
               type="text"
@@ -145,9 +145,9 @@ export default function DownloadCoverLetterModal({
               onChange={(e) => !isBranchedCoverLetter && setCoverLetterName(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="e.g., Software Engineer Cover Letter"
-              className={`w-full px-4 py-3 border text-gray-900 font-medium ${isBranchedCoverLetter
-                ? 'border-gray-300 bg-gray-100 cursor-not-allowed'
-                : 'border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900'
+              className={`w-full px-4 py-3 border text-brand-ink font-medium ${isBranchedCoverLetter
+                ? 'border-brand-border bg-brand-mist cursor-not-allowed'
+                : 'border-brand-ink focus:outline-none focus:ring-1 focus:ring-brand-accent'
                 }`}
               autoFocus={!isBranchedCoverLetter}
               readOnly={isBranchedCoverLetter}
@@ -156,7 +156,7 @@ export default function DownloadCoverLetterModal({
 
           {/* Branch Name Input */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <label className="block text-sm font-semibold text-brand-ink mb-2">
               Branch Name
             </label>
             <input
@@ -165,25 +165,25 @@ export default function DownloadCoverLetterModal({
               onChange={(e) => setBranchName(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
               onKeyPress={handleKeyPress}
               placeholder="e.g., tech-focused, senior-level"
-              className="w-full px-4 py-3 border border-gray-900 text-gray-900 font-medium focus:outline-none focus:ring-1 focus:ring-gray-900"
+              className="w-full px-4 py-3 border border-brand-ink text-brand-ink font-medium focus:outline-none focus:ring-1 focus:ring-brand-accent"
               autoFocus={isBranchedCoverLetter}
             />
-            <p className="text-xs text-gray-600 mt-1">Use lowercase letters, numbers, and hyphens only</p>
+            <p className="text-xs text-brand-steel mt-1">Use lowercase letters, numbers, and hyphens only</p>
           </div>
 
           {/* Info message */}
           {coverLetterName.trim() && branchName.trim() && (
-            <div className="bg-gray-50 border border-gray-300 p-4">
+            <div className="bg-brand-mist border border-brand-border p-4">
               <div className="flex items-start gap-3">
-                <FileText className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                <FileText className="w-5 h-5 text-brand-slate flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-brand-ink">
                     Ready to save
                   </p>
-                  <p className="text-sm text-gray-700 mt-1">
+                  <p className="text-sm text-brand-slate mt-1">
                     Will be saved as: <span className="font-bold">{coverLetterName}</span> ({branchName} branch)
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-xs text-brand-steel mt-1">
                     If this branch and version already exist, it will be overwritten.
                   </p>
                 </div>
@@ -193,17 +193,17 @@ export default function DownloadCoverLetterModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-300 bg-gray-50">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-brand-border bg-brand-mist">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
+            className="px-6 py-2.5 text-sm font-semibold text-brand-slate hover:bg-brand-mist transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleDownload}
             disabled={!coverLetterName.trim() || !branchName.trim() || isDownloading}
-            className="px-6 py-2.5 text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-6 py-2.5 text-sm font-semibold bg-brand-ink text-white hover:bg-brand-slate disabled:bg-brand-border disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             {isDownloading ? (
               <>

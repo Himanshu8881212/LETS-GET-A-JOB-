@@ -49,4 +49,14 @@ logs/
 
 # Misc
 .DS_Store
+.worktrees/
 *.pem
+
+# Python venv for the Apply Agent (browser-use)
+scripts/.venv/
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Claude Code local settings
+.claude/

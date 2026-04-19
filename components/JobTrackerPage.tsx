@@ -13,8 +13,8 @@ const JobTrackerBoard = dynamic(
     loading: () => (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Job Tracker...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
+          <p className="text-brand-steel">Loading Job Tracker...</p>
         </div>
       </div>
     ),
@@ -28,8 +28,8 @@ const JobAnalytics = dynamic(
     loading: () => (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Analytics...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
+          <p className="text-brand-steel">Loading Analytics...</p>
         </div>
       </div>
     ),
@@ -206,62 +206,58 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-mist flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading job applications...</p>
+          <div className="animate-spin h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
+          <p className="text-brand-steel">Loading job applications...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-mist/20">
       {/* Header */}
-      <header className="bg-gray-900 text-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {onBack && (
-                <button
-                  onClick={onBack}
-                  className="p-2 hover:bg-gray-800 rounded transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-              )}
-              <h1 className="text-xl font-bold">Job Tracker</h1>
-            </div>
+      <header className="h-[72px] px-6 border-b border-brand-border flex items-center justify-between bg-white sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 hover:bg-brand-mist rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
+          <h1 className="text-xl font-bold text-brand-ink">Job Tracker</h1>
+        </div>
 
-            <div className="flex items-center gap-2">
-              {/* View Toggle */}
-              <div className="flex bg-gray-800 p-1">
-                <button
-                  onClick={() => setActiveView('board')}
-                  className={`px-4 py-2 text-sm font-medium transition-colors ${activeView === 'board'
-                    ? 'bg-white text-gray-900'
-                    : 'text-gray-400 hover:text-white'
-                    }`}
-                >
-                  Board
-                </button>
-                <button
-                  onClick={() => setActiveView('analytics')}
-                  className={`px-4 py-2 text-sm font-medium transition-colors ${activeView === 'analytics'
-                    ? 'bg-white text-gray-900'
-                    : 'text-gray-400 hover:text-white'
-                    }`}
-                >
-                  Analytics
-                </button>
-              </div>
-            </div>
+        <div className="flex items-center gap-2">
+          {/* View Toggle */}
+          <div className="flex bg-brand-mist p-1 rounded-full">
+            <button
+              onClick={() => setActiveView('board')}
+              className={`px-4 py-1.5 text-sm font-medium transition-colors rounded-full ${activeView === 'board'
+                ? 'bg-white text-brand-ink shadow-soft'
+                : 'text-brand-steel hover:text-brand-ink'
+                }`}
+            >
+              Board
+            </button>
+            <button
+              onClick={() => setActiveView('analytics')}
+              className={`px-4 py-1.5 text-sm font-medium transition-colors rounded-full ${activeView === 'analytics'
+                ? 'bg-white text-brand-ink shadow-soft'
+                : 'text-brand-steel hover:text-brand-ink'
+                }`}
+            >
+              Analytics
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-6">
         {activeView === 'board' ? (
           <JobTrackerBoard
             jobs={jobs}

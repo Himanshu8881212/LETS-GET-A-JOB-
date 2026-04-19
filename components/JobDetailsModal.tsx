@@ -147,21 +147,23 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-300">
+    <div className="fixed inset-0 bg-brand-ink bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white max-w-3xl w-full max-h-[90vh] overflow-hidden border border-brand-border rounded-xl shadow-soft flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-gray-900 text-white p-6 flex justify-between items-center border-b border-gray-700">
+        <div className="bg-brand-ink text-white p-6 flex justify-between items-center border-b border-brand-slate rounded-t-xl">
           <div>
             <h2 className="text-xl font-bold">{job.company}</h2>
-            <p className="text-gray-400 mt-1">{job.position}</p>
+            <p className="text-sm text-brand-steel mt-1">{job.position}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-800 transition-colors"
+            className="p-2 hover:bg-brand-slate transition-colors rounded-full"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
+
+        <div className="flex-1 overflow-y-auto">
 
         {/* Content */}
         <div className="p-6 space-y-6">
@@ -170,31 +172,31 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Company</label>
                   <input
                     type="text"
                     value={formData.company}
                     onChange={e => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Position</label>
                   <input
                     type="text"
                     value={formData.position}
                     onChange={e => setFormData({ ...formData, position: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Status</label>
                   <select
                     value={formData.status}
                     onChange={e => setFormData({ ...formData, status: e.target.value as JobStatus })}
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   >
                     <option value="applied">Applied</option>
                     <option value="interview">Interview</option>
@@ -204,39 +206,39 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Application Date</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Application Date</label>
                   <input
                     type="date"
                     value={formData.applicationDate}
                     onChange={e => setFormData({ ...formData, applicationDate: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Location</label>
                   <input
                     type="text"
                     value={formData.location}
                     onChange={e => setFormData({ ...formData, location: e.target.value })}
                     placeholder="e.g., San Francisco, CA or Remote"
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Salary Range</label>
                   <input
                     type="text"
                     value={formData.salary}
                     onChange={e => setFormData({ ...formData, salary: e.target.value })}
                     placeholder="e.g., $120,000 - $150,000"
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Resume Version</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Resume Version</label>
                   <select
                     value={formData.resumeVersionId || ''}
                     onChange={e => {
@@ -248,7 +250,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                         resumeVersion: selectedVersion ? `${selectedVersion.version} - ${selectedVersion.name}` : ''
                       })
                     }}
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                     disabled={loadingVersions}
                   >
                     <option value="">Select resume version</option>
@@ -261,7 +263,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Cover Letter Version</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Cover Letter Version</label>
                   <select
                     value={formData.coverLetterVersionId || ''}
                     onChange={e => {
@@ -271,7 +273,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                         coverLetterVersionId: versionId
                       })
                     }}
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                     disabled={loadingVersions}
                   >
                     <option value="">Select cover letter version</option>
@@ -284,57 +286,57 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Contact Person</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Contact Person</label>
                   <input
                     type="text"
                     value={formData.contactPerson}
                     onChange={e => setFormData({ ...formData, contactPerson: e.target.value })}
                     placeholder="e.g., John Smith"
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Contact Email</label>
                   <input
                     type="email"
                     value={formData.contactEmail}
                     onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
                     placeholder="e.g., recruiter@company.com"
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Posting URL</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Job Posting URL</label>
                   <input
                     type="url"
                     value={formData.jobUrl}
                     onChange={e => setFormData({ ...formData, jobUrl: e.target.value })}
                     placeholder="https://company.com/careers/job-posting"
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Job Description</label>
                   <textarea
                     value={formData.jobDescription}
                     onChange={e => setFormData({ ...formData, jobDescription: e.target.value })}
                     rows={6}
                     placeholder="Paste the full job description here for reference..."
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Personal Notes</label>
+                  <label className="block text-sm font-medium text-brand-slate mb-2">Personal Notes</label>
                   <textarea
                     value={formData.notes}
                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
                     rows={4}
                     placeholder="Add your notes, interview prep, follow-up reminders, etc..."
-                    className="w-full px-4 py-2 border border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 text-black"
+                    className="w-full px-4 py-2 border border-brand-border focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent text-black rounded-lg"
                   />
                 </div>
               </div>
@@ -344,45 +346,45 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
             <div className="space-y-6">
               {/* Application Details Section */}
               <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-brand-ink mb-4 flex items-center gap-2">
                   <Briefcase className="w-5 h-5" />
                   Application Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                    <Calendar className="w-5 h-5 text-brand-steel mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-gray-600">Applied On</p>
-                      <p className="font-medium text-gray-900">{formatDate(job.applicationDate)}</p>
+                      <p className="text-sm text-brand-steel">Applied On</p>
+                      <p className="font-medium text-brand-ink">{formatDate(job.applicationDate)}</p>
                     </div>
                   </div>
 
                   {job.location && (
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <MapPin className="w-5 h-5 text-brand-steel mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-600">Location</p>
-                        <p className="font-medium text-gray-900">{job.location}</p>
+                        <p className="text-sm text-brand-steel">Location</p>
+                        <p className="font-medium text-brand-ink">{job.location}</p>
                       </div>
                     </div>
                   )}
 
                   {job.salary && (
                     <div className="flex items-start gap-3">
-                      <DollarSign className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <DollarSign className="w-5 h-5 text-brand-steel mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-600">Salary Range</p>
-                        <p className="font-medium text-gray-900">{job.salary}</p>
+                        <p className="text-sm text-brand-steel">Salary Range</p>
+                        <p className="font-medium text-brand-ink">{job.salary}</p>
                       </div>
                     </div>
                   )}
 
                   {job.resumeVersion && (
                     <div className="flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                      <FileText className="w-5 h-5 text-brand-steel mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm text-gray-600">Resume Version</p>
-                        <p className="font-medium text-gray-900">{job.resumeVersion}</p>
+                        <p className="text-sm text-brand-steel">Resume Version</p>
+                        <p className="font-medium text-brand-ink">{job.resumeVersion}</p>
                       </div>
                     </div>
                   )}
@@ -392,27 +394,27 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               {/* Contact Information Section */}
               {(job.contactPerson || job.contactEmail) && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-brand-ink mb-4 flex items-center gap-2">
                     <User className="w-5 h-5" />
                     Contact Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {job.contactPerson && (
                       <div className="flex items-start gap-3">
-                        <User className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                        <User className="w-5 h-5 text-brand-steel mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-sm text-gray-600">Contact Person</p>
-                          <p className="font-medium text-gray-900">{job.contactPerson}</p>
+                          <p className="text-sm text-brand-steel">Contact Person</p>
+                          <p className="font-medium text-brand-ink">{job.contactPerson}</p>
                         </div>
                       </div>
                     )}
 
                     {job.contactEmail && (
                       <div className="flex items-start gap-3">
-                        <Mail className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                        <Mail className="w-5 h-5 text-brand-steel mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-sm text-gray-600">Email</p>
-                          <a href={`mailto:${job.contactEmail}`} className="font-medium text-gray-900 hover:text-black hover:underline">
+                          <p className="text-sm text-brand-steel">Email</p>
+                          <a href={`mailto:${job.contactEmail}`} className="font-medium text-brand-ink hover:text-black hover:underline">
                             {job.contactEmail}
                           </a>
                         </div>
@@ -425,7 +427,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               {/* Job Posting Link */}
               {job.jobUrl && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-brand-ink mb-4 flex items-center gap-2">
                     <ExternalLink className="w-5 h-5" />
                     Job Posting
                   </h3>
@@ -433,7 +435,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
                     href={job.jobUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-brand-ink text-white hover:bg-brand-slate transition-colors text-sm font-medium rounded-full"
                   >
                     <ExternalLink className="w-4 h-4" />
                     View Original Posting
@@ -444,12 +446,12 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               {/* Job Description */}
               {job.jobDescription && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-brand-ink mb-4 flex items-center gap-2">
                     <FileText className="w-5 h-5" />
                     Job Description
                   </h3>
-                  <div className="bg-gray-50 border border-gray-200 p-4">
-                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{job.jobDescription}</p>
+                  <div className="bg-brand-mist border border-brand-border p-4 rounded-lg">
+                    <p className="text-brand-slate whitespace-pre-wrap leading-relaxed">{job.jobDescription}</p>
                   </div>
                 </div>
               )}
@@ -457,12 +459,12 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               {/* Notes */}
               {job.notes && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-brand-ink mb-4 flex items-center gap-2">
                     <FileText className="w-5 h-5" />
                     Notes
                   </h3>
-                  <div className="bg-gray-50 border border-gray-200 p-4">
-                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{job.notes}</p>
+                  <div className="bg-brand-mist border border-brand-border p-4 rounded-lg">
+                    <p className="text-brand-slate whitespace-pre-wrap leading-relaxed">{job.notes}</p>
                   </div>
                 </div>
               )}
@@ -470,24 +472,24 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
               {/* Status History */}
               {job.statusHistory.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-brand-ink mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5" />
                     Application Timeline
                   </h3>
                   <div className="space-y-3">
                     {job.statusHistory.map((change, index) => (
-                      <div key={index} className="flex items-start gap-4 pb-3 border-b border-gray-200 last:border-0">
-                        <div className="flex-shrink-0 w-10 h-10 bg-gray-900 flex items-center justify-center">
+                      <div key={index} className="flex items-start gap-4 pb-3 border-b border-brand-border last:border-0">
+                        <div className="flex-shrink-0 w-10 h-10 bg-brand-ink flex items-center justify-center rounded-lg">
                           {change.to === 'applied' && <CheckCircle2 className="w-5 h-5 text-white" />}
                           {change.to === 'interview' && <Calendar className="w-5 h-5 text-white" />}
                           {change.to === 'offer' && <CheckCircle2 className="w-5 h-5 text-white" />}
                           {change.to === 'rejected' && <XCircle className="w-5 h-5 text-white" />}
                         </div>
                         <div className="flex-1">
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-brand-ink">
                             {getStatusLabel(change.from)} → {getStatusLabel(change.to)}
                           </p>
-                          <p className="text-sm text-gray-600 mt-1">{formatDateTime(change.timestamp)}</p>
+                          <p className="text-sm text-brand-steel mt-1">{formatDateTime(change.timestamp)}</p>
                         </div>
                       </div>
                     ))}
@@ -498,28 +500,30 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
           )}
         </div>
 
+        </div>
+
         {/* Actions */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-300 p-6 flex justify-between">
+        <div className="bg-brand-mist border-t border-brand-border p-4 flex justify-between rounded-b-xl">
           <button
             onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium rounded-full"
           >
             <Trash2 className="w-4 h-4" />
             Delete
           </button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {isEditing ? (
               <>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="px-6 py-2 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium"
+                  className="px-4 py-2 bg-white border border-brand-border text-brand-ink hover:bg-brand-mist transition-colors text-sm font-medium rounded-full"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-6 py-2 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium"
+                  className="px-4 py-2 bg-brand-ink text-white hover:bg-brand-slate transition-colors text-sm font-medium rounded-full"
                 >
                   Save Changes
                 </button>
@@ -527,7 +531,7 @@ export default function JobDetailsModal({ job, onClose, onUpdate, onDelete }: Jo
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-6 py-2 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium"
+                className="px-4 py-2 bg-brand-ink text-white hover:bg-brand-slate transition-colors text-sm font-medium rounded-full"
               >
                 Edit
               </button>

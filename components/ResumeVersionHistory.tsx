@@ -106,7 +106,7 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink"></div>
       </div>
     )
   }
@@ -117,13 +117,13 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
         {/* Header with Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+            <h2 className="text-3xl font-bold text-brand-ink flex items-center gap-3">
+              <div className="w-10 h-10 bg-brand-ink rounded-xl flex items-center justify-center">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               Resume Version History
             </h2>
-            <p className="text-gray-600 mt-2 ml-13">
+            <p className="text-brand-steel mt-2 ml-13">
               Track performance and manage different versions of your resume
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="px-5 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 border-2 border-brand-ink rounded-xl bg-white text-sm font-semibold hover:bg-brand-mist transition-colors cursor-pointer"
             >
               <option value="all">All Branches</option>
               {branches.map(branch => (
@@ -145,7 +145,7 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'success' | 'starred')}
-              className="px-5 py-2.5 border-2 border-gray-900 rounded-xl bg-white text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+              className="px-5 py-2.5 border-2 border-brand-ink rounded-xl bg-white text-sm font-semibold hover:bg-brand-mist transition-colors cursor-pointer"
             >
               <option value="date">📅 Sort by Date</option>
               <option value="success">🏆 Sort by Success Rate</option>
@@ -157,19 +157,19 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
         {/* Version Cards */}
         <div className="grid gap-6">
           {filteredVersions.length === 0 ? (
-            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200">
-              <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg font-semibold text-gray-700">No resume versions found</p>
-              <p className="text-sm text-gray-500 mt-2">Create your first resume to get started</p>
+            <div className="text-center py-16 bg-brand-mist rounded-2xl border border-brand-border shadow-soft">
+              <FileText className="w-16 h-16 text-brand-steel mx-auto mb-4" />
+              <p className="text-lg font-semibold text-brand-slate">No resume versions found</p>
+              <p className="text-sm text-brand-steel mt-2">Create your first resume to get started</p>
             </div>
           ) : (
             filteredVersions.map((version) => (
               <div
                 key={version.id}
-                className="group bg-white border-2 border-gray-900 rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300"
+                className="group bg-white border border-brand-border rounded-2xl overflow-hidden shadow-soft hover:shadow-soft transition-all duration-300"
               >
                 {/* Top Bar with Favorite */}
-                <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-3 flex items-center justify-between">
+                <div className="bg-brand-ink px-6 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 text-white">
                       <GitBranch className="w-4 h-4" />
@@ -204,7 +204,7 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                     {/* Left: Version Info */}
                     <div className="flex-1">
                       <div className="mb-4">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <h3 className="text-2xl font-bold text-brand-ink mb-2 flex items-center gap-2">
                           {version.versionName}
                           {version.stats.successRate >= 70 && (
                             <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-lg">
@@ -214,7 +214,7 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                           )}
                         </h3>
                         {version.description && (
-                          <p className="text-sm text-gray-600 leading-relaxed">{version.description}</p>
+                          <p className="text-sm text-brand-steel leading-relaxed">{version.description}</p>
                         )}
                       </div>
 
@@ -252,19 +252,19 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                       {/* Success Rate Card */}
                       <div className={`rounded-xl p-5 mb-4 ${version.stats.successRate >= 70 ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300' :
                         version.stats.successRate >= 40 ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300' :
-                          'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300'
+                          'bg-brand-mist border border-brand-border'
                         }`}>
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-semibold text-gray-700">Success Rate</span>
+                          <span className="text-sm font-semibold text-brand-slate">Success Rate</span>
                           <TrendingUp className={`w-5 h-5 ${version.stats.successRate >= 70 ? 'text-green-600' :
                             version.stats.successRate >= 40 ? 'text-yellow-600' :
-                              'text-gray-600'
+                              'text-brand-steel'
                             }`} />
                         </div>
-                        <div className="text-4xl font-black text-gray-900 mb-1">
+                        <div className="text-4xl font-black text-brand-ink mb-1">
                           {version.stats.successRate}%
                         </div>
-                        <div className="text-xs font-medium text-gray-600">
+                        <div className="text-xs font-medium text-brand-steel">
                           {version.stats.totalApplications} total application{version.stats.totalApplications !== 1 ? 's' : ''}
                         </div>
                       </div>
@@ -273,14 +273,14 @@ export default function ResumeVersionHistory({ onCreateBranch }: ResumeVersionHi
                       <div className="space-y-2">
                         <button
                           onClick={() => handleDownloadClick(version.id, version.versionName)}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-all text-sm font-semibold shadow-lg hover:shadow-xl"
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brand-ink text-white rounded-xl hover:bg-brand-slate transition-all text-sm font-semibold shadow-soft hover:shadow-soft"
                         >
                           <Download className="w-4 h-4" />
                           Download PDF
                         </button>
                         <button
                           onClick={() => onCreateBranch(version.id)}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-900 rounded-xl hover:bg-gray-50 transition-all text-sm font-semibold"
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-brand-ink rounded-xl hover:bg-brand-mist transition-all text-sm font-semibold"
                         >
                           <GitBranch className="w-4 h-4" />
                           Create Branch
@@ -325,7 +325,7 @@ function StatRing({ label, percentage, count, color }: {
             stroke="currentColor"
             strokeWidth="4"
             fill="none"
-            className="text-gray-200"
+            className="text-brand-border"
           />
           <circle
             cx="32"
@@ -341,10 +341,10 @@ function StatRing({ label, percentage, count, color }: {
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-bold text-gray-900">{count}</span>
+          <span className="text-xs font-bold text-brand-ink">{count}</span>
         </div>
       </div>
-      <span className="text-xs text-gray-600 mt-1">{label}</span>
+      <span className="text-xs text-brand-steel mt-1">{label}</span>
     </div>
   )
 }

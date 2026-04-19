@@ -55,11 +55,11 @@ interface JobTrackerBoardProps {
   onModalClose?: () => void
 }
 
-const COLUMNS: { id: JobStatus; title: string; color: string; headerColor: string; count: number }[] = [
-  { id: 'applied', title: 'Applied', color: 'bg-gray-50', headerColor: 'bg-gray-800', count: 0 },
-  { id: 'interview', title: 'Interview', color: 'bg-blue-50', headerColor: 'bg-blue-600', count: 0 },
-  { id: 'offer', title: 'Offer', color: 'bg-green-50', headerColor: 'bg-green-600', count: 0 },
-  { id: 'rejected', title: 'Rejected', color: 'bg-red-50', headerColor: 'bg-red-600', count: 0 },
+const COLUMNS: { id: JobStatus; title: string; color: string; headerBg: string; headerText: string; countBg: string; countText: string; count: number }[] = [
+  { id: 'applied', title: 'Applied', color: 'bg-white', headerBg: 'bg-blue-50', headerText: 'text-blue-700', countBg: 'bg-blue-100', countText: 'text-blue-700', count: 0 },
+  { id: 'interview', title: 'Interview', color: 'bg-white', headerBg: 'bg-amber-50', headerText: 'text-amber-700', countBg: 'bg-amber-100', countText: 'text-amber-700', count: 0 },
+  { id: 'offer', title: 'Offer', color: 'bg-white', headerBg: 'bg-green-50', headerText: 'text-green-700', countBg: 'bg-green-100', countText: 'text-green-700', count: 0 },
+  { id: 'rejected', title: 'Rejected', color: 'bg-white', headerBg: 'bg-red-50', headerText: 'text-red-700', countBg: 'bg-red-100', countText: 'text-red-700', count: 0 },
 ]
 
 export default function JobTrackerBoard({
@@ -143,17 +143,17 @@ export default function JobTrackerBoard({
     <>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Applications Board</h2>
-          <p className="text-gray-600 mt-1">Drag and drop to change status</p>
+          <h2 className="text-lg font-semibold text-brand-ink">Applications Board</h2>
+          <p className="text-sm text-brand-steel mt-1">Drag and drop to change status</p>
         </div>
         <button
           onClick={() => {
             setModalPrefillData(null) // Clear any prefill data for manual add
             setShowAddModal(true)
           }}
-          className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 hover:bg-gray-800 transition-colors font-medium"
+          className="flex items-center gap-2 bg-brand-ink text-white px-4 py-2 hover:bg-brand-slate transition-colors font-medium text-sm rounded-full"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Add Application
         </button>
       </div>
@@ -169,13 +169,13 @@ export default function JobTrackerBoard({
             return (
               <div
                 key={column.id}
-                className="bg-white border border-gray-300 overflow-hidden flex flex-col"
+                className="bg-white border border-brand-border overflow-hidden flex flex-col rounded-xl shadow-soft"
               >
                 {/* Column Header */}
-                <div className={`${column.headerColor} text-white p-3`}>
+                <div className={`${column.headerBg} ${column.headerText} px-4 py-3 rounded-t-xl border-b border-brand-border`}>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base">{column.title}</h3>
-                    <span className="bg-white/20 px-2 py-0.5 text-xs font-semibold">
+                    <h3 className="text-[11px] uppercase tracking-[0.18em] font-semibold">{column.title}</h3>
+                    <span className={`${column.countBg} ${column.countText} px-2 py-0.5 text-[11px] font-semibold rounded-full`}>
                       {columnJobs.length}
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export default function JobTrackerBoard({
                       />
                     ))}
                     {columnJobs.length === 0 && (
-                      <div className="text-center text-gray-400 py-16">
+                      <div className="text-center text-brand-steel py-16">
                         <p className="text-sm font-medium">No applications</p>
                         <p className="text-xs mt-1">Drag cards here</p>
                       </div>

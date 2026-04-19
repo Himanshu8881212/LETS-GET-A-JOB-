@@ -1,5 +1,5 @@
 import React from 'react'
-import { Loader2 } from 'lucide-react'
+import { Spinner } from './Spinner'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success'
@@ -18,14 +18,14 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors focus:outline-none'
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-full'
 
   const variants = {
-    primary: 'bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-400 border border-gray-900',
-    secondary: 'bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-400 border border-gray-700',
-    outline: 'border border-gray-300 text-gray-900 bg-white hover:bg-gray-50 hover:border-gray-400 disabled:border-gray-200 disabled:text-gray-400',
+    primary: 'bg-brand-ink text-white hover:bg-brand-slate disabled:bg-brand-steel border border-brand-ink shadow-sm',
+    secondary: 'bg-brand-slate text-white hover:bg-brand-ink disabled:bg-brand-steel border border-brand-slate shadow-sm',
+    outline: 'border border-brand-border text-brand-ink bg-white hover:bg-brand-mist hover:border-brand-steel disabled:border-brand-border disabled:text-brand-steel',
     danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400 border border-red-600',
-    success: 'bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400 border border-green-600'
+    success: 'bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-emerald-400 border border-emerald-600'
   }
 
   const sizes = {
@@ -46,10 +46,9 @@ export function Button({
         ${className}
       `}
     >
-      {loading && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
+      {loading && <Spinner size={size === 'sm' ? 'sm' : 'md'} className="mr-1.5" />}
       {!loading && icon && <span className="mr-1.5">{icon}</span>}
       {children}
     </button>
   )
 }
-

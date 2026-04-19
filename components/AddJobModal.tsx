@@ -165,16 +165,16 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-300">
+      <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-hidden border border-brand-border rounded-xl shadow-soft">
         {/* Header */}
-        <div className="bg-gray-900 text-white p-5 flex justify-between items-center border-b border-gray-700">
+        <div className="bg-brand-ink text-white p-5 flex justify-between items-center border-b border-brand-slate rounded-t-xl">
           <div>
             <h2 className="text-xl font-bold">Add New Application</h2>
-            <p className="text-gray-400 text-sm mt-0.5">Track your job application</p>
+            <p className="text-brand-steel text-sm mt-0.5">Track your job application</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-800 transition-colors"
+            className="p-2 hover:bg-brand-slate transition-colors rounded-full"
           >
             <X className="w-5 h-5" />
           </button>
@@ -185,7 +185,7 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
           {/* Required Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Company <span className="text-red-500">*</span>
               </label>
               <input
@@ -193,13 +193,13 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
                 required
                 value={formData.company}
                 onChange={e => setFormData({ ...formData, company: e.target.value })}
-                className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
                 placeholder="Google, Microsoft, etc."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Position <span className="text-red-500">*</span>
               </label>
               <input
@@ -207,19 +207,19 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
                 required
                 value={formData.position}
                 onChange={e => setFormData({ ...formData, position: e.target.value })}
-                className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
                 placeholder="Software Engineer, Product Manager..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Status <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.status}
                 onChange={e => setFormData({ ...formData, status: e.target.value as JobStatus })}
-                className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
               >
                 <option value="applied">Applied</option>
                 <option value="interview">Interview</option>
@@ -229,7 +229,7 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Application Date <span className="text-red-500">*</span>
               </label>
               <input
@@ -237,14 +237,14 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
                 required
                 value={formData.applicationDate}
                 onChange={e => setFormData({ ...formData, applicationDate: e.target.value })}
-                className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
               />
             </div>
           </div>
 
           {/* Job URL - Now Mandatory */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+            <label className="block text-sm font-semibold text-brand-ink mb-1.5">
               Job URL <span className="text-red-500">*</span>
             </label>
             <input
@@ -252,7 +252,7 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
               required
               value={formData.jobUrl}
               onChange={e => setFormData({ ...formData, jobUrl: e.target.value })}
-              className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+              className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
               placeholder="https://company.com/jobs/123"
             />
           </div>
@@ -260,31 +260,31 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
           {/* Optional Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Location
               </label>
               <input
                 type="text"
                 value={formData.location}
                 onChange={e => setFormData({ ...formData, location: e.target.value })}
-                className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
                 placeholder="San Francisco, CA / Remote"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Resume Version
               </label>
               {loadingVersions ? (
-                <div className="w-full px-3 py-2.5 border border-gray-300 text-sm text-gray-500">
+                <div className="w-full px-3 py-2.5 border border-brand-border text-sm text-brand-steel rounded-lg">
                   Loading versions...
                 </div>
               ) : (
                 <select
                   value={formData.resumeVersionId || ''}
                   onChange={e => setFormData({ ...formData, resumeVersionId: e.target.value ? parseInt(e.target.value) : null })}
-                  className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                  className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
                 >
                   <option value="">No resume selected</option>
                   {sortedResumeVersions.map(({ version, depth }) => (
@@ -298,23 +298,23 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
                 </select>
               )}
               {lastUsedResumeId && formData.resumeVersionId === lastUsedResumeId && (
-                <p className="text-xs text-gray-500 mt-1">⭐ Last used resume</p>
+                <p className="text-xs text-brand-steel mt-1">⭐ Last used resume</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Cover Letter Version
               </label>
               {loadingVersions ? (
-                <div className="w-full px-3 py-2.5 border border-gray-300 text-sm text-gray-500">
+                <div className="w-full px-3 py-2.5 border border-brand-border text-sm text-brand-steel rounded-lg">
                   Loading versions...
                 </div>
               ) : (
                 <select
                   value={formData.coverLetterVersionId || ''}
                   onChange={e => setFormData({ ...formData, coverLetterVersionId: e.target.value ? parseInt(e.target.value) : null })}
-                  className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black"
+                  className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black rounded-lg"
                 >
                   <option value="">No cover letter selected</option>
                   {sortedCoverLetterVersions.map(({ version, depth }) => (
@@ -328,36 +328,36 @@ export default function AddJobModal({ onClose, onAdd, initialData }: AddJobModal
                 </select>
               )}
               {lastUsedCoverLetterId && formData.coverLetterVersionId === lastUsedCoverLetterId && (
-                <p className="text-xs text-gray-500 mt-1">⭐ Last used cover letter</p>
+                <p className="text-xs text-brand-steel mt-1">⭐ Last used cover letter</p>
               )}
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+              <label className="block text-sm font-semibold text-brand-ink mb-1.5">
                 Notes
               </label>
               <textarea
                 value={formData.notes}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:border-gray-900 transition-colors text-sm text-black resize-none"
+                className="w-full px-3 py-2.5 border border-brand-border focus:outline-none focus:border-brand-accent transition-colors text-sm text-black resize-none rounded-lg"
                 placeholder="Quick notes about this application..."
               />
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-2 pt-4 border-t border-brand-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium text-sm"
+              className="px-4 py-2 bg-white border border-brand-border text-brand-ink hover:bg-brand-mist transition-colors font-medium text-sm rounded-full"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium text-sm"
+              className="px-4 py-2 bg-brand-ink text-white hover:bg-brand-slate transition-colors font-medium text-sm rounded-full"
             >
               Add Application
             </button>

@@ -24,7 +24,7 @@ export function Input({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-brand-steel mb-2">
           {label}
           {props.required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -33,26 +33,26 @@ export function Input({
         {...props}
         maxLength={maxLength}
         className={`
-          w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent
-          transition-all duration-200 text-black
-          ${error ? 'border-red-500 bg-red-50' : 'border-gray-300'}
+          w-full rounded-lg border px-4 py-2 text-sm text-brand-ink shadow-sm transition-all duration-200
+          focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 focus:ring-offset-white
+          ${error ? 'border-red-500 bg-red-50' : 'border-brand-border bg-white'}
           ${className}
         `}
       />
       <div className="mt-1 flex items-center justify-between">
         <div className="flex-1">
           {error && (
-            <div className="flex items-center text-red-600 text-sm">
+            <div className="flex items-center text-red-600 text-xs font-medium">
               <AlertCircle className="w-4 h-4 mr-1" />
               {error}
             </div>
           )}
           {!error && helperText && (
-            <p className="text-sm text-gray-500">{helperText}</p>
+            <p className="text-xs text-brand-steel">{helperText}</p>
           )}
         </div>
         {showCharCount && maxLength && (
-          <span className={`text-sm ${charCount > maxLength * 0.9 ? 'text-orange-600' : 'text-gray-500'}`}>
+          <span className={`text-xs ${charCount > maxLength * 0.9 ? 'text-orange-600' : 'text-brand-steel'}`}>
             {charCount}/{maxLength}
           </span>
         )}
@@ -60,4 +60,3 @@ export function Input({
     </div>
   )
 }
-
