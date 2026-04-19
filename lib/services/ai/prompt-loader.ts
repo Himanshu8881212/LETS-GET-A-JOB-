@@ -29,8 +29,7 @@ export type PromptId =
   | 'resume_cleaner'
   | 'cover_letter_cleaner'
   | 'polish_section'
-  | 'scout_chat'
-  | 'scout_agent'
+  | 'scout'
   | 'apply_agent'
 
 const modelSchema = z.object({
@@ -98,13 +97,8 @@ const DEFAULTS: Record<PromptId, Defaults> = {
     temperature: 0.1,
     maxTokens: 2_000,
   },
-  scout_chat: {
-    system: '__SCOUT_CHAT_DEFAULT__',
-    temperature: 0.3,
-    maxTokens: 2_000,
-  },
-  scout_agent: {
-    system: '__SCOUT_AGENT_DEFAULT__',
+  scout: {
+    system: '__SCOUT_DEFAULT__',
     temperature: 0.3,
     maxTokens: 2_500,
   },

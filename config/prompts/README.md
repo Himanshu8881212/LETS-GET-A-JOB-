@@ -13,8 +13,7 @@ Every AI feature in Headhunter pulls its system prompt, temperature, and token b
 | `resume_cleaner.json` | Resume PDF cleaner | Noise-strip rules for PDF text restoration. |
 | `cover_letter_cleaner.json` | Cover-letter PDF cleaner | Same, for letters. |
 | `polish_section.json` | Magic-wand polish | Length budget (80–120%), verb selection hints. |
-| `scout_chat.json` | Scout chat (non-agent) | Personality, capabilities, personalization rules. |
-| `scout_agent.json` | Scout agent (tools) | Tool descriptions, web-search policy, etc. |
+| `scout.json` | Scout (both chat and agent mode) | Personality, capabilities, personalization rules, and tool usage gated behind "if tools are available this turn". |
 | `apply_agent.json` | Apply agent (browser-use) | Task template, forbidden/review button lists, context caps. |
 
 ## Schema
