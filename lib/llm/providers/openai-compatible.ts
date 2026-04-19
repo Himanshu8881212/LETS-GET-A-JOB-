@@ -40,7 +40,21 @@ export class OpenAICompatibleProvider implements LLMProvider {
       temperature: req.temperature ?? 0.2,
     }
     if (req.maxTokens) body.max_tokens = req.maxTokens
-    if (req.jsonMode && !req.tools?.length) body.response_format = { type: 'json_object' }
+    // Structured outputs: prefer strict json_schema when provided (OpenAI
+    // natively; many compat providers understand the same field). Fall back
+    // to json_object on tools-enabled calls or when schema is absent.
+    if (req.jsonSchema && !req.tools?.length) {
+      body.response_format = {
+        type: 'json_schema',
+        json_schema: {
+          name: req.jsonSchema.name,
+          strict: req.jsonSchema.strict ?? true,
+          schema: req.jsonSchema.schema,
+        },
+      }
+    } else if (req.jsonMode && !req.tools?.length) {
+      body.response_format = { type: 'json_object' }
+    }
     if (req.tools?.length) {
       body.tools = req.tools.map(t => ({
         type: 'function',
@@ -55,16 +69,32 @@ export class OpenAICompatibleProvider implements LLMProvider {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), req.timeoutMs ?? 120_000)
 
-    try {
+    const doFetch = async (finalBody: any) => {
       const res = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${this.apiKey}`,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(finalBody),
         signal: controller.signal,
       })
+      return res
+    }
+
+    try {
+      let res = await doFetch(body)
+
+      // Graceful fallback: some OpenAI-compatible providers (older Mistral,
+      // some OpenRouter model bridges, Ollama) reject response_format=json_schema
+      // with 400/422. Retry ONCE with json_object to preserve behavior.
+      if (!res.ok && body.response_format?.type === 'json_schema') {
+        const status = res.status
+        if (status === 400 || status === 422 || status === 404) {
+          const retryBody = { ...body, response_format: { type: 'json_object' } }
+          res = await doFetch(retryBody)
+        }
+      }
 
       if (!res.ok) {
         const text = await res.text().catch(() => '')

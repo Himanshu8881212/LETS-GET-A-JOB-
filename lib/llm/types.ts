@@ -30,6 +30,18 @@ export interface CompletionRequest {
   maxTokens?: number
   /** Ask the provider to return JSON. OpenAI-compatible → response_format json_object; Anthropic/Google → add instruction. */
   jsonMode?: boolean
+  /**
+   * Structured-outputs "strict" mode. When provided AND the provider supports
+   * it (OpenAI-compatible: response_format json_schema), the model physically
+   * cannot emit a field outside the schema. Providers that don't support it
+   * fall back to plain json_object mode. Set `strict: true` to reject any
+   * additional properties.
+   */
+  jsonSchema?: {
+    name: string
+    schema: Record<string, unknown>
+    strict?: boolean
+  }
   /** Abort after this many milliseconds. */
   timeoutMs?: number
   /** Tools the model is allowed to call. */

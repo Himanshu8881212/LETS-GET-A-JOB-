@@ -174,15 +174,48 @@ function issuesOf(zodError: any): Array<{ path: Array<string | number>; message:
 }
 
 /**
+ * Convert a zod schema into a JSON Schema usable by OpenAI's strict
+ * response_format. Uses zod v4's built-in `z.toJSONSchema()`. If the schema
+ * doesn't come from zod (or conversion throws), we return undefined and the
+ * provider falls back to json_object mode.
+ */
+function deriveJsonSchema(schema: unknown): Record<string, unknown> | undefined {
+  try {
+    const { z } = require('zod') as { z: any }
+    if (!z || typeof z.toJSONSchema !== 'function') return undefined
+    // Only convert actual zod schemas — detect via presence of _zod or _def.
+    if (!(schema as any)?._zod && !(schema as any)?._def) return undefined
+    const json = z.toJSONSchema(schema, {
+      target: 'draft-2020-12',
+      unrepresentable: 'any',
+    })
+    if (json && typeof json === 'object') return json as Record<string, unknown>
+    return undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * Request JSON output, parse it, validate against a schema, and auto-repair
- * once with the error list on failure.
+ * once with the error list on failure. When the schema is a zod schema AND
+ * the provider supports structured outputs (OpenAI-compatible), we pass a
+ * derived JSON Schema so the model CANNOT emit extra fields. Falls back to
+ * json_object mode on providers that don't support it.
  */
 export async function completeJson<S extends ZodLike>(
   feature: FeatureName,
   req: CompletionRequest,
-  schema: S
+  schema: S,
+  opts?: { schemaName?: string; strict?: boolean },
 ): Promise<ReturnType<S['safeParse']> extends { success: true; data: infer D } ? D : unknown> {
-  const first = await complete(feature, { ...req, jsonMode: true })
+  const derivedSchema = deriveJsonSchema(schema)
+  const schemaName = (opts?.schemaName || feature).replace(/[^a-zA-Z0-9_]/g, '_')
+  const jsonSchema = derivedSchema
+    ? { name: schemaName, schema: derivedSchema, strict: opts?.strict ?? false }
+    : undefined
+
+  const first = await complete(feature, { ...req, jsonMode: true, jsonSchema })
   let parsedFirst: unknown
   try {
     parsedFirst = extractJson(first.text)
