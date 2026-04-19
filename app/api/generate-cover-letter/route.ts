@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const html = renderCoverLetterHtml(body)
     const pdf = await htmlToPdf(html)
 
-    return new NextResponse(pdf, {
+    return new NextResponse(new Uint8Array(pdf), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

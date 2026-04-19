@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z, ZodError } from 'zod'
 import getDatabase from '@/lib/db'
 import { getUserSession } from '@/lib/db/session'
+
+const evalInsertSchema = z.object({
+  job_url: z.string().url().nullish(),
+  job_description_text: z.string().min(10).max(40_000),
+  resume_text: z.string().min(10).max(40_000),
+  cover_letter_text: z.string().max(40_000),
+  resume_version_id: z.number().int().nullish(),
+  cover_letter_version_id: z.number().int().nullish(),
+  job_application_id: z.number().int().nullish(),
+})
+
+const evalUpdateSchema = z.object({
+  evaluation_id: z.number().int(),
+  evaluation_result: z.unknown(),
+  overall_score: z.number().min(0).max(100).nullish(),
+})
 
 /**
  * POST /api/ats-evaluations
@@ -12,6 +29,7 @@ export async function POST(request: NextRequest) {
     const userId = await getUserSession()
     const body = await request.json()
 
+    const parsed = evalInsertSchema.parse(body)
     const {
       job_url,
       job_description_text,
@@ -20,15 +38,7 @@ export async function POST(request: NextRequest) {
       resume_version_id,
       cover_letter_version_id,
       job_application_id,
-    } = body
-
-    // Validate required fields
-    if (!job_description_text || !resume_text || !cover_letter_text) {
-      return NextResponse.json(
-        { error: 'Missing required fields: job_description_text, resume_text, cover_letter_text' },
-        { status: 400 }
-      )
-    }
+    } = parsed
 
     const db = getDatabase()
 
@@ -64,10 +74,16 @@ export async function POST(request: NextRequest) {
       message: 'Evaluation data saved successfully'
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.issues },
+        { status: 400 },
+      )
+    }
     console.error('Error saving evaluation data:', error)
     return NextResponse.json(
       { error: 'Failed to save evaluation data' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }
@@ -81,19 +97,7 @@ export async function PATCH(request: NextRequest) {
     const userId = await getUserSession()
     const body = await request.json()
 
-    const {
-      evaluation_id,
-      evaluation_result,
-      overall_score,
-    } = body
-
-    // Validate required fields
-    if (!evaluation_id || !evaluation_result) {
-      return NextResponse.json(
-        { error: 'Missing required fields: evaluation_id, evaluation_result' },
-        { status: 400 }
-      )
-    }
+    const { evaluation_id, evaluation_result, overall_score } = evalUpdateSchema.parse(body)
 
     const db = getDatabase()
 
@@ -124,10 +128,16 @@ export async function PATCH(request: NextRequest) {
       message: 'Evaluation results saved successfully'
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.issues },
+        { status: 400 },
+      )
+    }
     console.error('Error updating evaluation:', error)
     return NextResponse.json(
       { error: 'Failed to update evaluation' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

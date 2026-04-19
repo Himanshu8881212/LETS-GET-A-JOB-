@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   try {
     const buf = await renderResumeDocx(body)
-    return new NextResponse(buf, {
+    return new NextResponse(new Uint8Array(buf), {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

@@ -280,7 +280,8 @@ const RESUME_CSS = `
 `
 
 export function renderResumeHtml(data: ResumeData): string {
-  const p = data.personalInfo || {}
+  const p: NonNullable<ResumeData['personalInfo']> =
+    data.personalInfo || ({} as NonNullable<ResumeData['personalInfo']>)
   const fullName = [p.firstName, p.lastName].filter(Boolean).join(' ').trim() || 'Your Name'
   const order = data.sectionOrder?.length
     ? data.sectionOrder.filter(s => s.enabled).map(s => s.id)

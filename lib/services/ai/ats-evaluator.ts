@@ -5,6 +5,7 @@ import { applyOutcomeBoost } from './outcome-loop'
 import { loadPrompt } from './prompt-loader'
 import { safeUserContent } from './escape'
 import { verifyAtsEvidence } from './validators'
+import { fireAndForget } from './fire-and-forget'
 
 export interface AtsEvaluationInput {
   resume_text: string
@@ -55,24 +56,30 @@ export async function evaluateAts(input: AtsEvaluationInput): Promise<unknown> {
     coverLetter: input.cover_letter_text || '',
   })
 
-  addMemory({
-    wing: 'ats',
-    drawer: 'evaluation',
-    content: `JD: ${input.job_description.slice(0, 300)}\n\nRESULT:\n${JSON.stringify(adjusted).slice(0, 1800)}`,
-    metadata: {
-      length_resume: input.resume_text.length,
-      prompt_version: cfg.version,
-      match_estimate: adjusted?.overall?.match_estimate,
-      fabricated_quotes: adjusted?._validation?.fabricated_quotes ?? 0,
-    },
-  }).catch(() => {})
+  fireAndForget(
+    'ats-evaluator/addMemory',
+    addMemory({
+      wing: 'ats',
+      drawer: 'evaluation',
+      content: `JD: ${input.job_description.slice(0, 300)}\n\nRESULT:\n${JSON.stringify(adjusted).slice(0, 1800)}`,
+      metadata: {
+        length_resume: input.resume_text.length,
+        prompt_version: cfg.version,
+        match_estimate: adjusted?.overall?.match_estimate,
+        fabricated_quotes: adjusted?._validation?.fabricated_quotes ?? 0,
+      },
+    }),
+  )
 
   // Close the outcome loop with the POST-ADJUSTMENT score.
-  applyOutcomeBoost({
-    evalResult: adjusted,
-    resumeText: input.resume_text,
-    jobDescription: input.job_description,
-  }).catch(() => {})
+  fireAndForget(
+    'ats-evaluator/outcomeBoost',
+    applyOutcomeBoost({
+      evalResult: adjusted,
+      resumeText: input.resume_text,
+      jobDescription: input.job_description,
+    }),
+  )
 
   return adjusted
 }

@@ -5,36 +5,34 @@ import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { ArrowLeft, Plus, BarChart3, TrendingUp } from 'lucide-react'
 import { JobApplication, JobStatus } from '@/types/job-tracker'
+import { useToast } from '@/components/ui/Toast'
+import { Spinner } from '@/components/ui/Spinner'
 
 // Lazy load heavy components
 const JobTrackerBoard = dynamic(
   () => import('@/components/JobTrackerBoard'),
   {
     loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
-          <p className="text-brand-steel">Loading Job Tracker...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center gap-3 py-12 animate-fade-in">
+        <Spinner size="lg" />
+        <p className="text-sm text-brand-steel">Loading Job Tracker…</p>
       </div>
     ),
-    ssr: false
-  }
+    ssr: false,
+  },
 )
 
 const JobAnalytics = dynamic(
   () => import('@/components/JobAnalytics'),
   {
     loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
-          <p className="text-brand-steel">Loading Analytics...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center gap-3 py-12 animate-fade-in">
+        <Spinner size="lg" />
+        <p className="text-sm text-brand-steel">Loading Analytics…</p>
       </div>
     ),
-    ssr: false
-  }
+    ssr: false,
+  },
 )
 
 interface JobTrackerPageProps {
@@ -49,6 +47,7 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
   const [loading, setLoading] = useState(true)
   const [initialJobData, setInitialJobData] = useState<any>(prefillData || null)
   const [shouldAutoOpen, setShouldAutoOpen] = useState(autoOpenModal)
+  const { showToast } = useToast()
 
   // Load jobs from database on mount
   useEffect(() => {
@@ -127,11 +126,11 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
       } else {
         const error = await response.json()
         console.error('Error adding job:', error)
-        alert('Failed to add job application: ' + (error.error || 'Unknown error'))
+        showToast('error', 'Failed to add job: ' + (error.error || 'Unknown error'))
       }
     } catch (error) {
       console.error('Error adding job:', error)
-      alert('Failed to add job application')
+      showToast('error', 'Failed to add job application')
     }
   }
 
@@ -177,11 +176,11 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
       } else {
         const error = await response.json()
         console.error('Error updating job:', error)
-        alert('Failed to update job application')
+        showToast('error', 'Failed to update job application')
       }
     } catch (error) {
       console.error('Error updating job:', error)
-      alert('Failed to update job application')
+      showToast('error', 'Failed to update job application')
     }
   }
 
@@ -196,20 +195,20 @@ export default function JobTrackerPage({ onBack, prefillData, autoOpenModal = fa
       } else {
         const error = await response.json()
         console.error('Error deleting job:', error)
-        alert('Failed to delete job application')
+        showToast('error', 'Failed to delete job application')
       }
     } catch (error) {
       console.error('Error deleting job:', error)
-      alert('Failed to delete job application')
+      showToast('error', 'Failed to delete job application')
     }
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-brand-mist flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-b-2 border-brand-ink mx-auto mb-4"></div>
-          <p className="text-brand-steel">Loading job applications...</p>
+        <div className="flex flex-col items-center gap-3 animate-fade-in">
+          <Spinner size="lg" />
+          <p className="text-sm text-brand-steel">Loading job applications…</p>
         </div>
       </div>
     )

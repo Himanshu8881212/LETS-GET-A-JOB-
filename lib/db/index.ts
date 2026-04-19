@@ -32,9 +32,105 @@ export function getDatabase(): Database.Database {
 
     // Run migrations
     runMigrations(db)
+
+    // Housekeeping — best-effort, never fatal.
+    try {
+      runMaintenanceTasks(db)
+    } catch (err: any) {
+      console.warn('[db] maintenance skipped:', err?.message || err)
+    }
   }
 
   return db
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Maintenance. Runs once per process start. Bounded deletes + WAL checkpoint
+// + PRAGMA optimize. Anything genuinely expensive (full VACUUM) is opt-in.
+// ─────────────────────────────────────────────────────────────────────────
+
+const MAINTENANCE_RETENTION = {
+  /** Keep activity logs for 90 days. Used by the dashboard "recent activity" feed. */
+  activity_logs_days: 90,
+  /** Keep per-call LLM telemetry for 30 days. Bigger rows, lower retention. */
+  llm_calls_days: 30,
+  /** Keep search-memory "links" entries for 180 days. */
+  memory_links_days: 180,
+  /** Hard cap on active memory_items — oldest-first invalidation when exceeded. */
+  max_active_memory_items: 10_000,
+}
+
+function runMaintenanceTasks(database: Database.Database) {
+  // Delete old activity logs if the table exists.
+  const tbls = (
+    database
+      .prepare("SELECT name FROM sqlite_master WHERE type='table'")
+      .all() as { name: string }[]
+  ).map(t => t.name)
+
+  if (tbls.includes('activity_logs')) {
+    database
+      .prepare(
+        `DELETE FROM activity_logs WHERE created_at < datetime('now', '-' || ? || ' days')`,
+      )
+      .run(MAINTENANCE_RETENTION.activity_logs_days)
+  }
+
+  if (tbls.includes('llm_calls')) {
+    database
+      .prepare(
+        `DELETE FROM llm_calls WHERE created_at < datetime('now', '-' || ? || ' days')`,
+      )
+      .run(MAINTENANCE_RETENTION.llm_calls_days)
+  }
+
+  if (tbls.includes('memory_items')) {
+    // Invalidate oldest link entries past 180 days (cheap storage win; links
+    // are dedupe markers, not content).
+    database
+      .prepare(
+        `UPDATE memory_items
+         SET valid_until = CURRENT_TIMESTAMP
+         WHERE valid_until IS NULL
+           AND wing = 'links'
+           AND created_at < datetime('now', '-' || ? || ' days')`,
+      )
+      .run(MAINTENANCE_RETENTION.memory_links_days)
+
+    // Hard cap on active rows: if over the limit, invalidate the oldest
+    // until we're back under. Prefer invalidating `links` before content.
+    const active = (
+      database
+        .prepare('SELECT COUNT(*) AS c FROM memory_items WHERE valid_until IS NULL')
+        .get() as { c: number }
+    ).c
+    if (active > MAINTENANCE_RETENTION.max_active_memory_items) {
+      const over = active - MAINTENANCE_RETENTION.max_active_memory_items
+      database
+        .prepare(
+          `UPDATE memory_items
+           SET valid_until = CURRENT_TIMESTAMP
+           WHERE id IN (
+             SELECT id FROM memory_items
+             WHERE valid_until IS NULL
+             ORDER BY (wing = 'links') DESC, created_at ASC
+             LIMIT ?
+           )`,
+        )
+        .run(over)
+    }
+  }
+
+  // WAL checkpoint + planner stats refresh. Cheap.
+  database.pragma('wal_checkpoint(PASSIVE)')
+  database.pragma('optimize')
+}
+
+/** Manual full VACUUM — only call from a maintenance endpoint, not hot path. */
+export function vacuumDatabase() {
+  const database = getDatabase()
+  database.pragma('wal_checkpoint(TRUNCATE)')
+  database.exec('VACUUM')
 }
 
 function initializeSchema(database: Database.Database) {

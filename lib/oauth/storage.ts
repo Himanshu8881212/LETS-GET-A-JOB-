@@ -1,4 +1,5 @@
 import { getDatabase } from '@/lib/db'
+import { encryptSecret, maybeDecrypt } from '@/lib/crypto/secrets'
 
 export type OAuthProvider = 'openai_codex'
 
@@ -36,9 +37,9 @@ function toToken(r: Row): OAuthToken {
   return {
     id: r.id,
     provider: r.provider as OAuthProvider,
-    accessToken: r.access_token,
-    refreshToken: r.refresh_token,
-    idToken: r.id_token,
+    accessToken: maybeDecrypt(r.access_token),
+    refreshToken: r.refresh_token ? maybeDecrypt(r.refresh_token) : null,
+    idToken: r.id_token ? maybeDecrypt(r.id_token) : null,
     tokenType: r.token_type || 'Bearer',
     scope: r.scope,
     accountEmail: r.account_email,
@@ -80,14 +81,14 @@ export function saveOAuthToken(input: SaveInput): OAuthToken {
   `)
   stmt.run(
     input.provider,
-    input.accessToken,
-    input.refreshToken ?? null,
-    input.idToken ?? null,
+    encryptSecret(input.accessToken),
+    input.refreshToken ? encryptSecret(input.refreshToken) : null,
+    input.idToken ? encryptSecret(input.idToken) : null,
     input.tokenType ?? 'Bearer',
     input.scope ?? null,
     input.accountEmail ?? null,
     input.accountName ?? null,
-    input.expiresAt ? input.expiresAt.toISOString() : null
+    input.expiresAt ? input.expiresAt.toISOString() : null,
   )
   return getOAuthToken(input.provider)!
 }

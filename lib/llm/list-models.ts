@@ -40,8 +40,8 @@ export async function listModels(cfg: ProviderConfig, timeoutMs = 15_000): Promi
         const data: any[] = Array.isArray(json?.data) ? json.data : Array.isArray(json?.models) ? json.models : []
         return dedupe(
           data
-            .map(m => ({ id: m?.id || m?.name, label: m?.display_name || m?.name }))
-            .filter((m): m is ModelEntry => !!m.id)
+            .map((m): ModelEntry => ({ id: m?.id || m?.name, label: m?.display_name || m?.name }))
+            .filter(m => !!m.id),
         )
       }
 
@@ -62,8 +62,8 @@ export async function listModels(cfg: ProviderConfig, timeoutMs = 15_000): Promi
         const data: any[] = Array.isArray(json?.data) ? json.data : []
         return dedupe(
           data
-            .map(m => ({ id: m?.id, label: m?.display_name }))
-            .filter((m): m is ModelEntry => !!m.id)
+            .map((m): ModelEntry => ({ id: m?.id, label: m?.display_name }))
+            .filter(m => !!m.id),
         )
       }
 
@@ -89,12 +89,12 @@ export async function listModels(cfg: ProviderConfig, timeoutMs = 15_000): Promi
               !Array.isArray(m?.supportedGenerationMethods) ||
               m.supportedGenerationMethods.includes('generateContent')
             )
-            .map(m => {
+            .map((m): ModelEntry => {
               const raw = m?.name as string | undefined
               const id = raw?.replace(/^models\//, '') || ''
               return { id, label: m?.displayName }
             })
-            .filter((m): m is ModelEntry => !!m.id)
+            .filter(m => !!m.id),
         )
       }
     }

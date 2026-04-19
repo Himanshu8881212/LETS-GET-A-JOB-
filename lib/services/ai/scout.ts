@@ -4,6 +4,8 @@ import { addMemory, extractFactsFromMessage } from '@/lib/services/memory'
 import { runAgent } from '@/lib/services/agent/core'
 import { parseResumePdf } from '@/lib/services/ai/document-parser'
 import { loadPrompt, registerPromptDefault } from './prompt-loader'
+import { safeUserContent } from './escape'
+import { fireAndForget } from './fire-and-forget'
 
 /**
  * Scout has two entry points — a plain chat (buffered + streaming) and a
@@ -106,7 +108,7 @@ async function buildScoutMessages(input: ScoutInput) {
     { role: 'system', content: cfg.system },
     ...(context ? [{ role: 'system' as const, content: context }] : []),
     ...history,
-    { role: 'user', content: wrapTask('chat_turn', input.message) },
+    { role: 'user', content: wrapTask('chat_turn', safeUserContent(input.message)) },
   ]
   return { messages, cfg }
 }
@@ -125,13 +127,16 @@ export async function chatWithScout(input: ScoutInput): Promise<{ reply: string;
     null,
   )
 
-  addMemory({
-    wing: 'chat',
-    room: input.sessionId || null,
-    drawer: 'turn',
-    content: `USER: ${input.message}\n\nASSISTANT: ${result.text.slice(0, 800)}`,
-  }).catch(() => {})
-  extractFactsFromMessage(input.message).catch(() => {})
+  fireAndForget(
+    'scout/addMemory',
+    addMemory({
+      wing: 'chat',
+      room: input.sessionId || null,
+      drawer: 'turn',
+      content: `USER: ${input.message}\n\nASSISTANT: ${result.text.slice(0, 800)}`,
+    }),
+  )
+  fireAndForget('scout/extractFacts', extractFactsFromMessage(input.message))
 
   return {
     reply: result.text.trim(),
@@ -159,13 +164,16 @@ export async function* chatWithScoutStream(input: ScoutInput): AsyncIterable<Str
       if (chunk.done || chunk.error) break
     }
   } finally {
-    addMemory({
-      wing: 'chat',
-      room: input.sessionId || null,
-      drawer: 'turn',
-      content: `USER: ${input.message}\n\nASSISTANT: ${aggregated.slice(0, 800)}`,
-    }).catch(() => {})
-    extractFactsFromMessage(input.message).catch(() => {})
+    fireAndForget(
+      'scout.stream/addMemory',
+      addMemory({
+        wing: 'chat',
+        room: input.sessionId || null,
+        drawer: 'turn',
+        content: `USER: ${input.message}\n\nASSISTANT: ${aggregated.slice(0, 800)}`,
+      }),
+    )
+    fireAndForget('scout.stream/extractFacts', extractFactsFromMessage(input.message))
   }
 }
 
@@ -266,13 +274,16 @@ export async function runScoutAgent(input: ScoutAgentInput): Promise<ScoutAgentR
     maxIterations: 6,
   })
 
-  addMemory({
-    wing: 'chat',
-    room: input.sessionId || null,
-    drawer: 'turn',
-    content: `USER: ${input.message}\n\nASSISTANT: ${result.reply.slice(0, 800)}`,
-  }).catch(() => {})
-  extractFactsFromMessage(input.message).catch(() => {})
+  fireAndForget(
+    'scoutAgent/addMemory',
+    addMemory({
+      wing: 'chat',
+      room: input.sessionId || null,
+      drawer: 'turn',
+      content: `USER: ${input.message}\n\nASSISTANT: ${result.reply.slice(0, 800)}`,
+    }),
+  )
+  fireAndForget('scoutAgent/extractFacts', extractFactsFromMessage(input.message))
 
   return {
     reply: result.reply,

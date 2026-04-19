@@ -6,6 +6,7 @@ import type { Message } from '@/lib/llm'
 import { loadPrompt, resolveTemperature } from './prompt-loader'
 import { safeUserContent } from './escape'
 import { validateResume } from './validators'
+import { fireAndForget } from './fire-and-forget'
 
 export interface ForgeInput {
   job_description: string
@@ -68,17 +69,20 @@ async function runForge(feature: FeatureName, input: ForgeInput): Promise<unknow
   // and any violations so the UI can surface them.
   const report = validateResume(validated)
 
-  addMemory({
-    wing: 'resume',
-    drawer: feature,
-    content: `JD: ${input.job_description.slice(0, 300)}\n\nOUTPUT:\n${JSON.stringify(validated).slice(0, 1500)}`,
-    metadata: {
-      feature,
-      generation_mode: mode,
-      prompt_version: cfg.version,
-      validation_errors: report.violations.filter(v => v.severity === 'error').length,
-    },
-  }).catch(() => {})
+  fireAndForget(
+    `resume-gen/${feature}/addMemory`,
+    addMemory({
+      wing: 'resume',
+      drawer: feature,
+      content: `JD: ${input.job_description.slice(0, 300)}\n\nOUTPUT:\n${JSON.stringify(validated).slice(0, 1500)}`,
+      metadata: {
+        feature,
+        generation_mode: mode,
+        prompt_version: cfg.version,
+        validation_errors: report.violations.filter(v => v.severity === 'error').length,
+      },
+    }),
+  )
 
   return report.output
 }

@@ -694,6 +694,7 @@ function SourceBadge({ source }: { source?: ApiFact['source'] }) {
 
 function CleanupBar({ onCleanup }: { onCleanup: () => void }) {
   const [busy, setBusy] = useState(false)
+  const { showToast } = useToast()
   const wipeProfile = async () => {
     if (!confirm('Delete all facts that were auto-extracted from profile JSON? Useful after testing with sample profiles. Facts you typed into chat or the Memory UI are kept.')) return
     setBusy(true)
@@ -707,7 +708,7 @@ function CleanupBar({ onCleanup }: { onCleanup: () => void }) {
       if (!res.ok) throw new Error(data.error || 'Failed')
       onCleanup()
     } catch (e: any) {
-      alert(e?.message || 'Cleanup failed')
+      showToast('error', e?.message || 'Cleanup failed')
     } finally {
       setBusy(false)
     }

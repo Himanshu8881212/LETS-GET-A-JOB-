@@ -4,6 +4,7 @@ import { addMemory } from '@/lib/services/memory'
 import { loadPrompt, registerPromptDefault } from './prompt-loader'
 import { safeUserContent } from './escape'
 import { polishLengthOk } from './validators'
+import { fireAndForget } from './fire-and-forget'
 
 /**
  * Per-section polish — takes one chunk of resume or cover-letter text and
@@ -117,18 +118,21 @@ export async function polishSection(input: PolishInput): Promise<PolishResult> {
     } catch { /* keep first draft */ }
   }
 
-  addMemory({
-    wing: isCoverLetter ? 'cover_letter' : 'resume',
-    drawer: `polish/${input.kind}`,
-    content: `BEFORE: ${input.content.slice(0, 400)}\n\nAFTER: ${text.slice(0, 400)}`,
-    metadata: {
-      kind: input.kind,
-      targetRole: input.context?.targetRole,
-      companyName: input.context?.companyName,
-      length_ratio: lenCheck.ratio,
-      prompt_version: cfg.version,
-    },
-  }).catch(() => {})
+  fireAndForget(
+    `polish-section/${input.kind}/addMemory`,
+    addMemory({
+      wing: isCoverLetter ? 'cover_letter' : 'resume',
+      drawer: `polish/${input.kind}`,
+      content: `BEFORE: ${input.content.slice(0, 400)}\n\nAFTER: ${text.slice(0, 400)}`,
+      metadata: {
+        kind: input.kind,
+        targetRole: input.context?.targetRole,
+        companyName: input.context?.companyName,
+        length_ratio: lenCheck.ratio,
+        prompt_version: cfg.version,
+      },
+    }),
+  )
 
   return { polished: text }
 }

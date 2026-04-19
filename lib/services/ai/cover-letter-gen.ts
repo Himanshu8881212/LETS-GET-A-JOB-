@@ -5,6 +5,7 @@ import { coverLetterDataSchema } from '@/lib/validation/schemas'
 import { loadPrompt } from './prompt-loader'
 import { safeUserContent } from './escape'
 import { validateCoverLetter } from './validators'
+import { fireAndForget } from './fire-and-forget'
 
 export interface QuillInput {
   job_description: string
@@ -86,16 +87,19 @@ async function runQuill(feature: FeatureName, input: QuillInput): Promise<unknow
     } catch { /* keep first draft */ }
   }
 
-  addMemory({
-    wing: 'cover_letter',
-    drawer: feature,
-    content: `JD: ${input.job_description.slice(0, 300)}\n\nOUTPUT:\n${JSON.stringify(validated).slice(0, 1500)}`,
-    metadata: {
-      feature,
-      prompt_version: cfg.version,
-      validation_errors: report.violations.filter(v => v.severity === 'error').length,
-    },
-  }).catch(() => {})
+  fireAndForget(
+    `cover-letter-gen/${feature}/addMemory`,
+    addMemory({
+      wing: 'cover_letter',
+      drawer: feature,
+      content: `JD: ${input.job_description.slice(0, 300)}\n\nOUTPUT:\n${JSON.stringify(validated).slice(0, 1500)}`,
+      metadata: {
+        feature,
+        prompt_version: cfg.version,
+        validation_errors: report.violations.filter(v => v.severity === 'error').length,
+      },
+    }),
+  )
 
   return report.output
 }

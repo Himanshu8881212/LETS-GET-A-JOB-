@@ -17,7 +17,7 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react'
-import { ToastProvider } from '@/components/ui/Toast'
+import { useToast } from '@/components/ui/Toast'
 import { AppShell } from '@/components/ui/AppShell'
 import { SidebarNav } from '@/components/ui/SidebarNav'
 import { Card } from '@/components/ui/Card'
@@ -99,6 +99,7 @@ interface RecentDocument {
 type ActiveTab = 'home' | 'resume' | 'cover' | 'tracker' | 'ai-evaluator' | 'ats-history' | 'settings' | 'documents' | 'guidelines' | 'memory'
 
 export default function Home() {
+  const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState<ActiveTab>('home')
   const [atsHistoryId, setAtsHistoryId] = useState<string | undefined>(undefined)
   const [trackerPrefillData, setTrackerPrefillData] = useState<any>(null)
@@ -193,11 +194,11 @@ export default function Home() {
           data: resume.data || {},
         })
       } else {
-        alert('Failed to preview resume. Please try again.')
+        showToast('error', 'Failed to preview resume. Please try again.')
       }
     } catch (error) {
       console.error('Error previewing resume:', error)
-      alert('Failed to preview resume. Please try again.')
+      showToast('error', 'Failed to preview resume. Please try again.')
     }
   }
 
@@ -219,11 +220,11 @@ export default function Home() {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
       } else {
-        alert('Failed to download resume. Please try again.')
+        showToast('error', 'Failed to download resume. Please try again.')
       }
     } catch (error) {
       console.error('Error downloading resume:', error)
-      alert('Failed to download resume. Please try again.')
+      showToast('error', 'Failed to download resume. Please try again.')
     }
   }
 
@@ -255,11 +256,11 @@ export default function Home() {
           data: apiData,
         })
       } else {
-        alert('Failed to preview cover letter. Please try again.')
+        showToast('error', 'Failed to preview cover letter. Please try again.')
       }
     } catch (error) {
       console.error('Error previewing cover letter:', error)
-      alert('Failed to preview cover letter. Please try again.')
+      showToast('error', 'Failed to preview cover letter. Please try again.')
     }
   }
 
@@ -291,11 +292,11 @@ export default function Home() {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
       } else {
-        alert('Failed to download cover letter. Please try again.')
+        showToast('error', 'Failed to download cover letter. Please try again.')
       }
     } catch (error) {
       console.error('Error downloading cover letter:', error)
-      alert('Failed to download cover letter. Please try again.')
+      showToast('error', 'Failed to download cover letter. Please try again.')
     }
   }
 
@@ -307,11 +308,11 @@ export default function Home() {
         setRecentResumes(recentResumes.filter(r => r.id !== resume.id))
         setTotalResumes(t => Math.max(0, t - 1))
       } else {
-        alert('Failed to delete resume. Please try again.')
+        showToast('error', 'Failed to delete resume. Please try again.')
       }
     } catch (error) {
       console.error('Error deleting resume:', error)
-      alert('Failed to delete resume. Please try again.')
+      showToast('error', 'Failed to delete resume. Please try again.')
     }
   }
 
@@ -323,11 +324,11 @@ export default function Home() {
         setRecentCoverLetters(recentCoverLetters.filter(c => c.id !== coverLetter.id))
         setTotalCoverLetters(t => Math.max(0, t - 1))
       } else {
-        alert('Failed to delete cover letter. Please try again.')
+        showToast('error', 'Failed to delete cover letter. Please try again.')
       }
     } catch (error) {
       console.error('Error deleting cover letter:', error)
-      alert('Failed to delete cover letter. Please try again.')
+      showToast('error', 'Failed to delete cover letter. Please try again.')
     }
   }
 
@@ -599,7 +600,7 @@ export default function Home() {
   }
 
   return (
-    <ToastProvider>
+    <>
       {previewState && (
         <PDFPreviewModal
           isOpen={true}
@@ -628,6 +629,6 @@ export default function Home() {
       >
         {renderContent()}
       </AppShell>
-    </ToastProvider>
+    </>
   )
 }

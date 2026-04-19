@@ -13,7 +13,9 @@ async function extractPdfText(pdfBase64: string): Promise<string> {
   const buffer = Buffer.from(pdfBase64, 'base64')
 
   return new Promise<string>((resolve, reject) => {
-    const parser = new PDFParser(null, 1)
+    // Second arg is a "verbosity" flag in pdf2json. `true` suppresses warnings
+    // (the literal number `1` worked at runtime but breaks the TS signature).
+    const parser = new PDFParser(null, true)
     parser.on('pdfParser_dataError', (err: any) => {
       const raw = err?.parserError?.message || String(err?.parserError || err)
       // Translate well-known pdf2json errors into actionable messages.

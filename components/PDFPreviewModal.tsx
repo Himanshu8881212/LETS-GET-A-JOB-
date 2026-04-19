@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Download, FileText, Loader2 } from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
 
 interface PDFPreviewModalProps {
   isOpen: boolean
@@ -29,6 +30,7 @@ export default function PDFPreviewModal({
   fileBaseName,
 }: PDFPreviewModalProps) {
   const [downloadingDocx, setDownloadingDocx] = useState(false)
+  const { showToast } = useToast()
 
   if (!isOpen || !pdfUrl) return null
 
@@ -67,7 +69,7 @@ export default function PDFPreviewModal({
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (err: any) {
-      alert(err?.message || 'Failed to download Word file')
+      showToast('error', err?.message || 'Failed to download Word file')
     } finally {
       setDownloadingDocx(false)
     }

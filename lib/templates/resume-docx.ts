@@ -169,7 +169,8 @@ function contactChildren(p: NonNullable<ResumeData['personalInfo']>): (TextRun |
 }
 
 function headerBlock(data: ResumeData): Paragraph[] {
-  const p = data.personalInfo || {}
+  const p: NonNullable<ResumeData['personalInfo']> =
+    data.personalInfo || ({} as NonNullable<ResumeData['personalInfo']>)
   const fullName = [p.firstName, p.lastName].filter(Boolean).join(' ').trim() || 'Your Name'
 
   const nameP = new Paragraph({

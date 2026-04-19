@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from 'next/font/google'
 import './globals.css'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { ToastProvider } from '@/components/ui/Toast'
 
 const ScoutChat = dynamic(() => import('@/components/ScoutChat'), { ssr: false })
 
@@ -41,8 +42,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} antialiased`}>
         <ErrorBoundary>
-          {children}
-          <ScoutChat />
+          <ToastProvider>
+            {children}
+            <ScoutChat />
+          </ToastProvider>
         </ErrorBoundary>
       </body>
     </html>
