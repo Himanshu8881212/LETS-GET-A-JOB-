@@ -115,7 +115,9 @@ export function validateResume(data: any): ValidationReport<ResumeLike> {
 // Cover-letter validators
 // ─────────────────────────────────────────────────────────────────────────
 
-const FORBIDDEN_OPENER = /^\s*(i am writing|i'm writing|to whom it may concern|please find attached|my name is|i would like to apply|i am applying)/i
+// Expanded forbidden-opener list (2026-04-20). Catches generic templated
+// openers that collapse recruiter response rates to ~9% (ResumeGo 2024).
+const FORBIDDEN_OPENER = /^\s*(i am writing|i'm writing|to whom it may concern|please find attached|my name is|i would like to apply|i am applying|as an experienced|with \d+\s*(\+|plus)?\s*years? of experience|i have always been passionate|i recently came across your posting|dear hiring manager\s*[,.:]?\s*$)/i
 
 export interface CoverLetterLike {
   openingParagraph?: string
@@ -125,9 +127,19 @@ export interface CoverLetterLike {
   _metadata?: Record<string, unknown>
 }
 
+/** Map inferred seniority to the allowed word-count band. */
+function wordCountBand(seniority: string | undefined): { min: number; max: number; label: string } {
+  const s = (seniority || '').toLowerCase()
+  if (s === 'junior' || s === 'entry') return { min: 200, max: 300, label: '200-300' }
+  if (s === 'senior' || s === 'executive' || s === 'staff' || s === 'principal') {
+    return { min: 300, max: 400, label: '300-400' }
+  }
+  return { min: 275, max: 375, label: '275-375' } // mid default
+}
+
 export function validateCoverLetter(
   data: any,
-  ctx: { targetCompany?: string; targetRole?: string } = {},
+  ctx: { targetCompany?: string; targetRole?: string; seniority?: string } = {},
 ): ValidationReport<CoverLetterLike> {
   const violations: Violation[] = []
   const opening = String(data?.openingParagraph || '')
@@ -136,11 +148,16 @@ export function validateCoverLetter(
   const full = [opening, ...bodies, closing].join(' ').trim()
   const words = full ? full.split(/\s+/).length : 0
 
-  if (words < 240 || words > 420) {
+  // Seniority-gated word count. Prefer the model-reported seniority, fall back
+  // to context, fall back to mid. Junior 200-300 / mid 275-375 / senior 300-400.
+  const seniority =
+    (data?._metadata?.seniority_inferred as string | undefined) || ctx.seniority
+  const band = wordCountBand(seniority)
+  if (words < band.min - 20 || words > band.max + 20) {
     violations.push({
       code: 'cover_letter.word_count',
-      severity: words < 180 || words > 500 ? 'error' : 'warn',
-      message: `Letter is ${words} words. Target 250–400.`,
+      severity: words < band.min - 60 || words > band.max + 60 ? 'error' : 'warn',
+      message: `Letter is ${words} words. Target ${band.label} for ${seniority || 'mid'}.`,
     })
   }
 
@@ -228,7 +245,10 @@ export function verifyAtsEvidence(
           const words = normQ.split(' ').filter(w => w.length > 2)
           const hits = words.filter(w => hay.includes(w)).length
           const overlap = words.length ? hits / words.length : 0
-          if (overlap < 0.85) {
+          // Tightened from 0.85 to 0.92 (2026-04-20): previous threshold missed
+          // subtle paraphrasing (swap a noun, keep 8 of 10 words) which is the
+          // most common fabrication pattern.
+          if (overlap < 0.92) {
             fabrications.push({ metric: metricName, quote: q, source: src })
             fabsInThisMetric++
           }
@@ -241,15 +261,22 @@ export function verifyAtsEvidence(
     }
   }
 
-  // Red-flag deductions on match_estimate.
+  // Red-flag deductions on match_estimate. Graduated severity 2026-04-20.
+  // severity → points: info=0, low=2, medium=5, high=10. Applies uniformly
+  // across all red-flag types (gap, short_tenure, overqualification,
+  // skill_regression, inconsistency, demotion).
+  const SEVERITY_POINTS: Record<string, number> = {
+    info: 0,
+    low: 2,
+    medium: 5,
+    high: 10,
+  }
   if (atsJson?.overall && typeof atsJson.overall.match_estimate === 'number') {
     const flags: any[] = Array.isArray(atsJson?.red_flags) ? atsJson.red_flags : []
     let deduction = 0
     for (const f of flags) {
-      const t = f?.type
-      const sev = f?.severity
-      if (t === 'employment_gap' && (sev === 'medium' || sev === 'high')) deduction += 5
-      if (t === 'short_tenure' && (sev === 'medium' || sev === 'high')) deduction += 8
+      const sev = String(f?.severity || '').toLowerCase()
+      deduction += SEVERITY_POINTS[sev] ?? 0
     }
     if (deduction > 0) {
       const before = atsJson.overall.match_estimate
@@ -283,7 +310,9 @@ export function polishLengthOk(original: string, polished: string): { ok: boolea
   const p = polished.trim().length
   if (o === 0) return { ok: true, ratio: 1 }
   const ratio = p / o
-  return { ok: ratio >= 0.7 && ratio <= 1.3, ratio }
+  // Tightened to 85-110% (was 70-130%) per 2026-04-20 audit — prior window
+  // allowed "polished" bullets to bloat 30% longer, diluting impact.
+  return { ok: ratio >= 0.85 && ratio <= 1.1, ratio }
 }
 
 // ─────────────────────────────────────────────────────────────────────────
