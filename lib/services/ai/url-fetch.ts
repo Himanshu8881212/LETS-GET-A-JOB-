@@ -1,23 +1,26 @@
 import { getBrowser } from '@/lib/services/headless-browser'
+import { hasTavilyKey, TAVILY_SETUP_HINT } from '@/lib/services/agent/web-search'
+import { readSetting } from '@/lib/db/settings'
 
 /**
  * URL → plain text for the JD parser.
  *
- * Cascades through three increasingly capable fetchers. The first one that
- * returns substantial content wins. For hostile job boards (StepStone,
- * Workday, Cloudflare-protected sites), Jina Reader is the workhorse —
- * it fetches the page from its own infrastructure so the target site
- * sees Jina's IP rather than ours, bypassing most bot detection. Free,
- * no API key required for reasonable volumes.
+ * Cascades through up to four fetchers. The first one that returns
+ * substantial content wins. For hostile job boards (StepStone, Workday,
+ * Cloudflare-protected sites), Jina Reader is the workhorse — it fetches
+ * the page from its own infrastructure so the target site sees Jina's IP
+ * rather than ours, bypassing most bot detection. Free, no API key.
  *
  * Order:
  *   1. Plain HTTP — fastest (~200 ms). Works on ~70% of postings.
- *   2. Jina Reader (https://r.jina.ai/<url>) — free proxy that bypasses
- *      bot detection. Works on ~95% of postings including StepStone.
- *   3. Headless Chromium — only for JS-rendered pages that Jina can't
- *      execute. Slowest path (~5–15 s).
+ *   2. Jina Reader — free proxy that bypasses bot detection. ~95% coverage.
+ *   3. Tavily /extract — only attempted if a Tavily key is configured;
+ *      strong on sites that rate-limit Jina (LinkedIn, some Workdays).
+ *   4. Headless Chromium — for JS-rendered pages. Slowest path (~5–15 s).
  *
- * If all three fail, throw an error telling the user to paste text.
+ * If all tiers fail, throw an error that tells the user (a) to paste text
+ * directly, and (b) to configure Tavily if they haven't — which unlocks
+ * the more reliable tier 3 for future fetches.
  */
 
 const UA =
@@ -131,6 +134,34 @@ async function fetchViaJinaReader(url: string, timeoutMs: number): Promise<strin
   }
 }
 
+async function fetchViaTavily(url: string, timeoutMs: number): Promise<string> {
+  const key = readSetting('webSearch.tavilyApiKey') || process.env.TAVILY_API_KEY
+  if (!key) throw new Error('Tavily not configured')
+
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch('https://api.tavily.com/extract', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({ urls: [url], extract_depth: 'advanced' }),
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      throw new Error(`Tavily extract failed: ${res.status} ${res.statusText}`)
+    }
+    const json: any = await res.json()
+    const first = json?.results?.[0]
+    const content: string = first?.raw_content || first?.content || ''
+    return content.replace(/[ \t]+/g, ' ').replace(/\n[ \t]+/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 async function fetchViaBrowser(url: string, timeoutMs: number): Promise<string> {
   const browser = await getBrowser()
   const page = await browser.newPage()
@@ -194,7 +225,18 @@ export async function fetchPageText(url: string, timeoutMs = 30_000): Promise<st
     failures.push({ name: 'Jina Reader', error: err instanceof Error ? err.message : String(err) })
   }
 
-  // 3) Headless Chromium — JS-rendered pages
+  // 3) Tavily /extract — only if configured; best for sites that rate-limit Jina.
+  if (hasTavilyKey()) {
+    try {
+      const text = await fetchViaTavily(url, 25_000)
+      if (!looksEmpty(text)) return text
+      failures.push({ name: 'Tavily extract', error: 'empty content' })
+    } catch (err) {
+      failures.push({ name: 'Tavily extract', error: err instanceof Error ? err.message : String(err) })
+    }
+  }
+
+  // 4) Headless Chromium — JS-rendered pages
   try {
     return await fetchViaBrowser(url, timeoutMs)
   } catch (err) {
@@ -202,8 +244,11 @@ export async function fetchPageText(url: string, timeoutMs = 30_000): Promise<st
   }
 
   const detail = failures.map(f => `${f.name}: ${f.error}`).join(' | ')
+  const hint = hasTavilyKey()
+    ? ''
+    : ` ${TAVILY_SETUP_HINT}`
   throw new Error(
     `Could not fetch ${url}. Attempts — ${detail}. ` +
-      `Paste the job description text directly if the site is blocking automated fetches.`
+      `Paste the job description text directly if the site keeps blocking automated fetches.${hint}`,
   )
 }

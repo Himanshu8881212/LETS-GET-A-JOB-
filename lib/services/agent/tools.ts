@@ -291,6 +291,7 @@ export const TOOL_REGISTRY: Record<string, RegisteredTool> = {
           out.skippedDuplicates > 0
             ? `${out.skippedDuplicates} result(s) were hidden because they've been shown before.`
             : undefined,
+        setup_hint: out.setupHint,
       }
     },
   },

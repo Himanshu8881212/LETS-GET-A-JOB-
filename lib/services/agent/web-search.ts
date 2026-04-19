@@ -58,6 +58,19 @@ function resolveKey(dbKey: string, envKey: string): string | undefined {
   return process.env[envKey] || undefined
 }
 
+/**
+ * True when a Tavily API key is configured (DB or env). Tavily unlocks
+ * structured job-board search and high-quality JD extraction from URLs.
+ * Exported so callers (Scout tool, JD parser) can surface a setup hint
+ * to the user when it's missing.
+ */
+export function hasTavilyKey(): boolean {
+  return !!resolveKey('webSearch.tavilyApiKey', 'TAVILY_API_KEY')
+}
+
+export const TAVILY_SETUP_HINT =
+  'Tavily is not configured. For reliable job-board search and JD parsing from links, add a free Tavily API key in Settings → Web Search (https://tavily.com).'
+
 // ─────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────
@@ -299,6 +312,7 @@ export async function webSearchWithDedup(opts: SearchOptions): Promise<{
   skippedDuplicates: number
   backend: string
   sitesUsed?: string[]
+  setupHint?: string
 }> {
   const limit = Math.max(1, Math.min(20, opts.limit ?? 6))
   const sitesUsed = effectiveSites(opts)
@@ -327,10 +341,17 @@ export async function webSearchWithDedup(opts: SearchOptions): Promise<{
     }).catch(() => {})
   }
 
+  const backend = raw[0]?.source || 'none'
+  // Surface a setup hint when Tavily isn't configured. Any job search or
+  // structured-result need is noticeably weaker on the DDG/Brave fallbacks,
+  // so we nudge the user once per call instead of failing silently.
+  const setupHint = !hasTavilyKey() ? TAVILY_SETUP_HINT : undefined
+
   return {
     results: fresh,
     skippedDuplicates,
-    backend: raw[0]?.source || 'none',
+    backend,
     sitesUsed,
+    setupHint,
   }
 }
