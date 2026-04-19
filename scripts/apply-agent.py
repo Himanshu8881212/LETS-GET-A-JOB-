@@ -38,9 +38,35 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sys
 import traceback
 from typing import Any
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Task-template loader — pulls the instructions we give browser-use from
+# config/prompts/apply_agent.json (user-editable) with a built-in fallback.
+# ─────────────────────────────────────────────────────────────────────────
+
+def _config_path() -> str:
+    here = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(here, "..", "config", "prompts", "apply_agent.json")
+
+
+def _load_task_config() -> dict:
+    try:
+        with open(_config_path(), "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+        # Only trust keys we know about.
+        return {
+            "task_template": str(cfg.get("task_template") or ""),
+            "guards": cfg.get("guards") or {},
+            "version": cfg.get("version") or "built-in",
+        }
+    except Exception as e:
+        sys.stderr.write(f"[apply-agent] prompt config unavailable ({e}); using built-in.\n")
+        return {"task_template": "", "guards": {}, "version": "built-in"}
 
 
 def _err(msg: str, jobUrl: str = "") -> dict:
@@ -190,6 +216,12 @@ def _build_llm(cfg: dict):
 
 
 def _build_task(payload: dict) -> str:
+    cfg = _load_task_config()
+    guards = cfg.get("guards") or {}
+    max_resume = int(guards.get("maxResumeChars") or 12_000)
+    max_cover = int(guards.get("maxCoverLetterChars") or 8_000)
+    max_jd = int(guards.get("maxJobDescriptionChars") or 6_000)
+
     p = payload.get("profile") or {}
     profile_lines = [f"- {k}: {v}" for k, v in p.items() if v]
     resume_text = (payload.get("resumeText") or "").strip()
@@ -199,70 +231,96 @@ def _build_task(payload: dict) -> str:
     cover_path = payload.get("coverLetterPath")
     extras = payload.get("extraDocs") or []
 
-    lines: list[str] = [
-        f"Open {payload['jobUrl']} and fill out the job application form on the candidate's behalf.",
-        "",
-        "Candidate profile (use these values verbatim where they apply):",
-        *profile_lines,
-        "",
-    ]
+    candidate_block = "Candidate profile (use these values verbatim where they apply):\n" + (
+        "\n".join(profile_lines) if profile_lines else "- (empty)"
+    )
 
+    files_block_parts: list[str] = []
     if resume_path or cover_path or extras:
-        lines.append("FILES AVAILABLE FOR UPLOAD (use the upload_file_from_disk action / your built-in file upload tool with these EXACT paths):")
+        files_block_parts.append(
+            "FILES AVAILABLE FOR UPLOAD (use the upload_file_from_disk action / your built-in file upload tool with these EXACT paths):"
+        )
         if resume_path:
-            lines.append(f"  • Resume/CV — path: {resume_path}")
+            files_block_parts.append(f"  • Resume/CV — path: {resume_path}")
         if cover_path:
-            lines.append(f"  • Cover letter — path: {cover_path}")
+            files_block_parts.append(f"  • Cover letter — path: {cover_path}")
         for doc in extras:
             if doc.get("path") and doc.get("name"):
-                lines.append(
+                files_block_parts.append(
                     f"  • {doc.get('category', 'other')} — {doc['name']} — path: {doc['path']}"
                 )
-        lines.append(
+        files_block_parts.append(
             "When the form shows a file-upload control (resume/CV, cover letter, portfolio, transcript, etc.), "
-            "call the file-upload action with the matching path from above. DO NOT try to drag-and-drop from "
-            "the filesystem or paste the path into a text field — use the dedicated upload action."
+            "call the file-upload action with the matching path from above. DO NOT drag-and-drop or paste the path into a text field — use the dedicated upload action."
         )
-        lines.append("")
+    files_block = "\n".join(files_block_parts)
 
-    if resume_text:
-        lines.append("Resume content (source of truth for experience / achievements — never invent anything beyond this):")
-        lines.append(resume_text[:6000])
-        lines.append("")
-    if cover_text:
-        lines.append("Cover letter content (reuse for motivation textareas where appropriate):")
-        lines.append(cover_text[:4000])
-        lines.append("")
-    if job_description:
-        lines.append("Job description for context:")
-        lines.append(job_description[:4000])
-        lines.append("")
+    resume_block = (
+        "Resume content (source of truth for experience / achievements — never invent anything beyond this):\n"
+        + resume_text[:max_resume]
+        if resume_text
+        else ""
+    )
+    cover_block = (
+        "Cover letter content (reuse for motivation textareas where appropriate):\n"
+        + cover_text[:max_cover]
+        if cover_text
+        else ""
+    )
+    jd_block = (
+        "Job description for context:\n" + job_description[:max_jd]
+        if job_description
+        else ""
+    )
 
-    lines += [
-        "═══════════════════════════════════════════════════════════════",
-        "HARD RULE — READ FIRST, HOLDS ALWAYS:",
-        "You MUST NOT click any button labelled Submit, Apply, Send, Finish,",
-        "Confirm, Complete, or similar final-submission action. You are filling",
-        "the form on behalf of a human who will review and submit personally.",
-        "If you reach a step where the only remaining action is the final",
-        "submit button, STOP IMMEDIATELY and hand the window back to the",
-        "human with a summary of everything you filled.",
-        "═══════════════════════════════════════════════════════════════",
-        "",
-        "Other rules:",
-        "- NEVER fabricate employers, titles, dates, or metrics beyond the resume content provided.",
-        "- For open-ended questions ('why this role', 'tell us about a time…', 'describe a project'), compose tailored answers using the resume + cover letter as source. Stay under any maxlength. Lead with a specific moment.",
-        "- For demographic/EEO fields (gender, race, ethnicity, veteran, disability, pronouns): LEAVE BLANK or skip.",
-        "- For 'I agree' / consent checkboxes: LEAVE UNCHECKED — the human must consent.",
-        "- Handle cookie banners, 'Apply now' buttons, login walls (only if 'Continue as guest' or similar is visible), and multi-step wizards by advancing with Next/Continue — but STOP before the terminal Submit step.",
-        "- If the page is empty, shows 'no jobs available', returns 404, or you can't make progress, explain why and stop — do not wander.",
-        "",
-        "REMINDER before you stop: confirm you did NOT click any final submit.",
-        "",
-        "When you're done, briefly summarize what you filled, what you skipped, and what the human still needs to verify before pressing Submit.",
-    ]
+    template = cfg.get("task_template") or _builtin_task_template()
+    filled = (
+        template.replace("{job_url}", payload["jobUrl"])
+        .replace("{candidate_block}", candidate_block)
+        .replace("{files_block}", files_block)
+        .replace("{resume_block}", resume_block)
+        .replace("{cover_letter_block}", cover_block)
+        .replace("{job_description_block}", jd_block)
+    )
+    # Collapse runs of blank lines so the prompt stays tight when an optional
+    # block is empty.
+    import re
 
-    return "\n".join(lines)
+    return re.sub(r"\n{3,}", "\n\n", filled).strip() + "\n"
+
+
+def _builtin_task_template() -> str:
+    """Fallback if config/prompts/apply_agent.json is missing/invalid."""
+    return (
+        "Open {job_url} and fill out the job application form on the candidate's behalf.\n\n"
+        "═══════════════════════════════════════════════════════════════\n"
+        "HARD RULE — READ FIRST, HOLDS ALWAYS:\n"
+        "You MUST NOT click any button labelled Submit, Apply, Apply Now, Send, Finish,\n"
+        "Confirm, Complete, Place Application, Finalize — or whose surrounding context\n"
+        "indicates a final submit. You are filling the form on behalf of a human who will\n"
+        "review and submit personally. If you reach such a step, STOP IMMEDIATELY.\n"
+        "\n"
+        "Review steps are the new submit: if a button is labelled Review / Review & Submit\n"
+        "/ Continue to Review / Proceed to Review, click it ONCE to reach the review page,\n"
+        "then STOP. Do not click anything further on the review page.\n"
+        "═══════════════════════════════════════════════════════════════\n\n"
+        "{candidate_block}\n\n"
+        "{files_block}\n\n"
+        "{resume_block}\n\n"
+        "{cover_letter_block}\n\n"
+        "{job_description_block}\n\n"
+        "Rules:\n"
+        "- NEVER fabricate employers, titles, dates, or metrics beyond what's in the resume content.\n"
+        "- Essays / motivation textareas: compose a tailored answer from resume + cover letter. Lead with a specific moment (company + year), follow with action + quantified outcome, close tying to THIS role. Stay under any maxlength.\n"
+        "- EEO / demographic fields: pick 'Prefer not to say' if available, else leave blank.\n"
+        "- Consent checkboxes: LEAVE UNCHECKED.\n"
+        "- File uploads: use the dedicated upload action with the exact path. Retry once on failure, then skip and note it.\n"
+        "- Captcha: stop and report — human must solve.\n"
+        "- Login walls: continue only if a guest/no-signup option exists.\n"
+        "- Multi-step wizards: advance with Next/Continue, stop before Submit/Review.\n"
+        "- If the page is empty, returns 404, or you can't make progress after 3 tries, stop and report.\n\n"
+        "When you're done, produce a summary: what you filled, what you skipped (with reasons), any errors, and what the human must verify before pressing Submit."
+    )
 
 
 async def run(payload: dict) -> dict:

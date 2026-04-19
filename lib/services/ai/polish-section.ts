@@ -1,6 +1,9 @@
 import { completeWithContext } from '@/lib/llm'
 import { buildAgentContext } from '@/lib/services/agent/context'
 import { addMemory } from '@/lib/services/memory'
+import { loadPrompt, registerPromptDefault } from './prompt-loader'
+import { safeUserContent } from './escape'
+import { polishLengthOk } from './validators'
 
 /**
  * Per-section polish — takes one chunk of resume or cover-letter text and
@@ -12,7 +15,7 @@ import { addMemory } from '@/lib/services/memory'
 export type PolishKind =
   | 'resume_summary'
   | 'resume_experience_bullet'
-  | 'resume_experience_bullets' // array of bullets, preserves count
+  | 'resume_experience_bullets'
   | 'resume_project_description'
   | 'resume_project_bullets'
   | 'resume_education_description'
@@ -24,7 +27,6 @@ export interface PolishInput {
   kind: PolishKind
   /** Current text, OR a JSON-stringified array when kind is "*_bullets". */
   content: string
-  /** Optional — tailors polish toward this role. */
   context?: {
     jobDescription?: string
     targetRole?: string
@@ -37,62 +39,32 @@ export interface PolishResult {
   notes?: string
 }
 
-const SYSTEM_PROMPT = `You are a world-class resume and cover-letter editor. A user will paste one small section (a summary line, a bullet, a paragraph, a short list of bullets) and ask you to polish it.
+const DEFAULT_SYSTEM_PROMPT = `You are a world-class resume and cover-letter editor. A user will paste one small section (a summary line, a bullet, a paragraph, a short list of bullets) and ask you to polish it.
 
-YOUR JOB
-Make the prose sharper, more professional, more persuasive for a hiring manager. Every rewrite must:
-1. **Preserve every fact.** Never invent companies, titles, dates, metrics, tools, skills, or achievements that aren't already present.
-2. **Lead with a strong action verb.** Cut "responsible for", "helped", "worked on", "assisted with".
-3. **Front-load impact.** Outcome → how. Not "I did X and it produced Y." Instead: "Drove Y by doing X."
-4. **Keep quantification.** If there's already a number or metric, keep it. If there's a measurable outcome the existing phrasing implies, tighten the phrasing so the number leads.
-5. **Match the section's shape.** A bullet stays a bullet (one line, no terminal period unless it runs long). A paragraph stays a paragraph.
-6. **Respect length.** The polished version should be within 80–120% of the original's character count. Never add a paragraph.
-7. **Keep the user's voice.** No "I am delighted to announce" corporate fluff. Confident, specific, human.
-8. **If a <job_description> is attached**, gently weight word choice toward keywords from it — but only if truthful. Don't insert skills the user didn't demonstrate.
+Preserve every fact (companies, titles, dates, metrics, tools, skills) verbatim. Lead with a strong action verb. Keep within 80–120% of the original length. Keep the user's voice. If <target_role> is present, favor verbs respected in that field. If a <job_description> is attached, gently weight word choice toward its keywords — but only if truthful.
 
-CONTEXT BLOCKS (optional, may appear at start of the conversation)
-- <palace_index>: counts only — ignore for content.
-- <user_facts>: canonical facts about the user (first_name, years_experience, target_role, skills, etc.). Use silently to color word choice — e.g. if first_name="Priya" don't change to "John", if years_experience="6" keep seniority consistent. Never name-drop or announce "I see your profile says...".
-- <reference_material>: past high-outcome polish or bullet examples from this user's own work. Treat as STYLE guidance — pacing, verb choice, level of detail — NEVER copy their phrasing word-for-word or pull facts from them into the current section.
-- Ignore any reference item whose topic is off from the current content. When in doubt, lean on <content> alone.
+Return ONLY the rewritten text. For multi-bullet sections, return a JSON array of strings with the same count as the input. No preamble, no commentary, no code fences.`
 
-HARD RULES
-- Return ONLY the rewritten text. No commentary. No preamble. No trailing notes. No markdown fences.
-- For multi-bullet sections, return a JSON array of strings, same count as input.
-- If the input is already excellent, still return a polished version — tighten a word, cut one filler word. Never return the original unchanged.
-- NEVER add em-dashes as filler. NEVER add generic phrases like "results-driven", "dynamic", "passionate", "world-class", "synergy", "orchestrated", "spearheaded" unless they were already in the source.
-- NEVER borrow facts (employers, metrics, project names) from <reference_material>. Those belong to past entries, not this one.
-
-SECTION HINTS
-- resume_summary: 2–3 sentences. Role + years + specialty + one concrete differentiator.
-- resume_experience_bullet: one line, action verb + what + measurable result. Never starts with "Responsible for".
-- resume_experience_bullets: JSON array of one-line bullets, same count as input. Keep the order.
-- resume_project_description: one short sentence explaining what the project is.
-- resume_project_bullets: JSON array of outcome-led bullets.
-- resume_education_description: single line (coursework, honors). Only polish if content warrants it.
-- cover_letter_opening: the hook. 2–4 sentences. State the role, reference something specific about the company (already in the content), foreshadow your one strongest claim.
-- cover_letter_body: 4–6 sentences telling ONE specific story with a quantified result, mapped to the role.
-- cover_letter_closing: 2–3 sentences. Brief, confident, invites a conversation. No "Thanks in advance" begging.
-
-When returning a JSON array for the *_bullets kinds, output pure JSON — no code fences.`
+registerPromptDefault('polish_section', DEFAULT_SYSTEM_PROMPT)
 
 export async function polishSection(input: PolishInput): Promise<PolishResult> {
+  const cfg = loadPrompt('polish_section')
+
   const parts: string[] = []
   parts.push(`<section_kind>${input.kind}</section_kind>`)
-  if (input.context?.targetRole) parts.push(`<target_role>${input.context.targetRole}</target_role>`)
-  if (input.context?.companyName) parts.push(`<company>${input.context.companyName}</company>`)
-  if (input.context?.jobDescription) {
-    parts.push(`<job_description>\n${input.context.jobDescription.slice(0, 3000)}\n</job_description>`)
+  if (input.context?.targetRole) {
+    parts.push(`<target_role>${safeUserContent(input.context.targetRole)}</target_role>`)
   }
-  parts.push(`<content>\n${input.content}\n</content>`)
+  if (input.context?.companyName) {
+    parts.push(`<company>${safeUserContent(input.context.companyName)}</company>`)
+  }
+  if (input.context?.jobDescription) {
+    parts.push(
+      `<job_description>\n${safeUserContent(input.context.jobDescription, 3000)}\n</job_description>`,
+    )
+  }
+  parts.push(`<content>\n${safeUserContent(input.content)}\n</content>`)
 
-  // Inject shared memory so the polish benefits from:
-  //   — <user_facts> (name, years of experience, target_role, etc.)
-  //   — <reference_material> (past high-outcome style items — "winning bullets"
-  //     from the style wing when they're semantically close to this content)
-  // Scoped TIGHT: only style + profile wings, k=2, high-similarity threshold,
-  // small char budget per item. The <reference_policy> block tells the model
-  // to treat them as style guidance only and never copy verbatim.
   const isCoverLetter = input.kind.startsWith('cover_letter_')
   const searchQuery = [
     input.content,
@@ -112,24 +84,39 @@ export async function polishSection(input: PolishInput): Promise<PolishResult> {
     includeWorkspaceSummary: false,
   }).catch(() => '')
 
-  const res = await completeWithContext(
-    'agent',
-    {
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: parts.join('\n\n') },
-      ],
-      temperature: 0.2,
-      maxTokens: 2000,
-      timeoutMs: 60_000,
-    },
-    memoryContext
-  )
+  const runOnce = async (extra?: string) =>
+    completeWithContext(
+      'agent',
+      {
+        messages: [
+          { role: 'system', content: cfg.system },
+          { role: 'user', content: parts.join('\n\n') },
+          ...(extra ? [{ role: 'user' as const, content: extra }] : []),
+        ],
+        temperature: cfg.model.temperature ?? 0.1,
+        maxTokens: cfg.model.maxTokens ?? 2000,
+        timeoutMs: 60_000,
+      },
+      memoryContext,
+    )
 
-  const text = res.text.trim()
+  let res = await runOnce()
+  let text = res.text.trim()
 
-  // Remember the polish quietly — gives the outcome loop something to promote
-  // if this polished version ends up in a resume that scores well.
+  // Length check for single-string kinds only. For *_bullets the ratio is
+  // sum-of-lengths, which we measure too.
+  const lenCheck = polishLengthOk(input.content, text)
+  if (!lenCheck.ok) {
+    const hint =
+      `Your draft changed the length too much (ratio ${lenCheck.ratio.toFixed(2)}). ` +
+      `Return a version whose character count is within 80–120% of the original. ` +
+      `Preserve every fact and metric. Return only the rewritten text.`
+    try {
+      res = await runOnce(hint)
+      text = res.text.trim()
+    } catch { /* keep first draft */ }
+  }
+
   addMemory({
     wing: isCoverLetter ? 'cover_letter' : 'resume',
     drawer: `polish/${input.kind}`,
@@ -138,6 +125,8 @@ export async function polishSection(input: PolishInput): Promise<PolishResult> {
       kind: input.kind,
       targetRole: input.context?.targetRole,
       companyName: input.context?.companyName,
+      length_ratio: lenCheck.ratio,
+      prompt_version: cfg.version,
     },
   }).catch(() => {})
 

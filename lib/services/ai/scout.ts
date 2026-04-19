@@ -3,8 +3,9 @@ import { buildAgentContext, wrapTask } from '@/lib/services/agent/context'
 import { addMemory, extractFactsFromMessage } from '@/lib/services/memory'
 import { runAgent } from '@/lib/services/agent/core'
 import { parseResumePdf } from '@/lib/services/ai/document-parser'
+import { loadPrompt, registerPromptDefault } from './prompt-loader'
 
-const SCOUT_SYSTEM_PROMPT = `You are **Scout**, the AI career assistant powering Headhunter. You are an expert career coach, resume strategist, and job search advisor with deep knowledge of modern hiring practices, applicant tracking systems (ATS), and professional communication.
+const SCOUT_CHAT_DEFAULT = `You are **Scout**, the AI career assistant powering Headhunter. You are an expert career coach, resume strategist, and job search advisor with deep knowledge of modern hiring practices, applicant tracking systems (ATS), and professional communication.
 
 ## PERSONALITY & VOICE
 **Tone:** Professional yet warm. You're a trusted mentor who genuinely wants users to succeed.
@@ -65,6 +66,8 @@ Markdown. Clear headers for multi-section responses. Bullet points only for list
 
 — Scout. Built to help you land the job.`
 
+registerPromptDefault('scout_chat', SCOUT_CHAT_DEFAULT)
+
 export interface ScoutInput {
   message: string
   sessionId?: string
@@ -76,6 +79,7 @@ export interface ScoutInput {
  * and streaming entry points so behavior stays identical.
  */
 async function buildScoutMessages(input: ScoutInput) {
+  const cfg = loadPrompt('scout_chat')
   const history: Message[] = (input.history || [])
     .slice(-10)
     .map(m => ({ role: m.role, content: m.content }))
@@ -87,26 +91,26 @@ async function buildScoutMessages(input: ScoutInput) {
   }).catch(() => '')
 
   const messages: Message[] = [
-    { role: 'system', content: SCOUT_SYSTEM_PROMPT },
+    { role: 'system', content: cfg.system },
     ...(context ? [{ role: 'system' as const, content: context }] : []),
     ...history,
     { role: 'user', content: wrapTask('chat_turn', input.message) },
   ]
-  return { messages }
+  return { messages, cfg }
 }
 
 export async function chatWithScout(input: ScoutInput): Promise<{ reply: string; reasoning?: string }> {
-  const { messages } = await buildScoutMessages(input)
+  const { messages, cfg } = await buildScoutMessages(input)
 
   const result = await completeWithContext(
     'scoutChat',
     {
       messages,
-      temperature: 0.5,
-      maxTokens: 2000,
+      temperature: cfg.model.temperature ?? 0.3,
+      maxTokens: cfg.model.maxTokens ?? 2000,
       timeoutMs: 90_000,
     },
-    null
+    null,
   )
 
   // Background persistence — fire and forget. NEVER awaited.
@@ -129,14 +133,14 @@ export async function chatWithScout(input: ScoutInput): Promise<{ reply: string;
  * memory + extracts facts after the stream completes.
  */
 export async function* chatWithScoutStream(input: ScoutInput): AsyncIterable<StreamChunk> {
-  const { messages } = await buildScoutMessages(input)
+  const { messages, cfg } = await buildScoutMessages(input)
 
   let aggregated = ''
   try {
     for await (const chunk of completeStream('scoutChat', {
       messages,
-      temperature: 0.5,
-      maxTokens: 2000,
+      temperature: cfg.model.temperature ?? 0.3,
+      maxTokens: cfg.model.maxTokens ?? 2000,
       timeoutMs: 90_000,
     })) {
       if (chunk.text) aggregated += chunk.text
@@ -161,7 +165,7 @@ export type { StreamChunk } from '@/lib/llm'
 // Scout-as-Agent: tool-capable, document-aware chat. Used by POST /api/chat.
 // ─────────────────────────────────────────────────────────────────────────
 
-const SCOUT_AGENT_SYSTEM_PROMPT = `You are **Scout**, Headhunter's AI career assistant. Warm, direct, specific.
+const SCOUT_AGENT_DEFAULT = `You are **Scout**, Headhunter's AI career assistant. Warm, direct, specific.
 
 ## PERSONALIZATION
 If <user_facts> contains first_name, address the user by it naturally. Use known role/experience/location/industry to skip preamble. Never ask for facts that are already known.
@@ -207,6 +211,8 @@ Never mention "memory", "saved", "I'll remember", "based on your context/history
 
 ## OUTPUT
 Markdown. Terse. Specific. No filler. Match length to the question.`
+
+registerPromptDefault('scout_agent', SCOUT_AGENT_DEFAULT)
 
 const SCOUT_TOOLS = [
   'web_search',
@@ -267,6 +273,7 @@ async function extractAttachmentText(a: ScoutAttachment): Promise<string | null>
 }
 
 export async function runScoutAgent(input: ScoutAgentInput): Promise<ScoutAgentResult> {
+  const cfg = loadPrompt('scout_agent')
   const attachedDocs: Array<{ name: string; chars: number }> = []
   const docBlocks: string[] = []
 
@@ -275,7 +282,7 @@ export async function runScoutAgent(input: ScoutAgentInput): Promise<ScoutAgentR
     if (!text) continue
     const clipped = text.length > 20_000 ? text.slice(0, 20_000) + '…[truncated]' : text
     docBlocks.push(
-      `<attached_document name="${escapeAttr(a.name)}">\n${clipped}\n</attached_document>`
+      `<attached_document name="${escapeAttr(a.name)}">\n${clipped}\n</attached_document>`,
     )
     attachedDocs.push({ name: a.name, chars: text.length })
   }
@@ -289,7 +296,7 @@ export async function runScoutAgent(input: ScoutAgentInput): Promise<ScoutAgentR
     history: input.history,
     sessionId: input.sessionId,
     toolNames: [...SCOUT_TOOLS],
-    systemPrompt: SCOUT_AGENT_SYSTEM_PROMPT,
+    systemPrompt: cfg.system,
     extraSystem,
     taskType: 'chat_turn',
     maxIterations: 6,
