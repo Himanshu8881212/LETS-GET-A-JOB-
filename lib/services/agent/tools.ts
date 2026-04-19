@@ -145,9 +145,10 @@ export const TOOL_REGISTRY: Record<string, RegisteredTool> = {
         version_name: versionName,
         sources_used: profile.sources,
         validation_warnings: validationWarnings,
-        open_url: savedId ? `/resumes/${savedId}` : '/',
+        where_to_find:
+          'Dashboard → Recent Documents (top of the list), or open the Resume Studio from the sidebar to edit.',
         user_message_hint:
-          `I've drafted a resume from what I know about you and saved it as "${versionName}" in your Resumes library. Tell the user they can open it to review and edit.`,
+          `Drafted and saved as "${versionName}". Tell the user it's at the top of Recent Documents on the Dashboard, and they can preview/download from there or open the Resume Studio to edit.`,
       }
     },
   },
@@ -237,9 +238,10 @@ export const TOOL_REGISTRY: Record<string, RegisteredTool> = {
         word_count: generated?._metadata?.word_count ?? generated?._metadata?.validation?.word_count,
         sources_used: profile.sources,
         validation_warnings: validationWarnings,
-        open_url: savedId ? `/cover-letters/${savedId}` : '/',
+        where_to_find:
+          'Dashboard → Recent Documents (top of the list), or open the Cover Letter Studio from the sidebar to edit.',
         user_message_hint:
-          `I've drafted a cover letter from what I know about you and saved it as "${versionName}" in your Cover Letters library. Tell the user they can open it to review.`,
+          `Drafted and saved as "${versionName}". Tell the user it's at the top of Recent Documents on the Dashboard, and they can preview/download from there or open the Cover Letter Studio to edit.`,
       }
     },
   },
